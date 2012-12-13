@@ -1,4 +1,8 @@
 # Django settings for kontrolvm project.
+try:
+    from local_settings import *
+except:
+    pass
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -98,10 +102,6 @@ ROOT_URLCONF = "kontrolvm.urls"
 
 # Python dotted path to the WSGI application used by Django"s runserver.
 WSGI_APPLICATION = "kontrolvm.wsgi.application"
-
-TEMPLATE_DIRS = (
-  "/Users/jesslawrence/Uni/kontrolvm/kontrolvm/templates",
-)
 
 INSTALLED_APPS = (
   "django.contrib.auth",
