@@ -12,34 +12,17 @@
 
     if (options.type) {
         // parse enum
-        if (options.type == '125') {
+        if (options.type == '125' || options.type == '25') {
           options.type = 'success';
         }
-        else if (options.type == '120') {
+        else if (options.type == '120' || options.type == '20') {
           options.type = 'info';
         }
-        else if (options.type == '130') {
+        else if (options.type == '130' || options.type == '30') {
           options.type = 'warning';
         }
-        else if (options.type == '140') {
+        else if (options.type == '140' || options.type == '40') {
           options.type = 'error';
-        }
-        // check if it isn't persisntent (remove read url)
-        if (options.type == '25') {
-          options.type = 'success';
-          options.read_url = '#';
-        }
-        else if (options.type == '20') {
-          options.type = 'info';
-          options.read_url = '#';
-        }
-        else if (options.type == '30') {
-          options.type = 'warning';
-          options.read_url = '#';
-        }
-        else if (options.type == '40') {
-          options.type = 'error';
-          options.read_url = '#';
         }
         $alert.addClass('alert-' + options.type);
     }
@@ -110,7 +93,8 @@
     width: 250,
     delay: 7000,
     allow_dismiss: true,
-    stackup_spacing: 10
+    stackup_spacing: 10,
+    read_url: '#'
   };
 
 })(jQuery);

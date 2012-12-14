@@ -19,7 +19,9 @@
           {% for message in messages %}
             $.bootstrapGrowl('{{ message }}', {
               'type': '{{ message.level }}',
-              'read_url': '{% url message_mark_read message.pk %}',
+              {% if message.is_persistent %}
+                'read_url': '{% url message_mark_read message.pk %}',
+              {% endif %}
             });
           {% endfor %}
           });
