@@ -11,19 +11,6 @@
     $alert.attr('class', 'bootstrap-growl alert');
 
     if (options.type) {
-        // parse enum
-        if (options.type == '125' || options.type == '25') {
-          options.type = 'success';
-        }
-        else if (options.type == '120' || options.type == '20') {
-          options.type = 'info';
-        }
-        else if (options.type == '130' || options.type == '30') {
-          options.type = 'warning';
-        }
-        else if (options.type == '140' || options.type == '40') {
-          options.type = 'error';
-        }
         $alert.addClass('alert-' + options.type);
     }
 
