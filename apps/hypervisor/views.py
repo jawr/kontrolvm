@@ -63,4 +63,12 @@ def edit(request):
 
 @staff_member_required
 def delete(request, pk):
-  pass 
+  hypervisor = get_object_or_404(Hypervisor, pk=pk)
+  hypervisor.delete()
+  return redirect('/hypervisor/')
+
+@staff_member_required
+def update(request, pk):
+  hypervisor = get_object_or_404(Hypervisor, pk=pk)
+  conn = hypervisor.get_connection(True)
+  return redirect('/hypervisor/')

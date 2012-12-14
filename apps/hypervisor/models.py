@@ -32,8 +32,13 @@ class Hypervisor(models.Model):
   def get_connection(self, update=False):
     conn = None
     if self.status != 'UP' and update or self.status == 'UP':
-      conn = libvirt.open(self.address)
-      if not conn:
-        if self.status == 'UP':
-          self.status = 'TO'
+      try:
+        conn = libvirt.open(self.address)
+        if not conn:
+          if self.status == 'UP': self.status = 'TO'
+        else: self.status = 'UP'
+        self.save()
+      except libvirt.libvirtError as e:
+        self.status = 'DN'
+        self.save()
     return conn 
