@@ -89,6 +89,7 @@ MIDDLEWARE_CLASSES = (
   'django.contrib.auth.middleware.AuthenticationMiddleware',
   'django.contrib.messages.middleware.MessageMiddleware',
   'django.middleware.clickjacking.XFrameOptionsMiddleware',
+  'apps.account.middleware.AjaxMessaging',
 )
 
 ROOT_URLCONF = 'kontrolvm.urls'
