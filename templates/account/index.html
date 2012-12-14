@@ -2,4 +2,35 @@
 {% block title %}{{ user }}{% endblock %}
 {% block content %}
   <h1>Hello {{ user }}</h1>
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#overview" data-toggle="tab">Overview</a></li>
+    <li><a href="#messages" data-toggle="tab">Messages</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="overview"> 
+      <h2>Overview</h2>
+    </div>
+    <div class="tab-pane fade" id="messages">
+      <h2>Messages</h2>
+      {% load message_utils %}
+      {% if unread_messages %}
+        <h3>Unread messages</h3>
+        {% for message in unread_messages %}
+          <blockquote>
+            <p class="text-{{ message.level|message_level_as_text }}">{{ message }}</p>
+            <small><a class="muted" href="{% url message_mark_read message.pk %}">mark as read</a> - {{ message.created }}</small>
+          </blockquote>
+        {% endfor %}
+      {% endif %}
+      {% if read_messages %}
+        <h3>Read messages</h3>
+        {% for message in read_messages %}
+          <blockquote>
+            <p class="text-{{ message.level|message_level_as_text }}">{{ message }}</p>
+            <small>{{ message.created }}</small>
+          </blockquote>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
 {% endblock %}

@@ -19,7 +19,14 @@ def get_client_ip (request):
 
 @login_required
 def account(request):
-  return render_to_response('account/index.html', {},
+  unread_messages = persistent_messages.models.Message.objects.filter(user=request.user,
+    read=False)
+  read_messages = persistent_messages.models.Message.objects.filter(user=request.user,
+    read=True)
+  return render_to_response('account/index.html', {
+      'unread_messages': unread_messages,
+      'read_messages': read_messages,
+    },
     context_instance=RequestContext(request))
     
 
