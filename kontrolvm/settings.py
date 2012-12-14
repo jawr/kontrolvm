@@ -107,6 +107,7 @@ INSTALLED_APPS = (
   # libs
   'emailusernames',
   'bootstrapform',
+  'persistent_messages',
   # apps
   'apps.account',
 )
@@ -160,3 +161,5 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 LOGIN_REDIRECT_URL = '/account/login/'
 LOGIN_URL = '/account/login/'
 LOGOUT_URL = '/account/logout'
+
+MESSAGE_STORAGE = 'persistent_messages.storage.PersistentMessageStorage'

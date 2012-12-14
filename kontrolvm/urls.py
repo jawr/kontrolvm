@@ -4,8 +4,9 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^account/', include('apps.account.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+  url(r'^account/', include('apps.account.urls')),
+  url(r'^admin/', include(admin.site.urls)),
+  url(r'^messages/', include('persistent_messages.urls')),
 )
 
 urlpatterns += staticfiles_urlpatterns()

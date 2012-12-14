@@ -2,6 +2,8 @@ from django.template import RequestContext, loader
 from django.shortcuts import redirect, render_to_response
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+import persistent_messages
 from emailusernames.utils import get_user
 from apps.account.forms import LoginForm
 from apps.account.models import UserLogin, InvalidLogin, UserBrowser
@@ -50,6 +52,8 @@ def account_login(request):
         )
         userLogin.save()
         login(request, user)
+        # send message
+        messages.add_message(request, messages.SUCCESS, 'Logged in')
         return redirect('/account/')
 
       else:
