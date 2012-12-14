@@ -1,0 +1,72 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Hypervisors{% endblock %}
+{% block content %}
+  <h1>Hypervisors</h1>
+  <p>Overview of linked hypervisors. <a href="/hypervisor/add/">Add another</a>.</p>
+  {% if hypervisors %}
+    <table class="table table-condensed table-striped table-bordered">
+      <thead>
+        <th>Name</th>
+        <th style="width: 20px;">Status</th>
+        <th>Location</th>
+        <th>Address</th>
+      </thead>
+
+      <tbody>
+        {% for hypervisor in hypervisors %}
+          <tr>
+            <td><a href="#" id="name" data-pk="{{ hypervisor.id }}">{{ hypervisor.name }}</a></td>
+            <td><a href="#" id="status" data-pk="{{ hypervisor.id }}">{{ hypervisor.get_status_display }}</a></td>
+            <td><a href="#" id="location" data-pk="{{ hypervisor.id }}">{{ hypervisor.location }}</a></td>
+            <td><a href="#" id="address" data-pk="{{ hypervisor.id }}">{{ hypervisor.address }}</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <script>
+      $(function() {
+        var csrftoken = $.cookie('csrftoken');
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            crossDomain: false, // obviates need for sameOrigin test
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+
+        $('#name').editable({
+          type: 'text',
+          url: '/hypervisor/edit/',
+          title: 'Edit Name',
+        });
+        $('#status').editable({
+          type: 'select',
+          url: '/hypervisor/edit/',
+          title: 'Edit Status',
+          source: [
+            {value: 'UP', text: 'Online'},
+            {value: 'DN', text: 'Offline'}
+          ]
+        });
+        $('#location').editable({
+          type: 'text',
+          url: '/hypervisor/edit/',
+          title: 'Edit Location',
+        });
+        $('#address').editable({
+          type: 'text',
+          url: '/hypervisor/edit/',
+          title: 'Edit Address',
+        });
+      });
+    </script>
+  {% else %}
+    <p>Oops. No Hypervisors added.</p>
+  {% endif %}
+{% endblock %}
