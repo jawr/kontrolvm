@@ -111,6 +111,7 @@ INSTALLED_APPS = (
   'persistent_messages',
   # apps
   'apps.account',
+  'apps.hypervisor',
 )
 
 AUTHENTICATION_BACKENDS = (

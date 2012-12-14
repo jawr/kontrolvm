@@ -18,7 +18,7 @@ def get_client_ip (request):
 
 
 @login_required
-def account(request):
+def index(request):
   unread_messages = persistent_messages.models.Message.objects.filter(user=request.user,
     read=False)
   read_messages = persistent_messages.models.Message.objects.filter(user=request.user,

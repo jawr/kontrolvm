@@ -36,7 +36,7 @@
   </style>
 
   <form class="form-signin" action="{{ request.get_full_path }}" method="post">
-    {% csrf_token%}
+    {% csrf_token %}
     {% load bootstrap %}
     <h2 class="form-signin-heading">Please Login</h2>
     {% if error %}

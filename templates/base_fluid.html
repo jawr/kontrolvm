@@ -7,8 +7,13 @@
         <div class="well sidebar-nav">
           <ul class="nav nav-list">
             <li class="nav-header">Account</li>
-            <li class="active"><a href="/account/">Dashboard</a></li>
+            <li {% if request.get_full_path == "/account/" %}class="active"{% endif %}><a href="/account/">Dashboard</a></li>
             <li><a href="/account/logout/">Logout</a></li>
+            {% if user.is_staff %}
+              <li class="divider"></li>
+              <li class="nav-header">Admin</li>
+              <li {% if request.get_full_path == "/hypervisor/" %}class="active"{% endif %}><a href="/hypervisor/">Hypervisors</a></li>
+            {% endif %}
           </ul>
         </div>
       </div>
