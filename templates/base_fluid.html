@@ -1,0 +1,21 @@
+{% extends 'base.html'%}
+{% block container %}
+  <br>
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span3">
+        <div class="well sidebar-nav">
+          <ul class="nav nav-list">
+            <li class="nav-header">Account</li>
+            <li class="active"><a href="/account/">Dashboard</a></li>
+            <li><a href="/account/logout/">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="span9">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

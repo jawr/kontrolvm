@@ -1,8 +1,10 @@
 from django.template import RequestContext, loader
 from django.shortcuts import redirect, render_to_response
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from emailusernames.utils import get_user
 from apps.account.forms import LoginForm
-from apps.account.models import UserLogin, InvalidLogin
+from apps.account.models import UserLogin, InvalidLogin, UserBrowser
 
 def get_client_ip (request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -12,28 +14,35 @@ def get_client_ip (request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-def auth_login(request):
+
+@login_required
+def account(request):
+  return render_to_response('account/index.html', {},
+    context_instance=RequestContext(request))
+    
+
+def account_login(request):
   if request.user.is_authenticated():
-    return redirect("/account/")
+    return redirect('/account/')
 
   form  = LoginForm()
   error = None
 
-  if request.method == "POST":
+  if request.method == 'POST':
     form = LoginForm(request.POST)
     if form.is_valid():
-      username = request.POST["username"]
-      password = request.POST["password"]
-      user = authenticate(username=username, password=password)
+      username = request.POST['username']
+      password = request.POST['password']
+      user = authenticate(email=username, password=password)
 
       (browser, created) = UserBrowser.objects.get_or_create(
-        name=request.META["HTTP_USER_AGENT"])
+        name=request.META['HTTP_USER_AGENT'])
       if created: browser.save()
 
       if user and user.is_active:
-        """
+        '''
           Handle Successful login
-        """
+        '''
         userLogin = UserLogin.objects.create(
           user=user,
           browser=browser,
@@ -41,7 +50,7 @@ def auth_login(request):
         )
         userLogin.save()
         login(request, user)
-        return redirect("/account/")
+        return redirect('/account/')
 
       else:
         userLogin = InvalidLogin.objects.create(
@@ -50,11 +59,15 @@ def auth_login(request):
           address=get_client_ip(request)
         )
         userLogin.save()
-        error = "Invalid username or password." 
+        error = 'Invalid username or password.' 
         
-  return render_to_response("account/login.html", {
-    "form": form,
-    "error": error
+  return render_to_response('account/login.html', {
+    'form': form,
+    'error': error
   },
   context_instance=RequestContext(request))
 
+@login_required
+def account_logout(request):
+  logout(request)
+  return redirect('/account/') 
