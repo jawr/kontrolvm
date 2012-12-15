@@ -4,6 +4,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, Http404
 from apps.hypervisor.models import Hypervisor
 from apps.hypervisor.forms import HypervisorForm
+from django.contrib import messages
+import persistent_messages
 import simplejson
 
 @staff_member_required
@@ -55,9 +57,11 @@ def edit(request):
       else:
         raise Http404
       hypervisor.save()
+      messages.add_message(request, persistent_messages.SUCCESS, 
+        'Changed %s to %s' % (json['name'], json['value']))
     except Hypervisor.DoesNotExist:
       raise Http404
-    return HttpResponse("1")
+    return HttpResponse('{}', mimetype="application/json")
   raise Http404
   
 

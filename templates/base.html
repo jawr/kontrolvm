@@ -14,21 +14,33 @@
         <![endif]-->
     </head>
     <body>
-      {% if messages %}
-        {% load message_utils %}
-        <script>
-          $(function() {
-          {% for message in messages %}
-            $.bootstrapGrowl('{{ message }}', {
-              'type': '{{ message.level|message_level_as_text }}',
-              {% if message.is_persistent %}
-                'read_url': '{% url message_mark_read message.pk %}',
-              {% endif %}
-            });
-          {% endfor %}
+      {% load message_utils %}
+      <script>
+        $(function() {
+        {% for message in messages %}
+          $.bootstrapGrowl('{{ message }}', {
+            type: '{{ message.level|message_level_as_text }}',
+            {% if message.is_persistent %}
+              read_url: '{% url message_mark_read message.pk %}',
+            {% endif %}
           });
-        </script>
-      {% endif %}
+        {% endfor %}
+          $('body').ajaxComplete(function(e, xhr, settings) {
+            var contentType = xhr.getResponseHeader("Content-Type");
+            if (contentType == "application/javascript" || 
+              contentType == "application/json") {
+              var json = $.parseJSON(xhr.responseText);
+              $.each(json.messages, function (i, item) {
+                $.bootstrapGrowl(item.message, {
+                  type: item.level,
+                  read_url: item.read_url,
+                  level: item.level,
+                });
+              });
+            }
+          });
+        });
+      </script>
       {% block container %}{% endblock %}
     </body>
     <script src="{{ STATIC_URL }}js/bootstrap.js"></script>
