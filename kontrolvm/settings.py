@@ -4,6 +4,10 @@ try:
 except:
     pass
 
+import djcelery
+djcelery.setup_loader()
+
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -106,6 +110,7 @@ INSTALLED_APPS = (
   'django.contrib.staticfiles',
   'django.contrib.admin',
   # libs
+  'djcelery',
   'emailusernames',
   'bootstrapform',
   'persistent_messages',

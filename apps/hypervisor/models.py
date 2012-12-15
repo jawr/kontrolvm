@@ -1,5 +1,4 @@
 from django.db import models
-import signal
 import libvirt
 
 """
@@ -15,13 +14,17 @@ class Hypervisor(models.Model):
   ONLINE = 'UP'
   TIMEOUT = 'TO'
   OFFLINE = 'DN'
+  INIT = 'IN'
   STATUS_CHOICES = (
     (ONLINE, 'Online'),
     (TIMEOUT, 'Timeout'),
     (OFFLINE, 'Offline'),
+    (INIT, 'Initalize'),
   )
   status = models.CharField(max_length=2, choices=STATUS_CHOICES, 
-    default=ONLINE)
+    default=INIT)
+  # install medium path
+  install_medium_path = models.CharField(max_length=255)
 
   def __str__(self):
     return unicode(self).encode('utf-8')
