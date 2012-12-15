@@ -50,7 +50,7 @@ def add(request):
       conn = hypervisor.get_connection()
       if not conn:
         messages.add_message(request, persistent_messages.ERROR, 
-          'Unable to connect to Hypervisor. Halting.')
+          'Unable to connect to %s Hypervisor. Halting.' % (hypervisor))
       else:
         xml = """
           <pool type="dir">
@@ -70,12 +70,15 @@ def add(request):
             path=form.cleaned_data['path'],
           )
           if created: storagepool.save()
+
+          messages.add_message(request, persistent_messages.SUCCESS,
+            'Created Storage Pool: %s' % (storagepool))
         
           # return to index
           return redirect('/storagepool/')
         except libvirt.libvirtError as e:
           messages.add_message(request, persistent_messages.ERROR,
-            'Unable to create Storage Pool: %s' % (e))
+            'Unable to create Storage Pool (Check permissions): %s' % (e))
 
   return render_to_response('storagepool/add.html', {
       'form': form,
