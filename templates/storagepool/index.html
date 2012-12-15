@@ -10,17 +10,32 @@
         <th>Hypervisor</th>
         <th style="width: 20px;">Status</th>
         <th>Path</th>
+        <th>Capacity</th>
+        <th>Alloc</th>
+        <th>Avail</th>
         <th style="width: 15px;">Options</th>
       </thead>
       
       <tbody>
         {% for storagepool in storagepools %}
           <tr>
-            <td><a href="#" id="name" data-pk="{{ storagepool.id }}">{{ storagepool.name }}</a></td>
+            <td>{{ storagepool.name }}</td>
             <td>{{ storagepool.hypervisor }}</td>
             <td>{{ storagepool.get_status_display }}</td>
-            <td><a href="#" id="path" data-pk="{{ storagepool.id }}">{{ storagepool.path }}</a></td>
+            <td>{{ storagepool.path }}</td>
+            <td>{{ storagepool.capacity }}</td>
+            <td>{{ storagepool.alloc }}</td>
+            <td>{{ storagepool.avail }}</td>
             <td>
+              {% if storagepool.status != 0 %}
+                <a href="/storagepool/stop/{{ storagepool.id }}/">
+                  <i class="icon-stop"></i>
+                </a>
+              {% else %}
+                <a href="/storagepool/start/{{ storagepool.id }}/">
+                  <i class="icon-play"></i>
+                </a>
+              {% endif %}
               <a href="#" id="delete"><i id="{{ storagepool.id }}" class="icon-trash"></i></a>
             </td>
           </tr>
@@ -38,16 +53,6 @@
               window.location = '/storagepool/delete/' + e.srcElement.id + '/';
             }
           });
-        });
-        $('#name').editable({
-          type: 'text',
-          url: '/storagepool/edit/',
-          title: 'Edit Name',
-        });
-        $('#path').editable({
-          type: 'text',
-          url: '/storagepool/edit/',
-          titile: 'Edit Path',
         });
       });
     </script>

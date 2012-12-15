@@ -4,22 +4,35 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, Http404
 from apps.storagepool.models import StoragePool
 from apps.storagepool.forms import StoragePoolForm
+from apps.hypervisor.models import Hypervisor
 from django.contrib import messages
 import persistent_messages
 import simplejson
+import libvirt
 
 @staff_member_required
 def index(request):
   storagepools = StoragePool.objects.all()
+
   for pool in storagepools:
     storagepool = pool.get_storagepool()
     if storagepool:
-      (pool.state, capacity, alloc, avail) = storagepool.info()
+      (status, capacity, alloc, avail) = storagepool.info()
+      pool.status = status
       pool.save()
-      pool.capacity = '%.2f GB' % (capacity/1024/1024/1024.0)
-      pool.alloc = '%.2f GB' % (alloc/1024/1024/1024.0)
-      pool.avail = '%.2f GB' % (avail/1024/1024/1024.0)
-      pool.perc = ((float(alloc)/float(capacity))*100)
+      try:
+        pool.capacity = '%.2f GB' % (capacity/1024/1024/1024.0)
+        pool.alloc = '%.2f GB' % (alloc/1024/1024/1024.0)
+        pool.avail = '%.2f GB' % (avail/1024/1024/1024.0)
+        pool.perc = ((float(alloc)/float(capacity))*100)
+        continue
+      except ZeroDivisionError:
+        pass
+    pool.capacity = 'N/A'
+    pool.alloc = 'N/A'
+    pool.avail = 'N/A'
+    pool.perc = 0
+
   return render_to_response('storagepool/index.html', {
       'storagepools': storagepools,
     },
@@ -32,13 +45,37 @@ def add(request):
   if request.method == "POST":
     conn = form = StoragePoolForm(request.POST)
     if form.is_valid():
-      (storagepool, created) = StoragePool.objects.get_or_create(
-        name=form.cleaned_data['name'],
-        hypervisor=form.cleaned_data['hypervisor'],
-        path=form.cleaned_data['path'],
-      )
-      if created: storagepool.save()
-      return redirect('/storagepool/')
+      # first we need to create the pool on the hypervisor
+      hypervisor = form.cleaned_data['hypervisor']
+      conn = hypervisor.get_connection()
+      if not conn:
+        messages.add_message(request, persistent_messages.ERROR, 
+          'Unable to connect to Hypervisor. Halting.')
+      else:
+        xml = """
+          <pool type="dir">
+            <name>%s</name>
+            <target><path>%s</path></target>
+          </pool>
+          """ % (form.cleaned_data['name'], form.cleaned_data['path'])
+        try:
+          pool = conn.storagePoolDefineXML(xml, 0)
+          pool.create(0)
+          pool.setAutostart(1)
+          
+          # create database instance
+          (storagepool, created) = StoragePool.objects.get_or_create(
+            name=form.cleaned_data['name'],
+            hypervisor=form.cleaned_data['hypervisor'],
+            path=form.cleaned_data['path'],
+          )
+          if created: storagepool.save()
+        
+          # return to index
+          return redirect('/storagepool/')
+        except libvirt.libvirtError as e:
+          messages.add_message(request, persistent_messages.ERROR,
+            'Unable to create Storage Pool: %s' % (e))
 
   return render_to_response('storagepool/add.html', {
       'form': form,
@@ -71,10 +108,44 @@ def edit(request):
 
 @staff_member_required
 def delete(request, pk):
-  storagepool = get_object_or_404(StoragePool, pk=pk)
-  storagepool.delete()
+  pool = get_object_or_404(StoragePool, pk=pk)
+  pool.delete(request)
   return redirect('/storagepool/')
 
 @staff_member_required
 def update(request, pk):
+  return redirect('/storagepool/')
+
+@staff_member_required
+def start(request, pk):
+  pool = get_object_or_404(StoragePool, pk=pk)
+  storagepool = pool.get_storagepool()
+  if not storagepool:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to get %s Storage Pool' % (pool.name))
+  else:
+    try:
+      storagepool.create(0)
+      messages.add_message(request, persistent_messages.SUCCESS, 
+        'Started %s Storage Pool' % (pool.name))
+    except libvirt.libvirtError as e:
+      messages.add_message(request, persistent_messages.ERROR,
+        'Unable to start % Storage Pool: %s' % (pool.name, e))
+  return redirect('/storagepool/')
+
+@staff_member_required
+def stop(request, pk):
+  pool = get_object_or_404(StoragePool, pk=pk)
+  storagepool = pool.get_storagepool()
+  if not storagepool:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to get %s Storage Pool' % (pool.name))
+  else:
+    try:
+      storagepool.destroy()
+      messages.add_message(request, persistent_messages.SUCCESS, 
+        'Shutdown %s Storage Pool' % (pool.name))
+    except libvirt.libvirtError as e:
+      messages.add_message(request, persistent_messages.ERROR,
+        'Unable to shutdown % Storage Pool: %s' % (pool.name, e))
   return redirect('/storagepool/')
