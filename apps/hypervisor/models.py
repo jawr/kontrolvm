@@ -27,7 +27,7 @@ class Hypervisor(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "%s (%s)" % (self.name, self.location)
+    return "%s [%s][%s]" % (self.name, self.location, self.get_status_display())
 
   def get_connection(self, update=False):
     conn = None

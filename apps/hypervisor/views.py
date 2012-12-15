@@ -11,9 +11,6 @@ import simplejson
 @staff_member_required
 def index(request):
   hypervisors = Hypervisor.objects.all()
-  # iterate over and check status
-  #for hypervisor in hypervisors:
-  # hypervisor.get_connection()
   return render_to_response('hypervisor/index.html', {
       'hypervisors': hypervisors,
     },
@@ -46,19 +43,25 @@ def edit(request):
     json = request.POST
     try:
       hypervisor = Hypervisor.objects.get(pk=json['pk'])
+      orig_name = hypervisor.name
+      orig_value = None
       if json['name'] == 'name':
+        orig_value = hypervisor.name
         hypervisor.name = json['value']
       elif json['name'] == 'status':
+        orig_value = hypervisor.status
         hypervisor.status = json['value']
       elif json['name'] == 'location':
+        orig_value = hypervisor.location
         hypervisor.location = json['value']
       elif json['name'] == 'address':
+        orig_value = hypervisor.address
         hypervisor.address = json['value']
       else:
         raise Http404
       hypervisor.save()
       messages.add_message(request, persistent_messages.SUCCESS, 
-        'Changed %s to %s' % (json['name'], json['value']))
+        'Changed Hypervisor %s %s from %s to %s' % (orig_name, json['name'], orig_value, json['value']))
     except Hypervisor.DoesNotExist:
       raise Http404
     return HttpResponse('{}', mimetype="application/json")

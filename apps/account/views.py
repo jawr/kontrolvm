@@ -20,9 +20,9 @@ def get_client_ip (request):
 @login_required
 def index(request):
   unread_messages = persistent_messages.models.Message.objects.filter(user=request.user,
-    read=False)
+    read=False).order_by('-pk')
   read_messages = persistent_messages.models.Message.objects.filter(user=request.user,
-    read=True)
+    read=True).order_by('-pk')
   return render_to_response('account/index.html', {
       'unread_messages': unread_messages,
       'read_messages': read_messages,

@@ -5,6 +5,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
   url(r'^account/', include('apps.account.urls')),
+  url(r'^storagepool/', include('apps.storagepool.urls')),
   url(r'^hypervisor/', include('apps.hypervisor.urls')),
   url(r'^admin/', include(admin.site.urls)),
   url(r'^messages/', include('persistent_messages.urls')),

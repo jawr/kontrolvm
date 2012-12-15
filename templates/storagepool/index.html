@@ -1,0 +1,57 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Storage Pools{% endblock %}
+{% block content %}
+  <h1>Storage Pools</h1>
+  <p>Overview of linked storage pools. <a href="/storagepool/add/">Add another</a>.</p>
+  {% if storagepools %}
+    <table class="table table-condensed table-striped table-bordered">
+      <thead>
+        <th>Name</th>
+        <th>Hypervisor</th>
+        <th style="width: 20px;">Status</th>
+        <th>Path</th>
+        <th style="width: 15px;">Options</th>
+      </thead>
+      
+      <tbody>
+        {% for storagepool in storagepools %}
+          <tr>
+            <td><a href="#" id="name" data-pk="{{ storagepool.id }}">{{ storagepool.name }}</a></td>
+            <td>{{ storagepool.hypervisor }}</td>
+            <td>{{ storagepool.get_status_display }}</td>
+            <td><a href="#" id="path" data-pk="{{ storagepool.id }}">{{ storagepool.path }}</a></td>
+            <td>
+              <a href="#" id="delete"><i id="{{ storagepool.id }}" class="icon-trash"></i></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    <script>
+      $(function() {
+        // handle confirmation modal
+        $('a#delete').click(function(e) {
+          e.preventDefault();
+          bootbox.confirm("Are you sure you want to delete this Storage Pool?", function(confirmed) {
+            if (confirmed) {
+              window.location = '/storagepool/delete/' + e.srcElement.id + '/';
+            }
+          });
+        });
+        $('#name').editable({
+          type: 'text',
+          url: '/storagepool/edit/',
+          title: 'Edit Name',
+        });
+        $('#path').editable({
+          type: 'text',
+          url: '/storagepool/edit/',
+          titile: 'Edit Path',
+        });
+      });
+    </script>
+  {% else %}
+    <p>Oops. No storage pools added.</p>
+  {% endif %}
+{% endblock %}
