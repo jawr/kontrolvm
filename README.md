@@ -7,6 +7,7 @@ Requirements
 ============
 
 * RabbitMQ - http://www.rabbitmq.com/
+* Celery (3.0+) - http://www.celeryproject.org
 * Bootstrap (2.2.2) - http://twitter.github.com/bootstrap/
 * bootbox.js (2.4.2) - http://github.com/makeusabrew/bootbox/
 * X-editable () - http://vitalets.github.com/x-editable/
