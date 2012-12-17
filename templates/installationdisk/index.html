@@ -1,0 +1,73 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Installation Disks{% endblock %}
+{% block content %}
+  <h1>Hypervisors</h1>
+  <p>Overview of Hypervisor's Installation Disks. <a href="/installationdisk/add/">Add another</a>.</p>
+  {% if disks %}
+    <h2>Disks</h2>
+    <table class="table table-condensed table-striped table-bordered">
+      <thead>
+        <th>Name</th>
+        <th>Hypervisor</th>
+        <th>Filename</th>
+        <th style="width: 15px;">Options</th>
+      </thead>
+
+      <tbody>
+        {% for disk in disks %}
+          <tr>
+            <td><a href="#" id="name" data-pk="{{ disk.id }}">{{ disk.name }}</a></td>
+            <td>{{ disk.hypervsior }}</td>
+            <td>{{ disk.filename }}</td>
+            <td>
+              <a href="#" id="delete"><i id="{{ disk.id }}" class="icon-trash"></i></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <script>
+      $(function() {
+        // handle confirmation modal
+        $('a#delete').click(function(e) {
+          e.preventDefault();
+          bootbox.confirm("Are you sure you want to delete this Installation Disk?", function(confirmed) {
+            if (confirmed) {
+              window.location = '/installationdisk/delete/' + e.srcElement.id + '/';
+            }
+          });
+        });
+
+        $('#name').editable({
+          type: 'text',
+          url: '/installationdisk/edit/',
+          title: 'Edit Name',
+        });
+      });
+    </script>
+  {% else %}
+    <p>Oops. No Installation Disk's added.</p>
+  {% endif %}
+  {% if tasks %}
+    <h2>Downloads</h2>
+    <table class="table table-condensed table-striped table-bordered">
+      <thead>
+        <th>Name</th>
+        <th>Hypervisor</th>
+        <th>Filename</th>
+        <th>Status</th>
+      </thead>
+
+      <tbody>
+        {% for task in tasks %}
+          <tr>
+            <td>{{ task.name }}</td>
+            <td>{{ task.hypervsior }}</td>
+            <td>{{ task.filename }}</td>
+            <td>{{ task.get_status }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock %}
