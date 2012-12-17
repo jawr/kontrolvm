@@ -27,7 +27,9 @@ def add(request):
         name=form.cleaned_data['name'],
         location=form.cleaned_data['location'],
         address=form.cleaned_data['address'],
-        timeout=form.cleaned_data['timeout']
+        timeout=form.cleaned_data['timeout'],
+        node_address=form.cleaned_data['node_address'],
+        install_medium_path=form.cleaned_data['install_medium_path']
       )
       if created: hypervisor.save()
       return redirect('/hypervisor/')

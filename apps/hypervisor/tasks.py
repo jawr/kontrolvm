@@ -24,7 +24,8 @@ def initalize_hypervisor(hypervisor):
         hypervisor=hypervisor
       )
 
-@receiver(post_save)
-def initalize_hypervisor_signal(sender, instance, *args, **kwargs):
+@receiver(post_save, sender=Hypervisor)
+def initalize_hypervisor_signal(sender, **kwargs):
+  instance = kwargs['instance']
   if instance.status == 'IN':
     initalize_hypervisor(instance)

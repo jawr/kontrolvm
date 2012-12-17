@@ -9,6 +9,7 @@ class Hypervisor(models.Model):
   name = models.CharField(max_length=100)
   location = models.CharField(max_length=100)
   address = models.CharField(max_length=255)
+  node_address = models.CharField(max_length=255)
   timeout = models.IntegerField(max_length=2, default=10)
   # status choices
   ONLINE = 'UP'
