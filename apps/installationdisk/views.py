@@ -14,6 +14,8 @@ import os
 def index(request):
   disks = InstallationDisk.objects.all()
   tasks = InstallationDiskTask.objects.all()
+  for task in tasks:
+    print task.get_status()
   return render_to_response('installationdisk/index.html', {
       'disks': disks,
       'tasks': tasks

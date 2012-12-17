@@ -55,6 +55,7 @@
         <th>Name</th>
         <th>Hypervisor</th>
         <th>Filename</th>
+        <th>Progress</th>
         <th>Status</th>
       </thead>
 
@@ -62,8 +63,13 @@
         {% for task in tasks %}
           <tr>
             <td>{{ task.name }}</td>
-            <td>{{ task.hypervsior }}</td>
+            <td>{{ task.hypervisor }}</td>
             <td>{{ task.filename }}</td>
+            <td>
+              <div class="progress progress-striped active">
+                 <div class="bar" style="width: {{ task.percent }}%;"></div>
+              </div>
+            </td>
             <td>{{ task.get_status }}</td>
           </tr>
         {% endfor %}
