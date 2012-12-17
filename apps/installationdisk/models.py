@@ -49,7 +49,9 @@ class InstallationDiskTask(models.Model):
 
   def abort(self):
     ret = node.abort_command(self.hypervisor, self.task_id)
-    return ret
+    if 'state' in ret:
+      self.state = ret['state']
+      self.save()
 
   def get_status(self):
     status = node.check_command(self.hypervisor, self.task_id)

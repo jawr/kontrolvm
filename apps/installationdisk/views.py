@@ -16,6 +16,21 @@ def index(request):
   tasks = InstallationDiskTask.objects.all()
   for task in tasks:
     task.get_status()
+    if task.state == 'COMPLETE':
+      messages.add_message(request, persistent_messages.SUCCESS, 
+        'Successfully downloaded %s on %s.' % (task.name, task.hypervisor),
+        user=task.user)
+      (disk, created) = InstallationDisk.objects.get_or_create(
+        name=task.name,
+        hypervisor=task.hypervisor,
+        url=task.url,
+        filename=task.filename,
+        total_bytes=task.total_bytes,
+        user=task.user
+      )
+      if created: disk.save()
+      task.delete()
+      
   return render_to_response('installationdisk/index.html', {
       'disks': disks,
       'tasks': tasks
@@ -32,14 +47,16 @@ def add(request):
      
       (task, created) = InstallationDiskTask.objects.get_or_create(
         name=form.cleaned_data['name'],
-        hypervisor=hypervisor,
-        url=url,
-        filename=url.split('/')[-1],
+        hypervisor=form.cleaned_data['hypervisor'],
+        url=form.cleaned_data['url'],
+        filename=form.cleaned_data['url'].split('/')[-1],
         task_id="dummy",
         user=request.user
       )
       if created: task.save()
       task.start()
+      messages.add_message(request, persistent_messages.INFO,
+        'Attempting to download %s on %s' % (task.filename, task.hypervisor))
       return redirect('/installationdisk/')
 
   return render_to_response('installationdisk/add.html', {
@@ -48,16 +65,20 @@ def add(request):
     context_instance=RequestContext(request))
 
 @staff_member_required
-def delete(self, pk):
+def delete(request, pk):
   task = get_object_or_404(InstallationDiskTask, pk=pk)
   task.abort()
+  persistent_messages.add_message(request, persistent_messages.INFO,
+    'Delete download task of %s on %s' % (task.filename, task.hypervisor), user=task.user)
   task.delete() # might need to do some cleanup here, or check
   # that the task isn't still running
   return redirect('/installationdisk/')
 
 @staff_member_required
-def restart(self, pk):
+def restart(request, pk):
   task = get_object_or_404(InstallationDiskTask, pk=pk)
   task.abort()
   task.start()
+  persistent_messages.add_message(request, persistent_messages.INFO,
+    'Trying to redownload %s on %s' % (task.filename, task.hypervisor), user=task.user)
   return redirect('/installationdisk/')
