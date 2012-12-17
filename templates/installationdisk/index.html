@@ -3,6 +3,7 @@
 {% block content %}
   <h1>Hypervisors</h1>
   <p>Overview of Hypervisor's Installation Disks. <a href="/installationdisk/add/">Add another</a>.</p>
+  {% load size_utils %}
   {% if disks %}
     <h2>Disks</h2>
     <table class="table table-condensed table-striped table-bordered">
@@ -10,6 +11,7 @@
         <th>Name</th>
         <th>Hypervisor</th>
         <th>Filename</th>
+        <th>Size</th>
         <th style="width: 15px;">Options</th>
       </thead>
 
@@ -19,6 +21,7 @@
             <td><a href="#" id="name" data-pk="{{ disk.id }}">{{ disk.name }}</a></td>
             <td>{{ disk.hypervsior }}</td>
             <td>{{ disk.filename }}</td>
+            <td>{{ disk.total_bytes|to_human_readable }}</td>
             <td>
               <a href="#" id="delete"><i id="{{ disk.id }}" class="icon-trash"></i></a>
             </td>
@@ -56,7 +59,9 @@
         <th>Hypervisor</th>
         <th>Filename</th>
         <th>Progress</th>
+        <th>Size</th>
         <th>Status</th>
+        <th style="width: 15px;">Options</th>
       </thead>
 
       <tbody>
@@ -70,10 +75,20 @@
                  <div class="bar" style="width: {{ task.percent }}%;"></div>
               </div>
             </td>
-            <td>{{ task.get_status }}</td>
+            <td>{{ task.total_bytes_dl|to_human_readable }}/{{ task.total_bytes|to_human_readable }}</td>
+            <td>{{ task.state }}</td>
+            <td>
+              <a href="/installationdisk/restart/{{ task.id }}/" id="task-restart"><i id="{{ task.id }}" class="icon-repeat"></i></a>
+              <a href="/installationdisk/delete/{{ task.id }}/" id="task-delete"><i id="{{ task.id }}" class="icon-trash"></i></a>
+            </td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
+    <script>
+      $(function() {
+        window.setTimeout('location.reload()', 6000); 
+      });
+    </script>
   {% endif %}
 {% endblock %}

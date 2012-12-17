@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from apps.hypervisor.models import Hypervisor
 from utils import node
 
@@ -8,6 +9,7 @@ class InstallationDisk(models.Model):
   url = models.URLField()
   filename = models.CharField(max_length=100)
   total_bytes = models.IntegerField()
+  user = models.ForeignKey(User)
 
   def __str__(self):
     return unicode(self).encode('utf-8')
@@ -24,6 +26,8 @@ class InstallationDiskTask(models.Model):
   total_bytes_dl = models.IntegerField(default=0)
   total_bytes = models.IntegerField(default=0)
   percent = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+  state = models.CharField(max_length=50)
+  user = models.ForeignKey(User)
   
 
   def __str__(self):
@@ -31,6 +35,21 @@ class InstallationDiskTask(models.Model):
 
   def __unicode__(self):
     return "Downloading: %s [%s]" % (self.name, self.hypervisor)
+
+  def start(self):
+    self.total_bytes_dl = 0
+    self.total_bytes = 0
+    self.percent = 0
+    self.task_id = node.send_command(self.hypervisor, 'installationdisk_download', 
+    {
+      'url': self.url, 
+      'path': self.hypervisor.install_medium_path
+    })
+    self.save()
+
+  def abort(self):
+    ret = node.abort_command(self.hypervisor, self.task_id)
+    return ret
 
   def get_status(self):
     status = node.check_command(self.hypervisor, self.task_id)
@@ -42,6 +61,6 @@ class InstallationDiskTask(models.Model):
         self.total_bytes = args['total_bytes']
       if 'percent' in args:
         self.percent = args['percent']
-      self.save()
 
-    return status['state']
+    self.state = status['state']
+    self.save()

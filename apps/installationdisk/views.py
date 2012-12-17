@@ -15,7 +15,7 @@ def index(request):
   disks = InstallationDisk.objects.all()
   tasks = InstallationDiskTask.objects.all()
   for task in tasks:
-    print task.get_status()
+    task.get_status()
   return render_to_response('installationdisk/index.html', {
       'disks': disks,
       'tasks': tasks
@@ -29,25 +29,35 @@ def add(request):
   if request.method == "POST":
     conn = form = InstallationDiskTaskForm(request.POST)
     if form.is_valid():
-      hypervisor = form.cleaned_data['hypervisor']
-      url = form.cleaned_data['url']
-      task_id = node.send_command(hypervisor, 'installationdisk_download', 
-      {
-        'url': url, 
-        'path': hypervisor.install_medium_path
-      })
      
       (task, created) = InstallationDiskTask.objects.get_or_create(
         name=form.cleaned_data['name'],
         hypervisor=hypervisor,
         url=url,
         filename=url.split('/')[-1],
-        task_id=task_id
+        task_id="dummy",
+        user=request.user
       )
       if created: task.save()
+      task.start()
       return redirect('/installationdisk/')
 
   return render_to_response('installationdisk/add.html', {
       'form': form,
     },
     context_instance=RequestContext(request))
+
+@staff_member_required
+def delete(self, pk):
+  task = get_object_or_404(InstallationDiskTask, pk=pk)
+  task.abort()
+  task.delete() # might need to do some cleanup here, or check
+  # that the task isn't still running
+  return redirect('/installationdisk/')
+
+@staff_member_required
+def restart(self, pk):
+  task = get_object_or_404(InstallationDiskTask, pk=pk)
+  task.abort()
+  task.start()
+  return redirect('/installationdisk/')
