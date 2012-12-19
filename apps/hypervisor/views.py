@@ -59,6 +59,9 @@ def edit(request):
       elif json['name'] == 'address':
         orig_value = hypervisor.address
         hypervisor.address = json['value']
+      elif json['name'] == 'node_address':
+        orig_value = hypervisor.node_address
+        hypervisor.node_address = json['value']
       else:
         raise Http404
       hypervisor.save()
@@ -68,7 +71,22 @@ def edit(request):
       raise Http404
     return HttpResponse('{}', mimetype="application/json")
   raise Http404
+
+@staff_member_required
+def start(request, pk):
+  hypervisor = get_object_or_404(Hypervisor, pk=pk)
+  hypervisor.start()
+  messages.add_message(request, persistent_messages.SUCCESS,
+    'Started Hypervisor %s' % (hypervisor))
+  return redirect('/hypervisor/')
   
+@staff_member_required
+def stop(request, pk):
+  hypervisor = get_object_or_404(Hypervisor, pk=pk)
+  hypervisor.stop()
+  messages.add_message(request, persistent_messages.SUCCESS,
+    'Stopped Hypervisor %s' % (hypervisor))
+  return redirect('/hypervisor/')
 
 @staff_member_required
 def delete(request, pk):

@@ -10,6 +10,7 @@
         <th style="width: 20px;">Status</th>
         <th>Location</th>
         <th>Address</th>
+        <th>Node Address</th>
         <th style="width: 15px;">Options</th>
       </thead>
 
@@ -17,12 +18,18 @@
         {% for hypervisor in hypervisors %}
           <tr>
             <td><a href="#" id="name" data-pk="{{ hypervisor.id }}">{{ hypervisor.name }}</a></td>
-            <td><a href="#" id="status" data-pk="{{ hypervisor.id }}">{{ hypervisor.get_status_display }}</a></td>
+            <td>{{ hypervisor.get_status_display }}</td>
             <td><a href="#" id="location" data-pk="{{ hypervisor.id }}">{{ hypervisor.location }}</a></td>
             <td><a href="#" id="address" data-pk="{{ hypervisor.id }}">{{ hypervisor.address }}</a></td>
+            <td><a href="#" id="node_address" data-pk="{{ hypervisor.id }}">{{ hypervisor.node_address }}</a></td>
             <td>
               <a href="#" id="delete"><i id="{{ hypervisor.id }}" class="icon-trash"></i></a>
-              <a href="/hypervisor/update/{{ hypervisor.id }}/" class="icon-refresh"></i></a>
+              <a href="/hypervisor/update/{{ hypervisor.id }}/"><i class="icon-refresh"></i></a>
+              {% if hypervisor.status == 'UP' %}
+                <a href="#" id="stop"><i id="{{ hypervisor.id }}" class="icon-stop"></i></a>
+              {% else %}
+                <a href="/hypervisor/start/{{ hypervisor.id }}/"><i id="{{ hypervisor.id }}" class="icon-play"></i></a>
+              {% endif %}
             </td>
           </tr>
         {% endfor %}
@@ -39,20 +46,19 @@
             }
           });
         });
+        $('a#stop').click(function(e) {
+          e.preventDefault();
+          bootbox.confirm("Are you sure you want to stop this Hypervisor?", function(confirmed) {
+            if (confirmed) {
+              window.location = '/hypervisor/stop/' + e.srcElement.id + '/';
+            }
+          });
+        });
 
         $('#name').editable({
           type: 'text',
           url: '/hypervisor/edit/',
           title: 'Edit Name',
-        });
-        $('#status').editable({
-          type: 'select',
-          url: '/hypervisor/edit/',
-          title: 'Edit Status',
-          source: [
-            {value: 'UP', text: 'Online'},
-            {value: 'DN', text: 'Offline'}
-          ]
         });
         $('#location').editable({
           type: 'text',
@@ -63,6 +69,11 @@
           type: 'text',
           url: '/hypervisor/edit/',
           title: 'Edit Address',
+        });
+        $('#node_address').editable({
+          type: 'text',
+          url: '/hypervisor/edit/',
+          title: 'Edit Node Address',
         });
       });
     </script>

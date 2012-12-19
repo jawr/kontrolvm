@@ -46,3 +46,11 @@ class Hypervisor(models.Model):
         self.status = 'DN'
         self.save()
     return conn 
+
+  def start(self):
+    self.status = self.ONLINE
+    self.save()
+
+  def stop(self):
+    self.status = self.OFFLINE
+    self.save()
