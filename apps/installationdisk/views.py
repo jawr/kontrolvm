@@ -16,8 +16,8 @@ def index(request):
   tasks = InstallationDiskTask.objects.all()
   for task in tasks:
     task.get_status()
-    if task.state == 'COMPLETE':
-      messages.add_message(request, persistent_messages.SUCCESS, 
+    if task.state == 'SUCCESS':
+      persistent_messages.add_message(request, persistent_messages.SUCCESS, 
         'Successfully downloaded %s on %s.' % (task.name, task.hypervisor),
         user=task.user)
       (disk, created) = InstallationDisk.objects.get_or_create(
