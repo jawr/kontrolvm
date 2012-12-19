@@ -66,6 +66,12 @@ def add(request):
 
 @staff_member_required
 def delete(request, pk):
+  task = get_object_or_404(InstallationDisk, pk=pk)
+  task.delete(request)
+  return redirect('/installationdisk/')
+
+@staff_member_required
+def delete_task(request, pk):
   task = get_object_or_404(InstallationDiskTask, pk=pk)
   task.abort()
   persistent_messages.add_message(request, persistent_messages.INFO,
@@ -73,6 +79,7 @@ def delete(request, pk):
   task.delete() # might need to do some cleanup here, or check
   # that the task isn't still running
   return redirect('/installationdisk/')
+
 
 @staff_member_required
 def restart(request, pk):
