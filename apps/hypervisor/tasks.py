@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 from xml.dom import minidom
@@ -74,3 +74,8 @@ def initalize_hypervisor_signal(sender, **kwargs):
   instance = kwargs['instance']
   if instance.status == 'IN':
     initalize_hypervisor(instance)
+
+@receiver(pre_delete, sender=Hypervisor)
+def cleanup_hypervisor_signal(sender, **kwargs):
+  instance = kwargs['instance']
+  # need to delete all associated data

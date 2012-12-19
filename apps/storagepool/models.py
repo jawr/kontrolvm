@@ -32,10 +32,10 @@ class StoragePool(models.Model):
   )
   status = models.IntegerField(max_length=1, choices=STATUS_CHOICES, default=NONE)
   # more details
-  capacity = models.IntegerField(default=0)
-  allocated = models.IntegerField(default=0)
+  capacity = models.BigIntegerField(default=0)
+  allocated = models.BigIntegerField(default=0)
   percent = models.IntegerField(default=0)
-  available = models.IntegerField(default=0)
+  available = models.BigIntegerField(default=0)
   percent = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
   # updated
   updated = models.DateTimeField(auto_now=True)
@@ -87,6 +87,9 @@ class StoragePool(models.Model):
           'Deleted Storage Pool: %s [%s][%s]' % (self.name, self.path, self.hypervisor))
       # delete the model
       super(StoragePool, self).delete()
+    elif request:
+      messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Storage Pool: Unable to get Storage Pool %s' % (self))
+    
 
   def update(self):
     # check if we have checked in the last minute

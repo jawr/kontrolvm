@@ -11,6 +11,8 @@ import simplejson
 @staff_member_required
 def index(request):
   volumes = Volume.objects.all()
+  for volume in volumes:
+    volume.update()
   return render_to_response('volume/index.html', {
       'volumes': volumes,
     },
@@ -28,9 +30,16 @@ def add(request):
         storagepool=form.cleaned_data['storagepool']
       )
       if created: volume.save()
+      volume.create(request)
       return redirect('/volume/')
 
   return render_to_response('volume/add.html', {
       'form': form,
     },
     context_instance=RequestContext(request))
+
+@staff_member_required
+def delete(request, pk):
+  volume = get_object_or_404(Volume, pk=pk)
+  volume.delete(request)
+  return redirect('/volume/')
