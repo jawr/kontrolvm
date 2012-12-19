@@ -119,6 +119,7 @@ INSTALLED_APPS = (
   'apps.hypervisor',
   'apps.storagepool',
   'apps.installationdisk',
+  'apps.volume',
 )
 
 AUTHENTICATION_BACKENDS = (

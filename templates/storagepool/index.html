@@ -4,6 +4,7 @@
   <h1>Storage Pools</h1>
   <p>Overview of linked storage pools. <a href="/storagepool/add/">Add another</a>.</p>
   {% if storagepools %}
+    {% load size_utils %}
     <table class="table table-condensed table-striped table-bordered">
       <thead>
         <th>Name</th>
@@ -13,6 +14,7 @@
         <th>Capacity</th>
         <th>Alloc</th>
         <th>Avail</th>
+        <th>Percent</th>
         <th style="width: 15px;">Options</th>
       </thead>
       
@@ -23,9 +25,14 @@
             <td>{{ storagepool.hypervisor }}</td>
             <td>{{ storagepool.get_status_display }}</td>
             <td>{{ storagepool.path }}</td>
-            <td>{{ storagepool.capacity }}</td>
-            <td>{{ storagepool.alloc }}</td>
-            <td>{{ storagepool.avail }}</td>
+            <td>{{ storagepool.capacity|to_human_readable }}</td>
+            <td>{{ storagepool.allocated|to_human_readable }}</td>
+            <td>{{ storagepool.available|to_human_readable }}</td>
+            <td>
+              <div class="progress progress-striped active">
+                 <div class="bar" style="width: {{ storagepool.percent }}%;"></div>
+              </div>
+            </td>
             <td>
               {% if storagepool.status != 0 %}
                 <a href="#" id="stop"><i id="{{ storagepool.id }}" class="icon-stop"></i></a>

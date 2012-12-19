@@ -1,6 +1,8 @@
 from django.db import models
 from apps.hypervisor.models import Hypervisor
 from django.contrib import messages
+from django.utils import timezone
+from datetime import timedelta
 import libvirt
 import persistent_messages
 
@@ -29,6 +31,14 @@ class StoragePool(models.Model):
     (NONE, 'None'),
   )
   status = models.IntegerField(max_length=1, choices=STATUS_CHOICES, default=NONE)
+  # more details
+  capacity = models.IntegerField(default=0)
+  allocated = models.IntegerField(default=0)
+  percent = models.IntegerField(default=0)
+  available = models.IntegerField(default=0)
+  percent = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+  # updated
+  updated = models.DateTimeField(auto_now=True)
   
   def __str__(self):
     return unicode(self).encode('utf-8')
@@ -77,3 +87,17 @@ class StoragePool(models.Model):
           'Deleted Storage Pool: %s [%s][%s]' % (self.name, self.path, self.hypervisor))
       # delete the model
       super(StoragePool, self).delete()
+
+  def update(self):
+    # check if we have checked in the last minute
+    if (timezone.now() - self.updated) < timedelta(minutes=1): return
+    storagepool = self.get_storagepool()
+    if storagepool:
+      
+      (status, capacity, allocated, available) = storagepool.info()
+      self.status = status
+      self.capacity = capacity
+      self.allocated = allocated
+      self.available = available
+      self.percent = ((float(allocated)/float(capacity))*100)
+      self.save()

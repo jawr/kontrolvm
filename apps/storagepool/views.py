@@ -15,23 +15,7 @@ def index(request):
   storagepools = StoragePool.objects.all()
 
   for pool in storagepools:
-    storagepool = pool.get_storagepool()
-    if storagepool:
-      (status, capacity, alloc, avail) = storagepool.info()
-      pool.status = status
-      pool.save()
-      try:
-        pool.capacity = '%.2f GB' % (capacity/1024/1024/1024.0)
-        pool.alloc = '%.2f GB' % (alloc/1024/1024/1024.0)
-        pool.avail = '%.2f GB' % (avail/1024/1024/1024.0)
-        pool.perc = ((float(alloc)/float(capacity))*100)
-        continue
-      except ZeroDivisionError:
-        pass
-    pool.capacity = 'N/A'
-    pool.alloc = 'N/A'
-    pool.avail = 'N/A'
-    pool.perc = 0
+    pool.update()
 
   return render_to_response('storagepool/index.html', {
       'storagepools': storagepools,

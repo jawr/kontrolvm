@@ -21,7 +21,7 @@ def add(request):
   form = HypervisorForm()
   
   if request.method == "POST":
-    conn = form = HypervisorForm(request.POST)
+    form = HypervisorForm(request.POST)
     if form.is_valid():
       (hypervisor, created) = Hypervisor.objects.get_or_create(
         name=form.cleaned_data['name'],
