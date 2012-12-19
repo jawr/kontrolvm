@@ -28,9 +28,7 @@
             <td>{{ storagepool.avail }}</td>
             <td>
               {% if storagepool.status != 0 %}
-                <a href="/storagepool/stop/{{ storagepool.id }}/">
-                  <i class="icon-stop"></i>
-                </a>
+                <a href="#" id="stop"><i id="{{ storagepool.id }}" class="icon-stop"></i></a>
               {% else %}
                 <a href="/storagepool/start/{{ storagepool.id }}/">
                   <i class="icon-play"></i>
@@ -51,6 +49,14 @@
           bootbox.confirm("Are you sure you want to delete this Storage Pool?", function(confirmed) {
             if (confirmed) {
               window.location = '/storagepool/delete/' + e.srcElement.id + '/';
+            }
+          });
+        });
+        $('a#stop').click(function(e) {
+          e.preventDefault();
+          bootbox.confirm("Are you sure you want to stop this Storage Pool?", function(confirmed) {
+            if (confirmed) {
+              window.location = '/storagepool/stop/' + e.srcElement.id + '/';
             }
           });
         });
