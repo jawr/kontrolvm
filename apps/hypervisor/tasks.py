@@ -6,9 +6,13 @@ from celery import task
 from apps.hypervisor.models import Hypervisor
 from apps.storagepool.models import StoragePool
 from apps.installationdisk.models import InstallationDisk
+from apps.volume.models import Volume
 from utils import node
 import libvirt
 import time
+import re
+
+match_vol = re.compile('\.qcow2$')
 
 @task()
 def initalize_hypervisor(hypervisor):
@@ -27,6 +31,19 @@ def initalize_hypervisor(hypervisor):
         path=path,
         hypervisor=hypervisor
       )
+      pool = new_pool.get_storagepool()
+      if pool:
+        # get a list of volumes
+        for vol in pool.listVolumes():
+          if match_vol.search(vol):
+            vol = vol.replace('.qcow2', '')
+            (new_vol, created) = Volume.objects.get_or_create(
+              name=vol,
+              storagepool=new_pool
+            )
+            if created: new_vol.save()
+            new_vol.update()
+        
     # get a list of existing installation disks
     task_id = node.send_command(hypervisor, 'installationdisk_list', 
       {'path': hypervisor.install_medium_path})
