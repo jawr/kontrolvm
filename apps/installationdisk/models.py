@@ -15,6 +15,9 @@ class InstallationDisk(models.Model):
   total_bytes = models.IntegerField()
   user = models.ForeignKey(User)
 
+  def path(self):
+    return "%s" % (os.path.join(self.hypervisor.install_medium_path, self.filename))
+
   def __str__(self):
     return unicode(self).encode('utf-8')
 

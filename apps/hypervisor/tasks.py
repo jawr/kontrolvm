@@ -73,7 +73,7 @@ def initalize_hypervisor(hypervisor):
 def initalize_hypervisor_signal(sender, **kwargs):
   instance = kwargs['instance']
   if instance.status == 'IN':
-    initalize_hypervisor(instance)
+    initalize_hypervisor.delay(instance)
 
 @receiver(pre_delete, sender=Hypervisor)
 def cleanup_hypervisor_signal(sender, **kwargs):

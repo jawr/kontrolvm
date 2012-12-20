@@ -1,0 +1,106 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Instances{% endblock %}
+{% block content %}
+  <h1>Instancess</h1>
+  <p>Overview of Instances. <a href="/instance/add/">Add another</a>.</p>
+  {% load size_utils %}
+  {% if instances %}
+    <h2>Instances</h2>
+    <table class="table table-condensed table-striped table-bordered">
+      <thead>
+        <th>Name</th>
+        <th>User</th>
+        <th>Creator</th>
+        <th>Created</th>
+        <th>VCPU</th>
+        <th>Memory</th>
+        <th>Capacity</th>
+        <th>Status</th>
+        <th style="width: 15px;">Options</th>
+      </thead>
+
+      <tbody>
+        {% for instance in instances %}
+          <tr>
+            <td>{{ instance.name }}</td>
+            <td>{{ instance.user }}</td>
+            <td>{{ instance.creator }}</td>
+            <td>{{ instance.created }}</td>
+            <td>{{ instance.vcpu }}</td>
+            <td>{{ instance.memory|to_human_readable }}</td>
+            <td>{{ instance.volume.capacity|to_human_readable }}</td>
+            <td>{{ instance.get_status_display }}</td>
+            <td>
+              <a href="#" id="delete"><i id="{{ instance.id }}" class="icon-trash"></i></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Oops. No Instance's added.</p>
+  {% endif %}
+  {% if tasks %}
+    <h2>Tasks</h2>
+    <table class="table table-condensed table-striped table-bordered">
+      <thead>
+        <th>Name</th>
+        <th>User</th>
+        <th>Creator</th>
+        <th>VCPU</th>
+        <th>Memory</th>
+        <th>Capacity</th>
+        <th>Progress</th>
+        <th>Message</th>
+        <th>Status</th>
+        <th style="width: 15px;">Options</th>
+      </thead>
+
+      <tbody>
+        {% for task in tasks %}
+          <tr>
+            <td>{{ task.name }}</td>
+            <td>{{ task.user }}</td>
+            <td>{{ task.creator }}</td>
+            <td>{{ task.vcpu }}</td>
+            <td>{{ task.memory|to_human_readable }}</td>
+            <td>{{ task.capacity|to_human_readable }}</td>
+            <td>
+              <div class="progress progress-striped active">
+                 <div class="bar" style="width: {{ task.percent }}%;"></div>
+              </div>
+            </td>
+            <td>{{ task.message }}</td>
+            <td>{{ task.state }}</td>
+            <td>
+              <a href="/instamce/restart/{{ task.id }}/" id="task-restart"><i id="{{ task.id }}" class="icon-repeat"></i></a>
+              <a href="#" id="delete-task"><i id="{{ task.id }}" class="icon-trash"></i></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+    <script>
+      $(function() {
+        // handle confirmation modal
+        $('a#delete').click(function(e) {
+          e.preventDefault();
+          bootbox.confirm("Are you sure you want to delete this Instance?", function(confirmed) {
+            if (confirmed) {
+              window.location = '/instance/delete/' + e.srcElement.id + '/';
+            }
+          });
+        });
+        $('a#delete-task').click(function(e) {
+          e.preventDefault();
+          bootbox.confirm("Are you sure you want to delete this Instance Task?", function(confirmed) {
+            if (confirmed) {
+              window.location = '/instance/delete-task/' + e.srcElement.id + '/';
+            }
+          });
+        });
+        //window.setTimeout('location.reload()', 6000); 
+      });
+    </script>
+{% endblock %}

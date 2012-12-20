@@ -120,6 +120,7 @@ INSTALLED_APPS = (
   'apps.storagepool',
   'apps.installationdisk',
   'apps.volume',
+  'apps.instance',
 )
 
 AUTHENTICATION_BACKENDS = (

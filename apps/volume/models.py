@@ -6,14 +6,18 @@ from datetime import timedelta
 from binascii import hexlify
 import persistent_messages
 import os
+import libvirt
 
 class Volume(models.Model):
   name = models.CharField(max_length=100, unique=True)
   storagepool = models.ForeignKey(StoragePool)
-  capacity = models.BigIntegerField(default=1073741824) # 1GB
+  capacity = models.BigIntegerField(default=0)
   allocated = models.BigIntegerField(default=0)
   # updated
   updated = models.DateTimeField(auto_now=True)
+
+  def path(self):
+    return "%s.qcow2" % (os.path.join(self.storagepool.path, self.name))
 
   def __str__(self):
     return unicode(self).encode('utf-8')
@@ -24,7 +28,12 @@ class Volume(models.Model):
   def get_volume(self):
     pool = self.storagepool.get_storagepool()
     if pool:
-      return pool.storageVolLookupByName('%s.qcow2' % (self.name))
+      try:
+        vol = pool.storageVolLookupByName('%s.qcow2' % (self.name))
+        return vol
+      except libvirt.libvirtError as e:
+        pass
+      
     return None
 
   def delete(self, request=None):
@@ -32,15 +41,17 @@ class Volume(models.Model):
     if vol:
       try:
         vol.delete(0)
-        messages.add_message(request, persistent_messages.SUCCESS, 'Deleted %s Volume' % (self))
+        if request:
+          messages.add_message(request, persistent_messages.SUCCESS, 'Deleted %s Volume' % (self))
         super(Volume, self).delete()
+        return True
       except libvirt.libvirtError as e:
         if request:
           messages.add_message(request, persistent_messages.ERROR, 'Unable to delete %s Volume: %s' % (self, e))
 
     elif request:
       messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Volume: Unable to get Volume %s' % (self))
-      
+    return False 
 
   def update(self):
     if (timezone.now() - self.updated) < timedelta(minutes=1): return
