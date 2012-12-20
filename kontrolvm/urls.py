@@ -5,7 +5,6 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
   url(r'^account/', include('apps.account.urls')),
-  url(r'^volume/', include('apps.volume.urls')),
   url(r'^instance/', include('apps.instance.urls')),
   url(r'^installationdisk/', include('apps.installationdisk.urls')),
   url(r'^storagepool/', include('apps.storagepool.urls')),
