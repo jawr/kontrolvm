@@ -22,7 +22,7 @@
       <tbody>
         {% for instance in instances %}
           <tr>
-            <td>{{ instance.name }}</td>
+            <td>{{ instance.name|truncatechars:6 }}</td>
             <td>{{ instance.user }}</td>
             <td>{{ instance.creator }}</td>
             <td>{{ instance.created }}</td>
@@ -53,13 +53,14 @@
         <th>Progress</th>
         <th>Message</th>
         <th>Status</th>
+        <th>Started</th>
         <th style="width: 15px;">Options</th>
       </thead>
 
       <tbody>
         {% for task in tasks %}
           <tr>
-            <td>{{ task.name }}</td>
+            <td>{{ task.name|truncatechars:6 }}</td>
             <td>{{ task.user }}</td>
             <td>{{ task.creator }}</td>
             <td>{{ task.vcpu }}</td>
@@ -72,6 +73,7 @@
             </td>
             <td>{{ task.message }}</td>
             <td>{{ task.state }}</td>
+            <td>{{ task.created }}</td>
             <td>
               <a href="/instamce/restart/{{ task.id }}/" id="task-restart"><i id="{{ task.id }}" class="icon-repeat"></i></a>
               <a href="#" id="delete-task"><i id="{{ task.id }}" class="icon-trash"></i></a>
@@ -100,7 +102,6 @@
             }
           });
         });
-        //window.setTimeout('location.reload()', 6000); 
       });
     </script>
 {% endblock %}

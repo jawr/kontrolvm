@@ -57,17 +57,47 @@ class Instance(models.Model):
       (self.user, self.vcpu, (self.memory/1024/1024.0), (self.volume.capacity/1024/1024/1024.0), self.get_status_display())
 
   def get_instance(self):
-    hypervisor = self.storagepool.hypervisor.get_connection()
+    hypervisor = self.volume.storagepool.hypervisor.get_connection()
+    instance = None
     if hypervisor:
-      return hyper.lookupByName(self.name)
-    return None 
+      try:
+        instance = hypervisor.lookupByName(self.name)
+      except libvirt.libvirtError:
+        pass
+    return instance
 
   def update(self):
-    if (timezone.now() - self.updated) < timedelta(minutes=1): return
-    pass
+    if (timezone.now() - self.updated) < timedelta(seconds=15): return
+    instance = self.get_instance()
+    if instance:
+      (status, na, memory, vcpu, na) = instance.info()
+      self.status = status
+      self.save()
 
   def delete(self, request=None):
-    super(Instance, self).delete()
+    instance = self.get_instance()
+    if instance:
+      try:
+        instance.destroy()
+        instance.undefine()
+        self.volume.delete(True)
+        if request:
+          persistent_messages.add_message(request, persistent_messages.SUCCESS, 'Deleted Instance %s' % (self))
+          if request.user != self.user:
+            persistent_messages.add_message(request, persistent_messages.SUCCESS, 'Deleted Instance %s' % (self), user=self.user)
+        super(Instance, self).delete()
+      except libvirt.libvirtError as e:
+        if request:
+          persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Instance %s: %s' % (self, e))
+          if request.user != self.user:
+            persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Instance %s' % (self), user=self.user)
+  
+    elif request:
+      persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to get instance object inorder to delete Instance %s' % (self))
+      if request.user != self.user:
+        persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Instance %s' % (self), user=self.user)
+
+      
 
 class InstanceTask(models.Model):
   name = models.CharField(max_length=100)
@@ -98,8 +128,8 @@ class InstanceTask(models.Model):
   def abort(self, request=None):
     pass
 
-  def delete(self, request=None):
-    if self.volume:
+  def delete(self, purge=True):
+    if self.volume and purge:
       if self.volume.delete():
         super(InstanceTask, self).delete()
     else:

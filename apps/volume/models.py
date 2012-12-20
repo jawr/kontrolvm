@@ -42,15 +42,15 @@ class Volume(models.Model):
       try:
         vol.delete(0)
         if request:
-          messages.add_message(request, persistent_messages.SUCCESS, 'Deleted %s Volume' % (self))
+          persistent_messages.add_message(request, persistent_messages.SUCCESS, 'Deleted %s Volume' % (self))
         super(Volume, self).delete()
         return True
       except libvirt.libvirtError as e:
         if request:
-          messages.add_message(request, persistent_messages.ERROR, 'Unable to delete %s Volume: %s' % (self, e))
+          persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to delete %s Volume: %s' % (self, e))
 
     elif request:
-      messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Volume: Unable to get Volume %s' % (self))
+      persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Volume: Unable to get Volume %s' % (self))
     return False 
 
   def update(self):
@@ -79,11 +79,11 @@ class Volume(models.Model):
         pool.createXML(xml, 0)
         return True
       except libvirt.libvirtError as e:
-        messages.add_message(request, persistent_messages.ERROR, 'Unable to create Volume %s: %s' % (self.name, e))
+        persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to create Volume %s: %s' % (self.name, e))
         return False
 
     else:
-      messages.add_message(request, persistent_messages.ERROR, 'Unable to create Volume %s (Unable to connect to Storage Pool)' % (self.name))
+      persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to create Volume %s (Unable to connect to Storage Pool)' % (self.name))
       return False
 
   """

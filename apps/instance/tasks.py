@@ -117,7 +117,19 @@ def create_instance(instancetask_name):
       'percent': 75,
       'msg': 'Creating the Instance on the Hypervisor..',
     })
-    return {'percent': 100, 'msg': 'Created'}
+    # switch instance task for an instance
+    new_instance = Instance.objects.create(
+      name=instancetask.name,
+      volume=instancetask.volume,
+      user=instancetask.user,
+      creator=instancetask.creator,
+      vcpu=instancetask.vcpu,
+      memory=instancetask.memory,
+      disk=instancetask.disk,
+      created=instancetask.created
+    )
+    new_instance.save()
+    instancetask.delete(False)
   except libvirt.libvirtError as e:
     return {'custom_state': 'FAILURE', 'msg': 'Error while creating instance: %s' % (e)}
 
