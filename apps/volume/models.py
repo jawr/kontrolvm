@@ -10,7 +10,7 @@ import os
 class Volume(models.Model):
   name = models.CharField(max_length=100, unique=True)
   storagepool = models.ForeignKey(StoragePool)
-  capacity = models.BigIntegerField(default=0)
+  capacity = models.BigIntegerField(default=1073741824) # 1GB
   allocated = models.BigIntegerField(default=0)
   # updated
   updated = models.DateTimeField(auto_now=True)
