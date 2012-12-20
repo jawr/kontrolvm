@@ -17,7 +17,7 @@
       <tbody>
       {% for volume in volumes %}
         <tr>
-          <td><a href="#" id="name" data-pk="{{ volume.id }}">{{ volume.name }}</a></td>
+          <td>{{ volume.name }}</td>
           <td>{{ volume.storagepool }}</td>
           <td>{{ volume.capacity|to_human_readable }}</td>
           <td>{{ volume.allocated|to_human_readable }}</td> 

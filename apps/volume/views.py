@@ -25,13 +25,20 @@ def add(request):
   if request.method == "POST":
     form = VolumeForm(request.POST)
     if form.is_valid():
-      (volume, created) = Volume.objects.get_or_create(
-        name=form.cleaned_data['name'],
-        storagepool=form.cleaned_data['storagepool']
-      )
-      if created: volume.save()
-      volume.create(request)
-      return redirect('/volume/')
+      # let's check that we can connect to storage pool
+      storagepool = form.cleaned_data['storagepool']
+      if not storagepool.get_storagepool():
+        messages.add_message(request, persistent_messages.ERROR, 'Unable to connect to Storage Pool %s to create Volume' % (storagepool))
+      else:
+        name = Volume.create_random_name()
+        (volume, created) = Volume.objects.get_or_create(
+          name=name,
+          storagepool=storagepool,
+          capacity=form.cleaned_data['capacity']
+        )
+        if created: volume.save()
+        if not volume.create(request): volume.delete()
+        return redirect('/volume/')
 
   return render_to_response('volume/add.html', {
       'form': form,

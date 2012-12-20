@@ -3,10 +3,12 @@ from django.contrib import messages
 from django.utils import timezone
 from apps.storagepool.models import StoragePool
 from datetime import timedelta
+from binascii import hexlify
 import persistent_messages
+import os
 
 class Volume(models.Model):
-  name = models.CharField(max_length=100)
+  name = models.CharField(max_length=100, unique=True)
   storagepool = models.ForeignKey(StoragePool)
   capacity = models.BigIntegerField(default=0)
   allocated = models.BigIntegerField(default=0)
@@ -64,8 +66,23 @@ class Volume(models.Model):
           % (self.name, self.capacity)
       try:
         pool.createXML(xml, 0)
+        return True
       except libvirt.libvirtError as e:
         messages.add_message(request, persistent_messages.ERROR, 'Unable to create Volume %s: %s' % (self.name, e))
+        return False
 
     else:
       messages.add_message(request, persistent_messages.ERROR, 'Unable to create Volume %s (Unable to connect to Storage Pool)' % (self.name))
+      return False
+
+  """
+    Used to create a random name.
+  """
+  @staticmethod
+  def create_random_name():
+    while True:
+      name = hexlify(os.urandom(16))
+      try:
+        volume = Volume.objects.get(name=name)
+      except Volume.DoesNotExist:
+        return name
