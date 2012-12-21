@@ -11,6 +11,50 @@
   <div class="tab-content">
     <div class="tab-pane fade in active" id="overview"> 
       <h2>Overview</h2>
+      {% if my_instances_online or my_instances_offline %}
+        <hr>
+        <h3>Instances <small>Overview</small></h3>
+        {% if my_instances_online %}
+        <dl>
+          <dt>Online</dt>
+          {% for instance in my_instances_online %}
+            <dd><a href="/instance/{{ instance.name }}/">{{ instance }}</a></dd>
+          {% endfor %}
+        </dl>
+        {% endif %}
+        {% if my_instances_offline %}
+        <dl>
+          <dt>Offline</dt>
+          {% for instance in my_instances_offline %}
+            <dd><a href="/instance/{{ instance.name }}/">{{ instance }}</a></dd>
+          {% endfor %}
+        </dl>
+        {% endif %}
+      {% endif %}
+      {% if request.user.is_staff %}
+      <hr>
+      <h3>Admin <small>Overview</small></h3>
+      <dl>
+        <dt>Hypervisors</dt>
+        <dd>Online: <b>{{ hypervisors_online }}</b> Offline: <b>{{ hypervisors_offline }}</b></dd>
+      </dl>
+      <dl>
+        <dt>Storage Pools</dt>
+        <dd>Online: <b>{{ storagepools_online }}</b> Offline: <b>{{ instances_offline }}</b></dd>
+      </dl>
+      <dl>
+        <dt>Volumes</dt>
+        <dd>Online: <b>{{ volumes_online }}</b> Offline: <b>{{ volumes_offline }}</b></dd>
+      </dl>
+      <dl>
+        <dt>Instances</dt>
+        <dd>Online: <b>{{ instances_online }}</b> Offline: <b>{{ instances_offline }}</b> Tasks: <b>{{ instancetasks }}</b></dd>
+      </dl>
+      <dl>
+        <dt>Installation Disks</dt>
+        <dd>Complete: <b>{{ installationdisks }}</b> Tasks: <b>{{ installationdisktasks }}</b></dd>
+      </dl>
+      {% endif %}
     </div>
     <div class="tab-pane fade" id="messages">
       <h2>Messages</h2>

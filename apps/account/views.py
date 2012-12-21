@@ -3,10 +3,16 @@ from django.shortcuts import redirect, render_to_response
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.db.models import Q
 import persistent_messages
 from emailusernames.utils import get_user
 from apps.account.forms import LoginForm
 from apps.account.models import UserLogin, InvalidLogin, UserBrowser
+from apps.hypervisor.models import Hypervisor
+from apps.storagepool.models import StoragePool
+from apps.volume.models import Volume
+from apps.installationdisk.models import InstallationDisk, InstallationDiskTask
+from apps.instance.models import Instance, InstanceTask
 
 def get_client_ip (request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -23,10 +29,41 @@ def index(request):
     read=False).order_by('-pk')
   read_messages = persistent_messages.models.Message.objects.filter(user=request.user,
     read=True).order_by('-pk')
-  return render_to_response('account/index.html', {
+  my_instances_online = Instance.objects.filter(status=1)
+  my_instances_offline = Instance.objects.filter(~Q(status=1))
+  response = {
       'unread_messages': unread_messages,
       'read_messages': read_messages,
-    },
+      'my_instances_online': my_instances_online,
+      'my_instances_offline': my_instances_offline
+  }
+
+  if request.user.is_staff:
+    hypervisors_online = Hypervisor.objects.filter(status='UP').count()
+    hypervisors_offline = Hypervisor.objects.filter(~Q(status='UP')).count()
+    storagepools_online = StoragePool.objects.filter(status=2).count()
+    storagepools_offline = StoragePool.objects.filter(~Q(status=2)).count()
+    volumes_online = Volume.objects.filter(storagepool__status=2).count()
+    volumes_offline = Volume.objects.filter(~Q(storagepool__status=2)).count()
+    instances_online = Instance.objects.filter(status=1).count()
+    instances_offline = Instance.objects.filter(~Q(status=1)).count()
+    instancetasks = InstanceTask.objects.all().count()
+    installationdisks = InstallationDisk.objects.all().count()
+    installationdisktasks = InstallationDiskTask.objects.all().count()
+
+    response['hypervisors_online'] = hypervisors_online
+    response['hypervisors_offline'] = hypervisors_offline
+    response['storagepools_online'] = storagepools_online
+    response['storagepools_offline'] = storagepools_offline
+    response['volumes_online'] = volumes_online
+    response['volumes_offline'] = volumes_offline
+    response['instances_online'] = instances_online
+    response['instances_offline'] = instances_offline
+    response['instancetasks'] = instancetasks
+    response['installationdisks'] = installationdisks
+    response['installationdisktasks'] = installationdisktasks
+
+  return render_to_response('account/index.html', response,
     context_instance=RequestContext(request))
     
 
