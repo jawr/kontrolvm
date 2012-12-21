@@ -1,7 +1,7 @@
 {% extends 'base_fluid.html' %}
 {% block title %}Instances{% endblock %}
 {% block content %}
-  <h1>Instancess</h1>
+  <h1>Instances</h1>
   <p>Overview of Instances. <a href="/instance/add/">Add another</a>.</p>
   {% load size_utils %}
   {% if instances %}
@@ -22,7 +22,7 @@
       <tbody>
         {% for instance in instances %}
           <tr>
-            <td>{{ instance.name|truncatechars:6 }}</td>
+            <td><a href="/instance/{{ instance.name }}/">{{ instance.name|truncatechars:6 }}</a></td>
             <td>{{ instance.user }}</td>
             <td>{{ instance.creator }}</td>
             <td>{{ instance.created }}</td>

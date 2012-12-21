@@ -53,7 +53,7 @@ class InstallationDiskTask(models.Model):
   hypervisor = models.ForeignKey(Hypervisor)
   url = models.URLField()
   filename = models.CharField(max_length=100)
-  task_id = models.CharField(max_length=100)
+  task_id = models.CharField(max_length=100, default='dummy')
   total_bytes_dl = models.IntegerField(default=0)
   total_bytes = models.IntegerField(default=0)
   percent = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
@@ -86,14 +86,16 @@ class InstallationDiskTask(models.Model):
 
   def get_status(self):
     status = node.check_command(self.hypervisor, self.task_id)
+    print status
     if 'args' in status:
       args = status['args']
-      if 'total_bytes_dl' in args:
-        self.total_bytes_dl = args['total_bytes_dl']
-      if 'total_bytes' in args:
-        self.total_bytes = args['total_bytes']
-      if 'percent' in args:
-        self.percent = args['percent']
+      if args:
+        if 'total_bytes_dl' in args:
+          self.total_bytes_dl = args['total_bytes_dl']
+        if 'total_bytes' in args:
+          self.total_bytes = args['total_bytes']
+        if 'percent' in args:
+          self.percent = args['percent']
 
     self.state = status['state']
     self.save()
