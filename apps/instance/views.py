@@ -6,8 +6,38 @@ from apps.instance.models import Instance, InstanceTask
 from apps.instance.forms import InstanceTaskForm
 from apps.instance.tasks import create_instance
 from django.contrib import messages
+from xml.etree import ElementTree
 import persistent_messages
 import simplejson
+import libvirt
+
+def instance(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  
+  # check if user is staff or owner
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+
+  response = {'instance': instance}
+
+  try:
+    dom = instance.get_instance()
+    tree = ElementTree.fromstring(dom.XMLDesc(0))
+
+    # ensure our volume has it's device name
+    if not instance.volume.device_name:
+      for dev in tree.findall('devices/disk'):
+        path = dev.find('source').get('file')
+        if path == instance.volume.path():
+          instance.volume.device_name = "/dev/%s" % (dev.find('target').get('dev'))
+          instance.volume.save()
+          break
+
+  except libvirt.libvirtError as e:
+    pass
+
+  return render_to_response('instance/instance.html', response,
+    context_instance=RequestContext(request))
 
 @staff_member_required
 def index(request):

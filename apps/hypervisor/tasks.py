@@ -19,7 +19,7 @@ def initalize_hypervisor(hypervisor):
   conn = hypervisor.get_connection(True)
   if conn:
     # get a list of existing storage pools
-    for pool in conn.listStoragePools():
+    for pool in conn.listDefinedStoragePools():
       storagepool = conn.storagePoolLookupByName(pool)
       xml = minidom.parseString(storagepool.XMLDesc(0))
       items = xml.getElementsByTagName('name')
@@ -31,6 +31,7 @@ def initalize_hypervisor(hypervisor):
         path=path,
         hypervisor=hypervisor
       )
+      if not created: new_pool.save()
       pool = new_pool.get_storagepool()
       if pool:
         # get a list of volumes

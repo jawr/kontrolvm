@@ -40,6 +40,9 @@ class StoragePool(models.Model):
   # updated
   updated = models.DateTimeField(auto_now=True)
   
+  class Meta:
+    unique_together = ('name', 'hypervisor')
+
   def __str__(self):
     return unicode(self).encode('utf-8')
   
@@ -48,9 +51,15 @@ class StoragePool(models.Model):
 
   def get_storagepool(self):
     storagepool = None
-    if self.hypervisor.status == 'UP':
-      conn = self.hypervisor.get_connection()
-      if conn: storagepool = conn.storagePoolLookupByName(self.name)
+    try:
+      if self.hypervisor.status == 'UP':
+        conn = self.hypervisor.get_connection()
+        if conn: 
+          storagepool = conn.storagePoolLookupByName(self.name)
+          if not storagepool.isActive(): storagepool = None
+          
+    except libvirt.libvirtError:
+      pass
     return storagepool
 
   def delete(self, request=None):
@@ -65,7 +74,7 @@ class StoragePool(models.Model):
           except libvirt.libvirtError as e:
             if request:
               messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Storage Pool Volume: %s' % (e))
-            return
+            # try and continue
         # set pool to inactive
         try:
           storagepool.destroy()

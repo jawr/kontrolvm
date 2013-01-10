@@ -10,6 +10,7 @@ import libvirt
 
 class Volume(models.Model):
   name = models.CharField(max_length=100, unique=True)
+  device_name = models.CharField(max_length=20, null=True, blank=True)
   storagepool = models.ForeignKey(StoragePool)
   capacity = models.BigIntegerField(default=0)
   allocated = models.BigIntegerField(default=0)

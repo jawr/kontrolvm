@@ -4,4 +4,4 @@ from apps.storagepool.models import StoragePool
 class StoragePoolForm(forms.ModelForm):
   class Meta:
     model = StoragePool
-    exclude = ('status',)
+    exclude = ('status','allocated','available','percent')

@@ -15,6 +15,9 @@ class InstallationDisk(models.Model):
   total_bytes = models.IntegerField()
   user = models.ForeignKey(User)
 
+  class Meta:
+    unique_together = ('filename', 'hypervisor',)
+
   def path(self):
     return "%s" % (os.path.join(self.hypervisor.install_medium_path, self.filename))
 
