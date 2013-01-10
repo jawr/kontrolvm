@@ -34,7 +34,7 @@
               </div>
             </td>
             <td>
-              {% if storagepool.status != 0 %}
+              {% if storagepool.status != 0 and storagepool.status != 6 %}
                 <a href="#" id="stop"><i id="{{ storagepool.id }}" class="icon-stop"></i></a>
               {% else %}
                 <a href="/storagepool/start/{{ storagepool.id }}/">

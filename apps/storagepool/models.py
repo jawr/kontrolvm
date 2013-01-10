@@ -54,9 +54,7 @@ class StoragePool(models.Model):
     try:
       if self.hypervisor.status == 'UP':
         conn = self.hypervisor.get_connection()
-        if conn: 
-          storagepool = conn.storagePoolLookupByName(self.name)
-          if not storagepool.isActive(): storagepool = None
+        if conn: storagepool = conn.storagePoolLookupByName(self.name)
           
     except libvirt.libvirtError:
       pass
@@ -100,9 +98,9 @@ class StoragePool(models.Model):
       messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Storage Pool: Unable to get Storage Pool %s' % (self))
     
 
-  def update(self):
+  def update(self, force=False):
     # check if we have checked in the last minute
-    if (timezone.now() - self.updated) < timedelta(minutes=1): return
+    if not force and (timezone.now() - self.updated) < timedelta(minutes=1): return
     storagepool = self.get_storagepool()
     if storagepool:
       

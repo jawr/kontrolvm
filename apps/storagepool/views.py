@@ -117,7 +117,7 @@ def start(request, pk):
         'Started %s Storage Pool' % (pool.name))
     except libvirt.libvirtError as e:
       messages.add_message(request, persistent_messages.ERROR,
-        'Unable to start % Storage Pool: %s' % (pool.name, e))
+        'Unable to start %s Storage Pool: %s' % (pool.name, e))
   return redirect('/storagepool/')
 
 @staff_member_required

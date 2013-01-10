@@ -19,7 +19,7 @@ def initalize_hypervisor(hypervisor):
   conn = hypervisor.get_connection(True)
   if conn:
     # get a list of existing storage pools
-    for pool in conn.listDefinedStoragePools():
+    for pool in conn.listDefinedStoragePools() + conn.listStoragePools():
       storagepool = conn.storagePoolLookupByName(pool)
       xml = minidom.parseString(storagepool.XMLDesc(0))
       items = xml.getElementsByTagName('name')
@@ -31,9 +31,10 @@ def initalize_hypervisor(hypervisor):
         path=path,
         hypervisor=hypervisor
       )
-      if not created: new_pool.save()
+      if created: new_pool.save()
+      new_pool.update(True) 
       pool = new_pool.get_storagepool()
-      if pool:
+      if pool and pool.isActive():
         # get a list of volumes
         for vol in pool.listVolumes():
           if match_vol.search(vol):
@@ -52,11 +53,8 @@ def initalize_hypervisor(hypervisor):
     while True:
       time.sleep(2.5)
       status = node.check_command(hypervisor, task_id)
-      print status
       if status['state'] == 'SUCCESS':
-        print status['args']['disks']
         for disk in status['args']['disks']:
-          print disk
           (installationdisk, created) = InstallationDisk.objects.get_or_create(
             name=disk['filename'],
             hypervisor=hypervisor,
