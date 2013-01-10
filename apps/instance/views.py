@@ -39,6 +39,108 @@ def instance(request, name):
   return render_to_response('instance/instance.html', response,
     context_instance=RequestContext(request))
 
+def start(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+
+  dom = instance.get_instance()
+  if dom:
+    dom.create()
+    instance.update(True)
+    messages.add_message(request, persistent_messages.INFO,
+      'Started instance %s' % (instance))
+  else:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to get instance %s when trying to Start it' % (instance))
+
+  return redirect('/instance/' + instance.name + '/')
+     
+def resume(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+
+  dom = instance.get_instance()
+  if dom:
+    dom.resume()
+    instance.update(True)
+    messages.add_message(request, persistent_messages.INFO,
+      'Resumed instance %s' % (instance))
+  else:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to get instance %s when trying to Resume it' % (instance))
+
+  return redirect('/instance/' + instance.name + '/')
+
+def suspend(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+
+  dom = instance.get_instance()
+  if dom:
+    dom.suspend()
+    instance.update(True)
+    messages.add_message(request, persistent_messages.INFO,
+      'Suspended instance %s' % (instance))
+  else:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to get instance %s when trying to Suspend it' % (instance))
+
+  return redirect('/instance/' + instance.name + '/')
+
+def shutdown(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+
+  dom = instance.get_instance()
+  if dom:
+    dom.shutdown()
+    instance.update(True)
+    messages.add_message(request, persistent_messages.INFO,
+      'Shutdown instance %s' % (instance))
+  else:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to get instance %s when trying to Shutdown' % (instance))
+
+  return redirect('/instance/' + instance.name + '/')
+
+def force(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+
+  dom = instance.get_instance()
+  if dom:
+    dom.destroy()
+    instance.update(True)
+    messages.add_message(request, persistent_messages.INFO,
+      'Force Shutdown instance %s' % (instance))
+  else:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to get instance %s when trying to Force Shutdown' % (instance))
+
+  return redirect('/instance/' + instance.name + '/')
+
+def restart(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+
+  dom = instance.get_instance()
+  if dom:
+    dom.reboot(0)
+    instance.update(True)
+    messages.add_message(request, persistent_messages.INFO,
+      'Restarted instance %s' % (instance))
+  else:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to get instance %s when trying to Restart it' % (instance))
+
+  return redirect('/instance/' + instance.name + '/')
+
 @staff_member_required
 def index(request):
   instances = Instance.objects.all()

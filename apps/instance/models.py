@@ -66,8 +66,8 @@ class Instance(models.Model):
         pass
     return instance
 
-  def update(self):
-    if (timezone.now() - self.updated) < timedelta(seconds=15): return
+  def update(self, force=False):
+    if not force and (timezone.now() - self.updated) < timedelta(seconds=15): return
     instance = self.get_instance()
     if instance:
       (status, na, memory, vcpu, na) = instance.info()

@@ -1,0 +1,60 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Instance {{ instance }}{% endblock %}
+{% block content %}
+  <h2>Controls <i class="icon-cog"></i> <small>Make changes to your Instance..</small></h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th style="width: 50px;">Status</th>
+        <td>{{ instance.get_status_display }} {{ instance.status }}</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th style="width: 50px;">Power</th>
+        <td>
+          <a class="btn btn-primary
+            {% if instance.status != 5 %}disabled"{% else %}" href="/instance/start/{{ instance.name }}/"{% endif %}><i class="icon-play"></i> Start</a>
+          <a class="btn btn-info
+            {% if instance.status != 3 %}disabled"{% else %}" href="/instance/resume/{{ instance.name }}/"{% endif %}><i class="icon-play"></i> Resume</a>
+          <a class="btn btn-warning
+            {% if instance.status != 1 %}disabled"{% else %}" href="/instance/suspend/{{ instance.name }}/"{% endif %}><i class="icon-pause"></i> Suspend</a>
+          <a class="btn btn-danger
+            {% if instance.status != 1 %}disabled"{% else %}" href="/instance/shutdown/{{ instance.name }}/"{% endif %}><i class="icon-stop"></i> Shutdown</a>
+          <a class="btn btn-inverse
+            {% if instance.status != 1 %}disabled"{% else %}" href="/instance/force/{{ instance.name }}/"{% endif %}><i class="icon-eject"></i> Force Shutdown</a>
+          <a class="btn btn-success
+            {% if instance.status != 1 %}disabled"{% else %}" href="/instance/restart/{{ instance.name }}/"{% endif %}><i class="icon-refresh"></i> Restart</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+ 
+  <hr>
+  <h2>Overview <i class="icon-globe"></i> <small>Quick look at your Instance..</small></h2>
+  {% load size_utils %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th colspan="4">Hardware</th>
+      </tr>
+    </thead>
+  <tbody>
+    <tr>
+      <th style="width: 50px;">VCPU</th>
+      <td style="width: 240px;" colspan="3">{{ instance.vcpu }}</td>
+    </tr>
+    <tr>
+      <th style="width: 50px;">RAM</th>
+      <td style="width: 240px;" colspan="3">{{ instance.memory|to_human_readable }}</td>
+    </tr>
+    <tr>
+      <th style="width: 50px;">HDD</th>
+      <td style="width: 240px;">{{ instance.volume.capacity|to_human_readable }}</td>
+      <th style="width: 50px;">Path</th>
+      <td>{{ instance.volume.device_name }}</td>
+    </tr>
+  </tbody>
+  </table>
+{% endblock %}

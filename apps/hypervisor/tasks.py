@@ -36,15 +36,13 @@ def initalize_hypervisor(hypervisor):
       pool = new_pool.get_storagepool()
       if pool and pool.isActive():
         # get a list of volumes
-        for vol in pool.listVolumes():
-          if match_vol.search(vol):
-            vol = vol.replace('.qcow2', '')
-            (new_vol, created) = Volume.objects.get_or_create(
-              name=vol,
-              storagepool=new_pool
-            )
-            if created: new_vol.save()
-            new_vol.update()
+        for vol_id in conn.listDomainsID():
+          dom = conn.lookupByID(vol_id)
+          print dom
+          xml = dom.XMLDesc(0)
+          items = xml.getElementsByTagName('name')
+          name = items[0].childNodes[0].data
+          items = xml.getElementsByTagName('memory')
         
     # get a list of existing installation disks
     task_id = node.send_command(hypervisor, 'installationdisk_list', 
