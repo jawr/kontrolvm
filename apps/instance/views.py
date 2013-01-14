@@ -4,6 +4,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, Http404
 from apps.instance.models import Instance, InstanceTask
 from apps.instance.forms import InstanceTaskForm
+from apps.installationdisk.forms import InstallationDisksForm
 from apps.instance.tasks import create_instance
 from django.contrib import messages
 from xml.etree import ElementTree
@@ -18,20 +19,26 @@ def instance(request, name):
   if not request.user.is_staff and request.user != instance.user:
     raise Http404
 
-  response = {'instance': instance}
+  installationdisks_form = InstallationDisksForm(instance.volume.storagepool.hypervisor)
+
+  response = {
+    'instance': instance,
+    'installationdisks_form': installationdisks_form
+  }
 
   try:
     dom = instance.get_instance()
-    tree = ElementTree.fromstring(dom.XMLDesc(0))
+    if dom:
+      tree = ElementTree.fromstring(dom.XMLDesc(0))
 
-    # ensure our volume has it's device name
-    if not instance.volume.device_name:
-      for dev in tree.findall('devices/disk'):
-        path = dev.find('source').get('file')
-        if path == instance.volume.path():
-          instance.volume.device_name = "/dev/%s" % (dev.find('target').get('dev'))
-          instance.volume.save()
-          break
+      # ensure our volume has it's device name
+      if not instance.volume.device_name:
+        for dev in tree.findall('devices/disk'):
+          path = dev.find('source').get('file')
+          if path == instance.volume.path():
+            instance.volume.device_name = "/dev/%s" % (dev.find('target').get('dev'))
+            instance.volume.save()
+            break
 
   except libvirt.libvirtError as e:
     pass

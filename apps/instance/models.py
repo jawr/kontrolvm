@@ -36,7 +36,7 @@ class Instance(models.Model):
   LAST = 8
   NONE = 9
   STATUS_CHOICES = (
-    (NOSTATE, 'No State'),
+    (NOSTATE, 'No State - Hypervisor may be down'),
     (RUNNING, 'Running'),
     (BLOCKED, 'Blocked'),
     (PAUSED, 'Paused'),
@@ -64,6 +64,9 @@ class Instance(models.Model):
         instance = hypervisor.lookupByName(self.name)
       except libvirt.libvirtError:
         pass
+    if not instance: 
+      self.status = self.NOSTATE
+      self.save()
     return instance
 
   def update(self, force=False):

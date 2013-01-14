@@ -1,13 +1,16 @@
 {% extends 'base_fluid.html' %}
 {% block title %}Instance {{ instance }}{% endblock %}
 {% block content %}
+  {% load bootstrap %}
+  {% load size_utils %}
+
   <h2>Controls <i class="icon-cog"></i> <small>Make changes to your Instance..</small></h2>
 
   <table class="table">
     <thead>
       <tr>
         <th style="width: 50px;">Status</th>
-        <td>{{ instance.get_status_display }} {{ instance.status }}</td>
+        <td>{{ instance.get_status_display }}</td>
       </tr>
     </thead>
     <tbody>
@@ -28,12 +31,22 @@
             {% if instance.status != 1 %}disabled"{% else %}" href="/instance/restart/{{ instance.name }}/"{% endif %}><i class="icon-refresh"></i> Restart</a>
         </td>
       </tr>
+      <!-- hdd options -->
+      <tr>
+        <th style="width: 50px;">CD/DVD</th>
+        <td>{{ instance.disk.name }}</td>
+      </tr>
+      <tr>
+        <th style="width: 50px;"></th>
+        <td>{{ installationdisks_form|bootstrap }}</td>
+      </tr>
+        
+      <!-- other options -->
     </tbody>
   </table>
  
   <hr>
-  <h2>Overview <i class="icon-globe"></i> <small>Quick look at your Instance..</small></h2>
-  {% load size_utils %}
+  <h2>Overview <i class="icon-globe"></i> <small>A quick look at your Instance..</small></h2>
   <table class="table table-striped">
     <thead>
       <tr>
