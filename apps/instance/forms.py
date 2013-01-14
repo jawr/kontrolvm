@@ -5,4 +5,4 @@ class InstanceTaskForm(forms.ModelForm):
   class Meta:
     model = InstanceTask
     exclude = ('name', 'creator', 'updated', 'created', 'volume',
-      'status', 'state', 'message', 'task_id', 'percent',)
+      'status', 'state', 'message', 'task_id', 'percent', 'disk',)

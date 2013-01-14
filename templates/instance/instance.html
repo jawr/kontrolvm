@@ -12,6 +12,12 @@
         <th style="width: 50px;">Status</th>
         <td>{{ instance.get_status_display }}</td>
       </tr>
+        <th style="width: 50px;"></th>
+        <td>
+          <a href="/instance/update/{{ instance.name }}/" class="btn btn-success btn-mini"><i class="icon-refresh"></i> Refresh</a>
+          <a href="/instance/delete/{{ instance.name }}/" class="btn btn-mini btn-inverse"><i class="icon-trash"></i> Delete</a>
+        </td>
+      </tr>
     </thead>
     <tbody>
       <tr>
@@ -23,22 +29,25 @@
             {% if instance.status != 3 %}disabled"{% else %}" href="/instance/resume/{{ instance.name }}/"{% endif %}><i class="icon-play"></i> Resume</a>
           <a class="btn btn-warning
             {% if instance.status != 1 %}disabled"{% else %}" href="/instance/suspend/{{ instance.name }}/"{% endif %}><i class="icon-pause"></i> Suspend</a>
+          <a class="btn btn-success
+            {% if instance.status != 1 %}disabled"{% else %}" href="/instance/restart/{{ instance.name }}/"{% endif %}><i class="icon-refresh"></i> Restart</a>
           <a class="btn btn-danger
             {% if instance.status != 1 %}disabled"{% else %}" href="/instance/shutdown/{{ instance.name }}/"{% endif %}><i class="icon-stop"></i> Shutdown</a>
           <a class="btn btn-inverse
             {% if instance.status != 1 %}disabled"{% else %}" href="/instance/force/{{ instance.name }}/"{% endif %}><i class="icon-eject"></i> Force Shutdown</a>
-          <a class="btn btn-success
-            {% if instance.status != 1 %}disabled"{% else %}" href="/instance/restart/{{ instance.name }}/"{% endif %}><i class="icon-refresh"></i> Restart</a>
         </td>
       </tr>
       <!-- hdd options -->
       <tr>
         <th style="width: 50px;">CD/DVD</th>
-        <td>{{ instance.disk.name }}</td>
-      </tr>
-      <tr>
-        <th style="width: 50px;"></th>
-        <td>{{ installationdisks_form|bootstrap }}</td>
+        <td>
+            <form class="form-inline" method="POST">
+              {% csrf_token %}
+              {{ installationdisks_form|bootstrap }}
+              <button type="submit" class="btn 
+                {% if instance.status == 0 or instance.status == 8 or instance.status == 9 %}disabled{% endif %}">Mount Disk</button>
+            </form>
+        </td>
       </tr>
         
       <!-- other options -->
@@ -67,6 +76,10 @@
       <td style="width: 240px;">{{ instance.volume.capacity|to_human_readable }}</td>
       <th style="width: 50px;">Path</th>
       <td>{{ instance.volume.device_name }}</td>
+    </tr>
+    <tr>
+      <th style="width: 50px;">CD/DVD</th>
+      <td style="width: 240px;" colspan="3">{{ instance.disk }}</td>
     </tr>
   </tbody>
   </table>

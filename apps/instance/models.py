@@ -64,7 +64,7 @@ class Instance(models.Model):
         instance = hypervisor.lookupByName(self.name)
       except libvirt.libvirtError:
         pass
-    if not instance: 
+    if not instance:
       self.status = self.NOSTATE
       self.save()
     return instance
@@ -83,7 +83,7 @@ class Instance(models.Model):
       try:
         instance.destroy()
         instance.undefine()
-        self.volume.delete(True)
+        self.volume.delete(request)
         if request:
           persistent_messages.add_message(request, persistent_messages.SUCCESS, 'Deleted Instance %s' % (self))
           if request.user != self.user:

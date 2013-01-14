@@ -8,8 +8,12 @@ class InstallationDiskTaskForm(forms.ModelForm):
       'percent', 'state', 'user',)
 
 class InstallationDisksForm(forms.Form):
-  installation_disk = forms.ModelChoiceField(queryset=[])
+  installation_disk = forms.ModelChoiceField(
+    queryset=[],
+    label='',
+    required=False)
   
-  def __init__(self, hypervisor, *args, **kwargs):
+  def __init__(self, instance, *args, **kwargs):
     super(InstallationDisksForm, self).__init__(*args, **kwargs)
-    self.fields['installation_disk'].queryset = hypervisor.installationdisk_set.all()
+    self.fields['installation_disk'].initial = instance.disk
+    self.fields['installation_disk'].queryset = instance.volume.storagepool.hypervisor.installationdisk_set.all()

@@ -19,7 +19,14 @@ def instance(request, name):
   if not request.user.is_staff and request.user != instance.user:
     raise Http404
 
-  installationdisks_form = InstallationDisksForm(instance.volume.storagepool.hypervisor)
+  instance.update()
+
+  installationdisks_form = InstallationDisksForm(instance)
+  if request.method == 'POST':
+    installationdisks_form = InstallationDisksForm(instance, request.POST)
+    if installationdisks_form.is_valid():
+      instance.disk = installationdisks_form.cleaned_data['installation_disk']
+      instance.save()
 
   response = {
     'instance': instance,
@@ -45,6 +52,14 @@ def instance(request, name):
 
   return render_to_response('instance/instance.html', response,
     context_instance=RequestContext(request))
+
+def update(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+  instance.update(True)
+  return redirect('/instance/' + instance.name + '/')
+  
 
 def start(request, name):
   instance = get_object_or_404(Instance, name=name)
@@ -176,7 +191,6 @@ def add(request):
         creator=request.user,
         vcpu=form.cleaned_data['vcpu'],
         memory=form.cleaned_data['memory'],
-        disk=form.cleaned_data['disk'],
         storagepool=form.cleaned_data['storagepool']
       )
       if created: instancetask.save()
@@ -193,9 +207,9 @@ def add(request):
     context_instance=RequestContext(request))
 
 @staff_member_required
-def delete(request, pk):
-  task = get_object_or_404(Instance, pk=pk)
-  task.delete(request)
+def delete(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  instance.delete(request)
   return redirect('/instance/')
 
 @staff_member_required
