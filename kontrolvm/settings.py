@@ -19,8 +19,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
   'default': {
-    'ENGINE': 'django.db.backends.sqlite3', 
-    'NAME': 'db/kontrolvm.db',            
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': 'db/kontrolvm.db',
     'USER': '',            # Not used with sqlite3.
     'PASSWORD': '',          # Not used with sqlite3.
     'HOST': '',            # Set to empty string for localhost. Not used with sqlite3.
@@ -83,7 +83,7 @@ SECRET_KEY = 'ko4k4lkmregeEKLRGKFDMelmfksgng4539tw0gjedfm/G'
 TEMPLATE_LOADERS = (
   'django.template.loaders.filesystem.Loader',
   'django.template.loaders.app_directories.Loader',
-#   'django.template.loaders.eggs.Loader',
+  'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -114,6 +114,8 @@ INSTALLED_APPS = (
   'emailusernames',
   'bootstrapform',
   'persistent_messages',
+  'dajax',
+  'dajaxice',
   # apps
   'apps.account',
   'apps.hypervisor',
@@ -121,6 +123,7 @@ INSTALLED_APPS = (
   'apps.installationdisk',
   'apps.volume',
   'apps.instance',
+  'apps.vnc'
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -137,6 +140,14 @@ AUTH_PROFILE_MODULE = 'apps.account.UserProfile'
 LOGGING = {
   'version': 1,
   'disable_existing_loggers': False,
+  'formatters': {
+    'verbose': {
+      'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+     },
+    'simple': {
+      'format': '%(levelname)s %(message)s'
+    },
+  },
   'filters': {
     'require_debug_false': {
       '()': 'django.utils.log.RequireDebugFalse'
@@ -147,12 +158,22 @@ LOGGING = {
       'level': 'ERROR',
       'filters': ['require_debug_false'],
       'class': 'django.utils.log.AdminEmailHandler'
-    }
+    },
+    'console': {
+      'level':'DEBUG',
+      'class':'logging.StreamHandler',
+      'formatter': 'simple'
+    },
   },
   'loggers': {
     'django.request': {
       'handlers': ['mail_admins'],
       'level': 'ERROR',
+      'propagate': True,
+    },
+    'dajaxice': {
+      'handlers': ['console'],
+      'level': 'INFO',
       'propagate': True,
     },
   }
@@ -174,3 +195,11 @@ LOGIN_URL = '/account/login/'
 LOGOUT_URL = '/account/logout'
 
 MESSAGE_STORAGE = 'persistent_messages.storage.PersistentMessageStorage'
+
+DAJAXICE_MEDIA_PREFIX = 'djx'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'dajaxice.finders.DajaxiceFinder',
+)

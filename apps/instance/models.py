@@ -7,6 +7,7 @@ from apps.volume.models import Volume
 from apps.installationdisk.models import InstallationDisk
 from apps.storagepool.models import StoragePool
 from binascii import hexlify
+from xml.etree import ElementTree
 import libvirt
 import persistent_messages
 import os
@@ -74,6 +75,13 @@ class Instance(models.Model):
   def __unicode__(self):
     return "%s [%d CPU/%d MB RAM][%d GB][%s]" % \
       (self.user, self.vcpu, (self.memory/1024/1024.0), (self.volume.capacity/1024/1024/1024.0), self.get_status_display())
+
+  def get_vnc_port(self):
+    instance = self.get_instance()
+    if not instance: return 0
+    tree = ElementTree.fromstring(instance.XMLDesc(0))
+    graphics = tree.findall('devices/graphics')
+    return int(graphics[0].get('port'))
 
   def get_instance(self):
     hypervisor = self.volume.storagepool.hypervisor.get_connection()

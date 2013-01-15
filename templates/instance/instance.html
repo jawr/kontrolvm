@@ -44,12 +44,62 @@
             <form class="form-inline" method="POST">
               {% csrf_token %}
               {{ installationdisks_form.installation_disk }}
-              <button type="submit" class="btn 
-                {% if instance.status == 0 or instance.status == 8 or instance.status == 9 %}disabled{% endif %}">Mount Disk</button>
+              <button type="submit" class="btn
+                {% if instance.status == 0 or instance.status == 8 or instance.status == 9 %}disabled{% endif %}"><i class="icon-plus"></i> Mount Disk</button>
             </form>
         </td>
       </tr>
-        
+      <!-- vnc options -->
+      <script>
+        var connected = 0;
+        var heartbeat;
+        function vnc_heartbeat (port) {
+          if (port > 0) {
+            heartbeat = setInterval(function() {
+              Dajaxice.apps.vnc.heartbeat(Dajax.process, {
+                'port': port,
+                'name': '{{ instance.name }}',
+                'method': 1
+              });
+            }, 2000);
+          }
+        }
+      function stop_heartbeat(button) {
+        clearInterval(heartbeat);
+        $('#vnc-container').toggle();
+        $(button).toggleClass('active');
+        $(button).html('Connect');
+      }
+      function vnc_handle(button) {
+        if (!connected) {
+          $(button).toggleClass('active');
+          $(button).html('Connecting...');
+          Dajaxice.apps.vnc.setup_vnc(Dajax.process, 
+            {'name': '{{ instance.name }}'}
+          );
+          vnc_heartbeat();
+        } else {
+          stop_heartbeat(button);
+        }
+      }
+      </script>
+      <tr>
+        <th style="width: 50px;">VNC</th>
+        <td>
+          <button id="vnc-connect-button" class="btn" onClick="vnc_handle(this);">
+            <i class="icon-share"></i> Launch VNC
+          </button>
+        </td>
+      </tr>
+      <tr id="vnc-container" style="display: none;">
+        <th style="width: 50px;"></th>
+        <td>
+          <p>For security reasons, the VNC session will only be accessible via this page, and the route through to your Server will only be active while you are connected to this page.</p>
+          <div id="vnc-applet" style="padding: 0 auto;">
+          </div>
+        </td>
+      </tr>
+
       <!-- other options -->
     </tbody>
   </table>
@@ -66,7 +116,7 @@
       });
     });
   </script>
- 
+
   <hr>
   <h2>Overview <i class="icon-globe"></i> <small>A quick look at your Instance..</small></h2>
   <table class="table table-striped">
