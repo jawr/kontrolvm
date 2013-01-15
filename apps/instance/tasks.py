@@ -63,6 +63,10 @@ def create_instance(instancetask_name):
                 <alias name='ide0-0-0'/>
                 <address type='drive' controller='0' bus='0' target='0' unit='0'/>
             </disk>
+            <disk type='file' device='cdrom'>
+                <driver name='qemu' type='raw'/>
+                <target dev='hdc' bus='ide'/>
+            </disk>
             <controller type='ide' index='0'>
                 <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x1'/>
             </controller>

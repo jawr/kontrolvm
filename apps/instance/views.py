@@ -25,8 +25,7 @@ def instance(request, name):
   if request.method == 'POST':
     installationdisks_form = InstallationDisksForm(instance, request.POST)
     if installationdisks_form.is_valid():
-      instance.disk = installationdisks_form.cleaned_data['installation_disk']
-      instance.save()
+      instance.attach_disk(installationdisks_form.cleaned_data['installation_disk'], request)
 
   response = {
     'instance': instance,

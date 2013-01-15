@@ -12,6 +12,25 @@ import persistent_messages
 import os
 from celery.result import AsyncResult
 
+# template taken from: http://virtips.virtwind.com/2012/05/attaching-disk-via-libvirt-using-python/
+ATTACH_DISK_TEMPLATE = \
+  """
+    <disk type='file' device='cdrom'>
+        <driver name='qemu' type='raw'/>
+        <source file='{path}'/>
+        <target dev='hdc' bus='ide'/>
+        <readonly/>
+        <address type='drive' controller='0' bus='1' unit='0'/>
+    </disk>
+  """
+DETACH_DISK_TEMPLATE = \
+  """
+    <disk type='file' device='cdrom'>
+        <driver name='qemu' type='raw'/>
+        <target dev='hdc' bus='ide'/>
+    </disk>
+  """
+
 class Instance(models.Model):
   name = models.CharField(max_length=100)
   volume = models.OneToOneField(Volume)
@@ -100,6 +119,50 @@ class Instance(models.Model):
       if request.user != self.user:
         persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Instance %s' % (self), user=self.user)
 
+  def detach_disk(self, request=None):
+    dom = self.get_instance()
+    if dom:
+      try:
+        dom.updateDeviceFlags(DETACH_DISK_TEMPLATE, 0)
+        self.disk = None
+        self.save()
+        if request:
+          messages.add_message(request, persistent_messages.SUCCESS, 'Unmounted disk on %s' % (self.name))
+      except libvirt.libvirtError as e:
+        if request and request.user.is_staff:
+          messages.add_message(request, persistent_messages.ERROR, 'Unable to unmount disk on %s, unable to get dom: %s' % (self.name, e))
+        elif request:
+          messages.add_message(request, persistent_messages.ERROR, 'Unable to unmount diskon %s' % (self.name))
+
+    elif request and request.user.is_staff:
+      messages.add_message(request, persistent_messages.ERROR, 'Unable to unmount disk on %s, unable to get dom' % (self.name))
+    elif request:
+      messages.add_message(request, persistent_messages.ERROR, 'Unable to unmount disk on %s' % (self.name))
+        
+
+  def attach_disk(self, disk, request=None):
+    if disk == None:
+      self.detach_disk(request)
+      return
+
+    dom = self.get_instance()
+    if dom:
+      template = ATTACH_DISK_TEMPLATE.format(path=disk.path())
+      try:
+        dom.updateDeviceFlags(template, 0)
+        self.disk = disk
+        self.save()
+        messages.add_message(request, persistent_messages.SUCCESS, 'Mounted Disk %s on %s' % (disk, self.name))
+      except libvirt.libvirtError as e:
+        if request and request.user.is_staff:
+          messages.add_message(request, persistent_messages.ERROR, 'Unable to mount %s on %s, unable to get dom: %s' % (disk, self.name, e))
+        elif request:
+          messages.add_message(request, persistent_messages.ERROR, 'Unable to mount %s on %s' % (disk, self.name))
+
+    elif request and request.user.is_staff:
+      messages.add_message(request, persistent_messages.ERROR, 'Unable to mount %s on %s, unable to get dom' % (disk, self.name))
+    elif request:
+      messages.add_message(request, persistent_messages.ERROR, 'Unable to mount %s on %s' % (disk, self.name))
       
 
 class InstanceTask(models.Model):
@@ -165,3 +228,4 @@ class InstanceTask(models.Model):
           volume = Instance.objects.get(name=name)
         except Instance.DoesNotExist:
           return name
+

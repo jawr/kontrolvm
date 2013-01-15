@@ -15,7 +15,7 @@
         <th style="width: 50px;"></th>
         <td>
           <a href="/instance/update/{{ instance.name }}/" class="btn btn-success btn-mini"><i class="icon-refresh"></i> Refresh</a>
-          <a href="/instance/delete/{{ instance.name }}/" class="btn btn-mini btn-inverse"><i class="icon-trash"></i> Delete</a>
+          <a href="#" id="{{ instance.name }}" class="btn btn-mini btn-inverse"><i class="icon-trash"></i> Delete</a>
         </td>
       </tr>
     </thead>
@@ -43,7 +43,7 @@
         <td>
             <form class="form-inline" method="POST">
               {% csrf_token %}
-              {{ installationdisks_form|bootstrap }}
+              {{ installationdisks_form.installation_disk }}
               <button type="submit" class="btn 
                 {% if instance.status == 0 or instance.status == 8 or instance.status == 9 %}disabled{% endif %}">Mount Disk</button>
             </form>
@@ -53,6 +53,19 @@
       <!-- other options -->
     </tbody>
   </table>
+
+  <script>
+    $(function() {
+      $('a#{{ instance.name }}').click(function(e) {
+        e.preventDefault();
+        bootbox.confirm("Are you sure you want to delete this Instance?", function(confirmed) {
+          if (confirmed) {
+            window.location = '/instance/delete/' + e.srcElement.id + '/';
+          }
+        });
+      });
+    });
+  </script>
  
   <hr>
   <h2>Overview <i class="icon-globe"></i> <small>A quick look at your Instance..</small></h2>
