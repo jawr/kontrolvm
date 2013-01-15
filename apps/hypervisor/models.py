@@ -9,7 +9,8 @@ class Hypervisor(models.Model):
   name = models.CharField(max_length=100)
   location = models.CharField(max_length=100)
   address = models.CharField(max_length=255)
-  node_address = models.CharField(max_length=255)
+  libvirt_port = models.IntegerField(default=16509)
+  node_port = models.IntegerField(default=5000)
   timeout = models.IntegerField(max_length=2, default=10)
   # status choices
   ONLINE = 'UP'
@@ -33,11 +34,17 @@ class Hypervisor(models.Model):
   def __unicode__(self):
     return '%s [%s][%s]' % (self.name, self.location, self.get_status_display())
 
+  def get_libvirt_address(self):
+    return "qemu+tcp://%s:%d/system" % (self.address, self.libvirt_port)
+
+  def get_node_address(self):
+    return "http://%s:%d" % (self.address, self.node_port)
+
   def get_connection(self, update=False):
     conn = None
     if self.status != 'UP' and update or self.status == 'UP':
       try:
-        conn = libvirt.open(self.address)
+        conn = libvirt.open(self.get_libvirt_address())
         if not conn:
           if self.status == 'UP': self.status = 'TO'
         else: self.status = 'UP'

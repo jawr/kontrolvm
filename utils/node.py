@@ -2,7 +2,7 @@ import requests
 import simplejson
 
 def send_command(hypervisor, command, args):
-  addr = '%s/cmd/' % (hypervisor.node_address)
+  addr = '%s/cmd/' % (hypervisor.get_node_address())
   headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
   payload = {'command': command, 'args': args}
   try:
@@ -12,7 +12,7 @@ def send_command(hypervisor, command, args):
     return None
 
 def check_command(hypervisor, task_id):
-  addr = '%s/cmd/status/%s/' % (hypervisor.node_address, task_id)
+  addr = '%s/cmd/status/%s/' % (hypervisor.get_node_address(), task_id)
   headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
   try:
     result = requests.get(addr)
@@ -23,7 +23,7 @@ def check_command(hypervisor, task_id):
   return {'state': 'ERROR'}
 
 def abort_command(hypervisor, task_id):
-  addr = '%s/cmd/abort/%s/' % (hypervisor.node_address, task_id)
+  addr = '%s/cmd/abort/%s/' % (hypervisor.get_node_address(), task_id)
   headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
   try:
     result = requests.get(addr)

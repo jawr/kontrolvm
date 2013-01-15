@@ -21,7 +21,8 @@
             <td>{{ hypervisor.get_status_display }}</td>
             <td><a href="#" id="location" data-pk="{{ hypervisor.id }}">{{ hypervisor.location }}</a></td>
             <td><a href="#" id="address" data-pk="{{ hypervisor.id }}">{{ hypervisor.address }}</a></td>
-            <td><a href="#" id="node_address" data-pk="{{ hypervisor.id }}">{{ hypervisor.node_address }}</a></td>
+            <td><a href="#" id="libvirt_port" data-pk="{{ hypervisor.id }}">{{ hypervisor.libvirt_port }}</a></td>
+            <td><a href="#" id="node_port" data-pk="{{ hypervisor.id }}">{{ hypervisor.node_port }}</a></td>
             <td>
               <a href="#" id="delete"><i id="{{ hypervisor.id }}" class="icon-trash"></i></a>
               <a href="/hypervisor/update/{{ hypervisor.id }}/"><i class="icon-refresh"></i></a>
@@ -70,10 +71,15 @@
           url: '/hypervisor/edit/',
           title: 'Edit Address',
         });
-        $('#node_address').editable({
+        $('#libvirt_port').editable({
           type: 'text',
           url: '/hypervisor/edit/',
-          title: 'Edit Node Address',
+          title: 'Edit Libvirt Port',
+        });
+        $('#node_port').editable({
+          type: 'text',
+          url: '/hypervisor/edit/',
+          title: 'Edit Node Port',
         });
       });
     </script>

@@ -28,7 +28,8 @@ def add(request):
         location=form.cleaned_data['location'],
         address=form.cleaned_data['address'],
         timeout=form.cleaned_data['timeout'],
-        node_address=form.cleaned_data['node_address'],
+        libvirt_port=form.cleaned_data['libvirt_port'],
+        node_port=form.cleaned_data['node_port'],
         install_medium_path=form.cleaned_data['install_medium_path']
       )
       if created: hypervisor.save()
@@ -59,9 +60,12 @@ def edit(request):
       elif json['name'] == 'address':
         orig_value = hypervisor.address
         hypervisor.address = json['value']
-      elif json['name'] == 'node_address':
-        orig_value = hypervisor.node_address
-        hypervisor.node_address = json['value']
+      elif json['name'] == 'libvirt_port':
+        orig_value = hypervisor.libvirt_port
+        hypervisor.libvirt_port = json['value']
+      elif json['name'] == 'node_port':
+        orig_value = hypervisor.node_port
+        hypervisor.node_port = json['value']
       else:
         raise Http404
       hypervisor.save()

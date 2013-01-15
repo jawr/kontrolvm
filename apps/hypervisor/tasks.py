@@ -36,10 +36,10 @@ def initalize_hypervisor(hypervisor):
       pool = new_pool.get_storagepool()
       if pool and pool.isActive():
         # get a list of volumes
-        for vol_id in conn.listDomainsID():
-          dom = conn.lookupByID(vol_id)
+        for dom_id in conn.listDomainsID():
+          dom = conn.lookupByID(dom_id)
           print dom
-          xml = dom.XMLDesc(0)
+          xml = minidom.parseString(dom.XMLDesc(0))
           items = xml.getElementsByTagName('name')
           name = items[0].childNodes[0].data
           items = xml.getElementsByTagName('memory')
