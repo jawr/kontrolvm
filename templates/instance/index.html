@@ -31,7 +31,7 @@
             <td>{{ instance.volume.capacity|to_human_readable }}</td>
             <td>{{ instance.get_status_display }}</td>
             <td>
-              <a href="#" id="delete"><i id="{{ instance.id }}" class="icon-trash"></i></a>
+              <a href="#" id="delete"><i id="{{ instance.name }}" class="icon-trash"></i></a>
             </td>
           </tr>
         {% endfor %}
