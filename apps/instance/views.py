@@ -40,7 +40,9 @@ def instance(request, name):
       # ensure our volume has it's device name
       if not instance.volume.device_name:
         for dev in tree.findall('devices/disk'):
-          path = dev.find('source').get('file')
+          path = dev.find('source')
+          if path: path = path.get('file')
+          else: continue
           if path == instance.volume.path():
             instance.volume.device_name = "/dev/%s" % (dev.find('target').get('dev'))
             instance.volume.save()

@@ -1,9 +1,12 @@
 from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
 from django.conf import settings
+from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from apps.instance.models import Instance
 from apps.vnc.models import Session
+from utils.vnc import Proxy
+import persistent_messages
 
 @dajaxice_register
 def heartbeat(request, port, name, method):
@@ -23,6 +26,13 @@ def setup_vnc(request, name):
   print "Local port: %d" % (local_port)
 
   if local_port > 0:
+    session = Session(
+      user=request.user,
+      instance=instance,
+      port=local_port
+    )
+    session.save()
+    Proxy('127.0.0.1', local_port, instance.volume.storagepool.hypervisor.address, remote_port).start()
     html = """
     <applet archive="%sjava/tightvnc-jviewer.jar" code="com.glavsoft.viewer.Viewer" height="460" width="100%%">
         <param name="Show controls" value="Yes">
@@ -42,7 +52,13 @@ def setup_vnc(request, name):
     dajax.assign('#vnc-connect-button', 'innerHTML', '<i class="icon-off"></i> Disconnect')
     dajax.script('$("#vnc-container").show(2000);')
     dajax.script('connected = 1;');
-    #dajax.script('id = ' + session.id + ';');
+    dajax.script('session_id = ' + str(session.id) + ';');
     dajax.script('vnc_heartbeat(%d);' % (local_port));
+    dajax.script('$("#vnc-connect-button").toggleClass("active")') 
+  else:
+    dajax.script('$("#vnc-connect-button").toggleClass("active")') 
+    dajax.assign('#vnc-connect-button', 'innerHTML', '<i class="icon-share"></i> Retry')
+    dajax.assign('#vnc-container-p', 'innerHTML', 'Unable to start VNC Session, unable to get local port')
+    dajax.script('$("#vnc-container").show(2000);')
 
   return dajax.json()

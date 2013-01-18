@@ -52,6 +52,7 @@
       <!-- vnc options -->
       <script>
         var connected = 0;
+        var session_id = 0;
         var heartbeat;
         function vnc_heartbeat (port) {
           if (port > 0) {
@@ -94,7 +95,7 @@
       <tr id="vnc-container" style="display: none;">
         <th style="width: 50px;"></th>
         <td>
-          <p>For security reasons, the VNC session will only be accessible via this page, and the route through to your Server will only be active while you are connected to this page.</p>
+          <p id="vnc-container-p">For security reasons, the VNC session will only be accessible via this page, and the route through to your Server will only be active while you are connected to this page.</p>
           <div id="vnc-applet" style="padding: 0 auto;">
           </div>
         </td>
