@@ -8,9 +8,17 @@ from apps.vnc.models import Session
 from utils.vnc import Proxy
 import persistent_messages
 
+vnc_sessions = {}
+
 @dajaxice_register
 def heartbeat(request, port, name, method):
-  pass
+  try:
+    session = Session.objects.get(port=port, active=True)
+    instance = Instance.objects.get(name=name)
+  except (Session.DoesNotExist, Instance.DoesNotExist):
+    # we should perhaps wait for a .join here to ensure
+    if port in vnc_sessions: vnc_sessions[port].stop()
+  instance.save()
 
 @dajaxice_register
 def setup_vnc(request, name):
@@ -32,7 +40,10 @@ def setup_vnc(request, name):
       port=local_port
     )
     session.save()
-    Proxy('127.0.0.1', local_port, instance.volume.storagepool.hypervisor.address, remote_port).start()
+
+    proxy = Proxy('127.0.0.1', local_port, instance.volume.storagepool.hypervisor.address, remote_port).start()
+    vnc_sessions[session.id] = proxy
+
     html = """
     <applet archive="%sjava/tightvnc-jviewer.jar" code="com.glavsoft.viewer.Viewer" height="460" width="100%%">
         <param name="Show controls" value="Yes">

@@ -24,6 +24,7 @@ class ProxyPipe(Thread):
       except:
         break
     self.cleanup()
+    print "Closing ProxyPipe down..."
 
   def cleanup(self):
     self.sink.close()
@@ -63,5 +64,10 @@ class Proxy(Thread):
       forward.connect((self.dest_host, self.dest_port))
       self.pipe1 = ProxyPipe(newsock, forward, self.dest_port).start()
       self.pipe2 = ProxyPipe(forward, newsock, self.dest_port).start()
-    if self.pipe1: self.pipe1.stop()
-    if self.pipe2: self.pipe2.stop()
+    if self.pipe1:
+      self.pipe1.stop()
+      self.pipe1.join()
+    if self.pipe2:
+      self.pipe2.stop()
+      self.pipe2.join()
+    print "Closing Proxy down..."
