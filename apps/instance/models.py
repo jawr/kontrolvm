@@ -21,7 +21,6 @@ ATTACH_DISK_TEMPLATE = \
         <source file='{path}'/>
         <target dev='hdc' bus='ide'/>
         <readonly/>
-        <address type='drive' controller='0' bus='1' unit='0'/>
     </disk>
   """
 DETACH_DISK_TEMPLATE = \
@@ -156,6 +155,7 @@ class Instance(models.Model):
     dom = self.get_instance()
     if dom:
       template = ATTACH_DISK_TEMPLATE.format(path=disk.path())
+      print template
       try:
         dom.updateDeviceFlags(template, 0)
         self.disk = disk

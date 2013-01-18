@@ -41,8 +41,8 @@ def create_instance(instancetask_name):
         <vcpu>%s</vcpu>
         <os>
             <type arch='x86_64' machine='pc'>hvm</type>
-            <boot dev='hd'/>
             <boot dev='cdrom'/>
+            <boot dev='hd'/>
             <bootmenu enable='yes'/>
         </os>
         <features>
@@ -56,16 +56,16 @@ def create_instance(instancetask_name):
             <on_crash>restart</on_crash>
         <devices>
             <emulator>/usr/bin/kvm</emulator>
+            <disk type='file' device='cdrom'>
+                <driver name='qemu' type='raw'/>
+                <target dev='hdc' bus='ide'/>
+            </disk>
             <disk type='file' device='disk'>
                 <driver name='qemu' type='qcow2'/>
                 <source file='%s'/>
                 <target dev='hda' bus='ide'/>
                 <alias name='ide0-0-0'/>
                 <address type='drive' controller='0' bus='0' target='0' unit='0'/>
-            </disk>
-            <disk type='file' device='cdrom'>
-                <driver name='qemu' type='raw'/>
-                <target dev='hdc' bus='ide'/>
             </disk>
             <controller type='ide' index='0'>
                 <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x1'/>
@@ -76,7 +76,9 @@ def create_instance(instancetask_name):
             </interface>
             <input type='tablet' bus='usb'/>
             <input type='mouse' bus='ps2'/>
-            <graphics type='vnc' port='-1' autoport='yes'/>
+            <graphics type='vnc' port='-1' autoport='yes'>
+              <listen type='address' address='%s' />
+            </graphics>
             <video>
                 <model type='cirrus' vram='9216' heads='1'/>
                 <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
@@ -87,7 +89,7 @@ def create_instance(instancetask_name):
       </devices>
   </domain>""" \
     % (instancetask.name, instancetask.memory, instancetask.memory, 
-      instancetask.vcpu, volume.path())
+      instancetask.vcpu, volume.path(), volume.storagepool.hypervisor.address)
   print xml
   con = instancetask.storagepool.hypervisor.get_connection()
   if not con:
