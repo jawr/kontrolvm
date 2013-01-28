@@ -5,20 +5,16 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from apps.instance.models import Instance
 from apps.vnc.models import Session
-from utils.vnc import Proxy
+from utils.vnc import Proxy, VNCSessions
 import persistent_messages
 import threading
 
-vnc_sessions = {} # fixed size perhaps
-
 @dajaxice_register
 def heartbeat(request, port, name):
-  print threading.current_thread()
   try:
     session = Session.objects.get(port=port, active=True)
     instance = Instance.objects.get(name=name)
-    #if session.id in vnc_sessions:
-      #vnc_sessions[session.id].heartbeat()
+    VNCSessions().heartbeat(session.id)
   except (Session.DoesNotExist, Instance.DoesNotExist):
     print "NO SESSION"
 
@@ -33,8 +29,7 @@ def stop_vnc(request, name):
     for session in Session.objects.filter(instance=instance, active=True):
       session.active = False
       session.save()
-      #if session.id in vnc_sessions:
-      #  vnc_sessions[session.id].stop()
+      VNCSessions().stop(session.id)
     dajax.script('$("#vnc-container").hide(2000);')
     dajax.assign('#vnc-connect-button', 'innerHTML', '<i class="icon-share"></i> Launch VNC')
     
@@ -64,8 +59,9 @@ def setup_vnc(request, name):
     )
     session.save()
 
-    proxy = Proxy('jess.lawrence.pm', local_port, instance.volume.storagepool.hypervisor.address, remote_port, session).start()
-    vnc_sessions[session.id] = proxy
+    proxy = Proxy('jess.lawrence.pm', local_port, instance.volume.storagepool.hypervisor.address, remote_port, session)
+    proxy.start()
+    VNCSessions().set(session.id, proxy)
 
     html = """
     <applet archive="%sjava/tightvnc-jviewer.jar" code="com.glavsoft.viewer.Viewer" height="460" width="100%%">

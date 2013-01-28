@@ -1,9 +1,42 @@
 from django.utils import timezone
 from threading import Thread, Event
 from apps.vnc.models import Session
+from utils.singleton import SingletonType
 from datetime import timedelta
 import socket
 import time
+
+# need to wrap in mutex locks
+class VNCSessions(Thread):
+  __metaclass__ = SingletonType
+  
+  def __init__(self):
+    Thread.__init__(self)
+    self.setDaemon(True)
+    self.sessions = {}
+
+  def count(self):
+    return len(self.sessions)
+  
+  def get(self, key):
+    if key in self.sessions:
+      return self.sessions[key]
+    return None
+
+  def set(self, key, proxy):
+    self.sessions[key] = proxy
+
+  def heartbeat(self, key):
+    proxy = self.get(key)
+    if proxy:
+      proxy.heartbeat()
+
+  def stop(self, key):
+    if key in self.sessions:
+      self.sessions[key].stop()
+      del self.sessions[key]
+      #self.sessions[key].join() # needed?
+      
 
 class ProxyPipe(Thread):
   pipes = [] # static
@@ -25,13 +58,10 @@ class ProxyPipe(Thread):
   def run(self):
     self.last_check = int(time.time())
     while not self._stop.is_set():
-      if (int(time.time()) - self.last_check) > 15:
-        print "Checking..."
+      if (int(time.time()) - self.last_check) > 25:
         if self.stop:
-          print "GOT STOP"
           self.parent.stop()
-          break
-        print "BIZNISS"
+          continue
         self.stop = True
         self.last_check = int(time.time())
       try:
@@ -44,7 +74,6 @@ class ProxyPipe(Thread):
     print "Closing ProxyPipe down..."
 
   def heartbeat(self):
-    print "HEARTBEAT"
     self.stop = False
 
   def cleanup(self):
@@ -72,6 +101,8 @@ class Proxy(Thread):
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.sock.bind((self.listen_host, self.listen_port))
     self.sock.listen(5) #connection queue
+    self.pipe1 = None
+    self.pipe2 = None
     self._stop = Event()
     Proxy.listeners.append(self)
 
