@@ -13,6 +13,7 @@ from apps.storagepool.models import StoragePool
 from apps.volume.models import Volume
 from apps.installationdisk.models import InstallationDisk, InstallationDiskTask
 from apps.instance.models import Instance, InstanceTask
+from apps.vnc.models import Session
 
 def get_client_ip (request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -50,6 +51,8 @@ def index(request):
     instancetasks = InstanceTask.objects.all().count()
     installationdisks = InstallationDisk.objects.all().count()
     installationdisktasks = InstallationDiskTask.objects.all().count()
+    vnc_sessions = Session.objects.filter(active=True).count()
+    vnc_sessions_total = Session.objects.all().count()
 
     response['hypervisors_online'] = hypervisors_online
     response['hypervisors_offline'] = hypervisors_offline
@@ -62,6 +65,8 @@ def index(request):
     response['instancetasks'] = instancetasks
     response['installationdisks'] = installationdisks
     response['installationdisktasks'] = installationdisktasks
+    response['vnc_sessions'] = vnc_sessions
+    response['vnc_sessions_total'] = vnc_sessions_total
 
   return render_to_response('account/index.html', response,
     context_instance=RequestContext(request))

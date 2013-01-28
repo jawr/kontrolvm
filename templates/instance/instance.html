@@ -63,20 +63,16 @@
             heartbeat = setInterval(function() {
               Dajaxice.apps.vnc.heartbeat(Dajax.process, {
                 'port': port,
-                'name': '{{ instance.name }}',
-                'method': 1
+                'name': '{{ instance.name }}'
               });
-            }, 2000);
+            }, 10000);
           }
         }
       function stop_heartbeat(button) {
         clearInterval(heartbeat);
         Dajaxice.apps.vnc.stop_vnc(Dajax.process, {
-          'port': port,
-          'name': name
+          'name': '{{ instance.name }}'
         });
-        $(button).toggleClass('active');
-        $(button).html('Connect');
       }
       function vnc_handle(button) {
         if (!connected) {

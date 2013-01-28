@@ -124,6 +124,23 @@
           </tr>
         </table>
       </div>
+      <div class="span2">
+        <table class="table table-condensed table-striped">
+          <tr>
+            <th colspan="3">VNC Sessions</th>
+          </tr>
+          <tr>
+            <td width="20"></td>
+            <td width="20">Active</td>
+            <td>{{ vnc_sessions }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Total</td>
+            <td>{{ vnc_sessions_total}}</td>
+          </tr>
+        </table>
+      </div>
       {% endif %}
     </div>
     <div class="tab-pane fade" id="messages">

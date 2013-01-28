@@ -7,41 +7,44 @@ from apps.instance.models import Instance
 from apps.vnc.models import Session
 from utils.vnc import Proxy
 import persistent_messages
+import threading
 
-vnc_sessions = {}
+vnc_sessions = {} # fixed size perhaps
 
 @dajaxice_register
-def heartbeat(request, port, name, method):
+def heartbeat(request, port, name):
+  print threading.current_thread()
   try:
     session = Session.objects.get(port=port, active=True)
     instance = Instance.objects.get(name=name)
+    #if session.id in vnc_sessions:
+      #vnc_sessions[session.id].heartbeat()
   except (Session.DoesNotExist, Instance.DoesNotExist):
-    # we should perhaps wait for a .join here to ensure
-    if port in vnc_sessions: vnc_sessions[port].stop()
-  instance.save()
+    print "NO SESSION"
 
 @dajaxice_register
-def stop_vnc(request, port, name):
+def stop_vnc(request, name):
+  print threading.current_thread()
   instance = get_object_or_404(Instance, name=name)
   if not request.user.is_staff and request.user != instance.user:
     raise Http404
-  
   dajax = Dajax()
   try:
-    session = Session.objects.get(port=port, active=True)
-    if port in vnc_sessions:
-      vnc_sessions[port].stop()
-    else:
-      raise Session.DoesNotExist
-    session.active = False
-    session.save()
+    for session in Session.objects.filter(instance=instance, active=True):
+      session.active = False
+      session.save()
+      #if session.id in vnc_sessions:
+      #  vnc_sessions[session.id].stop()
     dajax.script('$("#vnc-container").hide(2000);')
+    dajax.assign('#vnc-connect-button', 'innerHTML', '<i class="icon-share"></i> Launch VNC')
+    
   except Session.DoesNotExist:
     dajax.assign('#vnc-container-p', 'innerHTML', 'Unable to disconnect session, doesn\'t seem to exist!')
   return dajax.json()
 
 @dajaxice_register
 def setup_vnc(request, name):
+  print threading.current_thread()
   instance = get_object_or_404(Instance, name=name)
   if not request.user.is_staff and request.user != instance.user:
     raise Http404
@@ -61,7 +64,7 @@ def setup_vnc(request, name):
     )
     session.save()
 
-    proxy = Proxy('jess.lawrence.pm', local_port, instance.volume.storagepool.hypervisor.address, remote_port).start()
+    proxy = Proxy('jess.lawrence.pm', local_port, instance.volume.storagepool.hypervisor.address, remote_port, session).start()
     vnc_sessions[session.id] = proxy
 
     html = """
