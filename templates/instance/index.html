@@ -9,6 +9,7 @@
     <table class="table table-condensed table-striped table-bordered">
       <thead>
         <th>Name</th>
+        <th>Alias</th>
         <th>User</th>
         <th>Creator</th>
         <th>Created</th>
@@ -23,6 +24,7 @@
         {% for instance in instances %}
           <tr>
             <td><a href="/instance/{{ instance.name }}/">{{ instance.name|truncatechars:6 }}</a></td>
+            <td>{{ instance.alias|truncatechars:14 }}</td>
             <td>{{ instance.user }}</td>
             <td>{{ instance.creator }}</td>
             <td>{{ instance.created }}</td>

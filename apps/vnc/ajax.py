@@ -21,6 +21,26 @@ def heartbeat(request, port, name, method):
   instance.save()
 
 @dajaxice_register
+def stop_vnc(request, port, name):
+  instance = get_object_or_404(Instance, name=name)
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+  
+  dajax = Dajax()
+  try:
+    session = Session.objects.get(port=port, active=True)
+    if port in vnc_sessions:
+      vnc_sessions[port].stop()
+    else:
+      raise Session.DoesNotExist
+    session.active = False
+    session.save()
+    dajax.script('$("#vnc-container").hide(2000);')
+  except Session.DoesNotExist:
+    dajax.assign('#vnc-container-p', 'innerHTML', 'Unable to disconnect session, doesn\'t seem to exist!')
+  return dajax.json()
+
+@dajaxice_register
 def setup_vnc(request, name):
   instance = get_object_or_404(Instance, name=name)
   if not request.user.is_staff and request.user != instance.user:

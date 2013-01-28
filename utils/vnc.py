@@ -6,6 +6,7 @@ class ProxyPipe(Thread):
 
   def __init__(self, source, sink, port):
     Thread.__init__(self)
+    self.setDaemon(True)
     self.source = source
     self.sink = sink
     self.port = port
@@ -41,6 +42,7 @@ class Proxy(Thread):
   listeners = []
   def __init__(self, listen_host, listen_port, dest_host, dest_port):
     Thread.__init__(self)
+    self.setDaemon(True)
     self.listen_port = listen_port
     self.listen_host = listen_host
     self.dest_host = dest_host

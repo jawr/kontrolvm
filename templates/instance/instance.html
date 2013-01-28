@@ -71,7 +71,10 @@
         }
       function stop_heartbeat(button) {
         clearInterval(heartbeat);
-        $('#vnc-container').toggle();
+        Dajaxice.apps.vnc.stop_vnc(Dajax.process, {
+          'port': port,
+          'name': name
+        });
         $(button).toggleClass('active');
         $(button).html('Connect');
       }
