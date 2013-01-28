@@ -29,57 +29,65 @@ It should also be noted that kontrolvm-node requires celery and an additional
 process to run the worker. In future a wrapper script will combine these two
 in to one file that logs output and wraps them into 1 thread of sorts.
 
+```bash
   git clone https://github.com/jawr/kontrolvm-node.git
   cd kontrolvm-node
   screen -S kontrolvm-node
   ./main.py -p 5000 -l <openvpn_tunnel_addr>
   celery worker -A tasks.installationdisk
+```
 
 OpenVPN
 -------
 The following describes how to setup an OpenVPN server with the ability to add 
 client certificates (Nodes).
 
+```bash
   apt-get install openvpn
   cp -r /usr/share/doc/openvpn/examples/easy-rsa/ /etc/openvpn/
   cd /etc/openvpn/easy-rsa/2.0/
   . ./vars
   ./clean-all
   ./build-ca
+```
 
 You will be prompted to setup your certificate parameters.
 
+```bash
   ./build-key-server server
   ./build-dh
+```
   
 Once we have set this up, we can (at any time) generate client keys.
 
+```bash
   ./build-key client1
   ./build-key client2
   ./build-ket clientN
+```
 
 Once this is done we need a client and server config file, templates for these
 can be found at:
 
-  http://www.kontrolvm.com/openvpn/client.conf
-  http://www.kontrolvm.com/openvpn/server.conf
+* http://www.kontrolvm.com/openvpn/client.conf
+* http://www.kontrolvm.com/openvpn/server.conf
 
 For a client to be able to connect, it needs the following files:
 
-  ca.crt  
-  client.conf
-  client.crt
-  client.key
+* ca.crt  
+* client.conf
+* client.crt
+* client.key
 
 Make sure that the server has the following files:
 
-  ca.crt
-  ca.key
-  server.conf
-  server.crt
-  server.csr
-  server.key
-  dh1024.pem
+* ca.crt
+* ca.key
+* server.conf
+* server.crt
+* server.csr
+* server.key
+* dh1024.pem
 
 Installation Issues
 ===================
