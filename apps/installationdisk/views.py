@@ -38,6 +38,27 @@ def index(request):
     context_instance=RequestContext(request))
 
 @staff_member_required
+def edit(request):
+  if request.is_ajax() and request.method == 'POST':
+    json = request.POST
+    try:
+      installationdisk = InstallationDisk.objects.get(pk=json['pk'])
+      orig_name = installationdisk.name
+      orig_value = None
+      if json['name'] == 'name':
+        orig_value = installationdisk.name
+        installationdisk.name = json['value']
+      else:
+        raise Http404
+      installationdisk.save()
+      messages.add_message(request, persistent_messages.SUCCESS, 
+        'Changed Installation Disk %s %s from %s to %s' % (orig_name, json['name'], orig_value, json['value']))
+    except InstallationDisk.DoesNotExist:
+      raise Http404
+    return HttpResponse('{}', mimetype="application/json")
+  raise Http404
+
+@staff_member_required
 def add(request):
   form = InstallationDiskTaskForm()
   

@@ -1,4 +1,4 @@
-kontrolvm
+KontrolVM
 =========
 
 Kontrol panel for KVM
