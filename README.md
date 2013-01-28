@@ -27,13 +27,13 @@ via libvirt.py it is meant to be run on the openvpn tunnel address.
 
 It should also be noted that kontrolvm-node requires celery and an additional 
 process to run the worker. In future a wrapper script will combine these two
-in to one file that logs output and wraps them into 1 thread of sorts.
+in to one file that logs output and wraps them into one thread of sorts.
 
 ```bash
   git clone https://github.com/jawr/kontrolvm-node.git
   cd kontrolvm-node
   screen -S kontrolvm-node
-  ./main.py -p 5000 -l <openvpn_tunnel_addr>
+  ./main.py -p 5000 -l <openvpn_tunnel_addr> &
   celery worker -A tasks.installationdisk
 ```
 
@@ -54,6 +54,7 @@ client certificates (Nodes).
 You will be prompted to setup your certificate parameters.
 
 ```bash
+  source ./vars
   ./build-key-server server
   ./build-dh
 ```
@@ -61,6 +62,7 @@ You will be prompted to setup your certificate parameters.
 Once we have set this up, we can (at any time) generate client keys.
 
 ```bash
+  source ./vars
   ./build-key client1
   ./build-key client2
   ./build-ket clientN
@@ -76,8 +78,8 @@ For a client to be able to connect, it needs the following files:
 
 * ca.crt  
 * client.conf
-* client.crt
-* client.key
+* client[N].crt
+* client[N].key
 
 Make sure that the server has the following files:
 
