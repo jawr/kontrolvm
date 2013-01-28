@@ -31,6 +31,7 @@ def stop_vnc(request, name):
       session.save()
       VNCSessions().stop(session.id)
     dajax.script('$("#vnc-container").hide(2000);')
+    dajax.script('connected = 0;')
     dajax.assign('#vnc-connect-button', 'innerHTML', '<i class="icon-share"></i> Launch VNC')
     
   except Session.DoesNotExist:

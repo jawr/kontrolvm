@@ -48,7 +48,7 @@ class ProxyPipe(Thread):
     self.sink = sink
     self.port = port
     self.parent = parent
-    self.stop = True
+    self._heartbeat = False
     self._stop = Event()
     ProxyPipe.pipes.append(self)
 
@@ -59,10 +59,10 @@ class ProxyPipe(Thread):
     self.last_check = int(time.time())
     while not self._stop.is_set():
       if (int(time.time()) - self.last_check) > 25:
-        if self.stop:
+        if not self._heartbeat:
           self.parent.stop()
-          continue
-        self.stop = True
+          break 
+        self._heartbeat = False
         self.last_check = int(time.time())
       try:
         data = self.source.recv(1024)
@@ -74,7 +74,7 @@ class ProxyPipe(Thread):
     print "Closing ProxyPipe down..."
 
   def heartbeat(self):
-    self.stop = False
+    self._heartbeat = True
 
   def cleanup(self):
     self.sink.close()
