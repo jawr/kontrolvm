@@ -41,7 +41,7 @@ def setup_vnc(request, name):
     )
     session.save()
 
-    proxy = Proxy('127.0.0.1', local_port, instance.volume.storagepool.hypervisor.address, remote_port).start()
+    proxy = Proxy('jess.lawrence.pm', local_port, instance.volume.storagepool.hypervisor.address, remote_port).start()
     vnc_sessions[session.id] = proxy
 
     html = """
@@ -50,7 +50,7 @@ def setup_vnc(request, name):
         <param name="Offer relogin" value="Yes">
         <param name="Open new window" value="No">
         <param name="Scaling factor" value="auto">
-        <param name="HOST" value="127.0.0.1">
+        <param name="HOST" value="jess.lawrence.pm">
         <param name="PORT" value="%d">
         <param name="OpenNewWindow" value="no" />
         <param name="ShowControls" value="yes" />

@@ -79,7 +79,7 @@ class InstallationDiskTask(models.Model):
       'url': self.url, 
       'path': self.hypervisor.install_medium_path
     })
-    self.save()
+    if self.task_id: self.save()
 
   def abort(self):
     ret = node.abort_command(self.hypervisor, self.task_id)

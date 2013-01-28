@@ -23,7 +23,7 @@ class Session(models.Model):
   @staticmethod
   def get_random_port():
     while True:
-      port = random.randrange(4000,6000)
+      port = random.randrange(10000,20000)
       try:
         session = Session.objects.get(port=port, active=True)
       except Session.DoesNotExist:
