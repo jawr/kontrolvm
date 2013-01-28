@@ -33,7 +33,7 @@ def setup_vnc(request, name):
   print "Remote port: %d" % (remote_port)
   print "Local port: %d" % (local_port)
 
-  if local_port > 0:
+  if local_port > 0 and remote_port > 0:
     session = Session(
       user=request.user,
       instance=instance,
@@ -69,7 +69,7 @@ def setup_vnc(request, name):
   else:
     dajax.script('$("#vnc-connect-button").toggleClass("active")') 
     dajax.assign('#vnc-connect-button', 'innerHTML', '<i class="icon-share"></i> Retry')
-    dajax.assign('#vnc-container-p', 'innerHTML', 'Unable to start VNC Session, unable to get local port')
+    dajax.assign('#vnc-container-p', 'innerHTML', 'Unable to start VNC Session, unable to get local or remote port(s)')
     dajax.script('$("#vnc-container").show(2000);')
 
   return dajax.json()

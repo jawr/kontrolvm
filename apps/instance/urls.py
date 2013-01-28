@@ -11,6 +11,7 @@ urlpatterns = patterns('apps.instance.views',
   url(r'^update/(?P<name>[0-9a-f]+)/', 'update'),
   url(r'^delete/(?P<name>[0-9a-f]+)/', 'delete'),
   url(r'^delete-task/(?P<pk>\d+)/', 'delete_task'),
+  url(r'^edit/', 'edit'),
   url(r'^(?P<name>[0-9a-f]+)/', 'instance'),
   url(r'^$', 'index'),
 )

@@ -33,6 +33,7 @@ DETACH_DISK_TEMPLATE = \
 
 class Instance(models.Model):
   name = models.CharField(max_length=100)
+  alias = models.CharField(max_length=100, default="My Instance", null=True, blank=True)
   volume = models.OneToOneField(Volume)
   user = models.ForeignKey(User, related_name="instance_user")
   creator = models.ForeignKey(User)
@@ -73,7 +74,7 @@ class Instance(models.Model):
 
   def __unicode__(self):
     return "%s [%d CPU/%d MB RAM][%d GB][%s]" % \
-      (self.user, self.vcpu, (self.memory/1024/1024.0), (self.volume.capacity/1024/1024/1024.0), self.get_status_display())
+      (self.alias, self.vcpu, (self.memory/1024/1024.0), (self.volume.capacity/1024/1024/1024.0), self.get_status_display())
 
   def get_vnc_port(self):
     instance = self.get_instance()

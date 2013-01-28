@@ -1,5 +1,5 @@
 {% extends 'base_fluid.html' %}
-{% block title %}Instance {{ instance }}{% endblock %}
+{% block title %}{{ instance }}{% endblock %}
 {% block content %}
   {% load bootstrap %}
   {% load size_utils %}
@@ -8,6 +8,10 @@
 
   <table class="table">
     <thead>
+      <tr>
+        <th style="width: 50px;">Name</th>
+        <td><a href="#" id="name" data-pk="{{ instance.name }}">{{ instance.alias }}</a></td>
+      </tr>
       <tr>
         <th style="width: 50px;">Status</th>
         <td>{{ instance.get_status_display }}</td>
@@ -114,6 +118,12 @@
             window.location = '/instance/delete/' + e.srcElement.id + '/';
           }
         });
+      });
+
+      $('#name').editable({
+        type: 'text',
+        url: '/instance/edit/',
+        title: 'Edit Instance Name',
       });
     });
   </script>
