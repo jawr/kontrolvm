@@ -13,47 +13,117 @@
       <h2>Overview</h2>
       {% if my_instances_online or my_instances_offline %}
         <hr>
-        <h3>Instances <small>Overview</small></h3>
+        <h3>Instances <i class="icon-hdd"></i> <small>A quick look at all my instances...</small></h3>
+        <table class="table table-condensed table-striped">
         {% if my_instances_online %}
-        <dl>
-          <dt>Online</dt>
+          <tr>
+            <th>Online</th>
+            <td>{{ my_instances_online|length }}</td>
+          </tr>
           {% for instance in my_instances_online %}
-            <dd><a href="/instance/{{ instance.name }}/">{{ instance }}</a></dd>
+            <tr><td></td><td><a href="/instance/{{ instance.name }}/">{{ instance }}</a></td></tr>
           {% endfor %}
-        </dl>
+        </table>
         {% endif %}
         {% if my_instances_offline %}
-        <dl>
-          <dt>Offline</dt>
+          <tr>
+            <th>Offline</th>
+            <td>{{ my_instances_offline|length }}</td>
+          </tr>
           {% for instance in my_instances_offline %}
-            <dd><a href="/instance/{{ instance.name }}/">{{ instance }}</a></dd>
+            <tr><td></td><td><a href="/instance/{{ instance.name }}/">{{ instance }}</a></td></tr>
           {% endfor %}
-        </dl>
+        </table>
         {% endif %}
       {% endif %}
       {% if request.user.is_staff %}
       <hr>
-      <h3>Admin <small>Overview</small></h3>
-      <dl>
-        <dt>Hypervisors</dt>
-        <dd>Online: <b>{{ hypervisors_online }}</b> Offline: <b>{{ hypervisors_offline }}</b></dd>
-      </dl>
-      <dl>
-        <dt>Storage Pools</dt>
-        <dd>Online: <b>{{ storagepools_online }}</b> Offline: <b>{{ instances_offline }}</b></dd>
-      </dl>
-      <dl>
-        <dt>Volumes</dt>
-        <dd>Online: <b>{{ volumes_online }}</b> Offline: <b>{{ volumes_offline }}</b></dd>
-      </dl>
-      <dl>
-        <dt>Instances</dt>
-        <dd>Online: <b>{{ instances_online }}</b> Offline: <b>{{ instances_offline }}</b> Tasks: <b>{{ instancetasks }}</b></dd>
-      </dl>
-      <dl>
-        <dt>Installation Disks</dt>
-        <dd>Complete: <b>{{ installationdisks }}</b> Tasks: <b>{{ installationdisktasks }}</b></dd>
-      </dl>
+      <h3>Admin <i class="icon-flag"></i> <small>Manage your nodes...</small></h3>
+      <div class="span2">
+        <table class="table table-condensed table-striped">
+          <tr>
+            <th colspan="3">Hypervisors</th>
+          </tr>
+          <tr>
+            <td width="20"></td>
+            <td width="20">Online</td>
+            <td>{{ hypervisors_online }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Offline</td>
+            <td>{{ hypervisors_offline }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="span2">
+        <table class="table table-condensed table-striped">
+          <tr>
+            <th colspan="3">Storage Pools</th>
+          </tr>
+          <tr>
+            <td width="20"></td>
+            <td width="20">Online</td>
+            <td>{{ storagepools_online }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Offline</td>
+            <td>{{ storagepools_offline }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="span2">
+        <table class="table table-condensed table-striped">
+          <tr>
+            <th colspan="3">Volumes</th>
+          </tr>
+          <tr>
+            <td width="20"></td>
+            <td width="20">Online</td>
+            <td>{{ volumes_online }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Offline</td>
+            <td>{{ volumes_offline }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="span2">
+        <table class="table table-condensed table-striped">
+          <tr>
+            <th colspan="3">Instances</th>
+          </tr>
+          <tr>
+            <td width="20"></td>
+            <td width="20">Online</td>
+            <td>{{ instances_online }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Offline</td>
+            <td>{{ instances_offline }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="span2">
+        <table class="table table-condensed table-striped">
+          <tr>
+            <th colspan="3">Installation Disks</th>
+          </tr>
+          <tr>
+            <td width="20"></td>
+            <td width="20">Disks</td>
+            <td>{{ installationdisks }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Tasks</td>
+            <td>{{ installationdisktasks }}</td>
+          </tr>
+        </table>
+      </div>
       {% endif %}
     </div>
     <div class="tab-pane fade" id="messages">
