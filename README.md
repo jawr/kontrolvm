@@ -14,10 +14,26 @@ Requirements
 * django-bootstrap-form (2.0.5) - https://github.com/tzangms/django-bootstrap-form
 * django-email-as-username (1.6.2) - https://github.com/dabapps/django-email-as-username
 * jquery.cookie.js (1.3) - https://github.com/carhartl/jquery-cookie
+* kontrolvm-node - https://github.com/jawr/kontrolvm-node
 
 Installation Notes
 ==================
 The following instructions are for Debian systems.
+
+KontrolVM-node
+--------------
+The kontrolvm-node is run on node systems to perform tasks that can not be done
+via libvirt.py it is meant to be run on the openvpn tunnel address.
+
+It should also be noted that kontrolvm-node requires celery and an additional 
+process to run the worker. In future a wrapper script will combine these two
+in to one file that logs output and wraps them into 1 thread of sorts.
+
+  git clone https://github.com/jawr/kontrolvm-node.git
+  cd kontrolvm-node
+  screen -S kontrolvm-node
+  ./main.py -p 5000 -l <openvpn_tunnel_addr>
+  celery worker -A tasks.installationdisk
 
 OpenVPN
 -------
