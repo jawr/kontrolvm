@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block navigation %}
+      <!-- top bar -->
+      <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+          <div class="container-fluid">
+            <a class="brand" href="#">KontrolVM</a>
+            <div class="nav-collapse">
+              <ul class="nav pull-right">
+                {% if request.user.is_authenticated %}
+                  <ul class="nav">
+                    <li><a href="#">{{ request.user }}</a></li>
+                    <li class="divider-vertical"></li>
+                    <li>  
+                      <a href="/account/logout/">Logout</a>
+                    </li>
+                  </ul>
+                {% else %}
+                <li><a href="/account/login/">Login</a></li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}
