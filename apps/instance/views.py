@@ -217,6 +217,7 @@ def add(request):
         creator=request.user,
         vcpu=form.cleaned_data['vcpu'],
         memory=form.cleaned_data['memory'],
+        capacity=form.cleaned_data['capacity'],
         storagepool=form.cleaned_data['storagepool'],
         network=form.cleaned_data['network'],
       )

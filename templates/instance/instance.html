@@ -142,11 +142,11 @@
     </tr>
     <tr>
       <th style="width: 50px;">RAM</th>
-      <td style="width: 240px;" colspan="3">{{ instance.memory|to_human_readable }}</td>
+      <td style="width: 240px;" colspan="3">{{ instance.memory.name }}</td>
     </tr>
     <tr>
       <th style="width: 50px;">HDD</th>
-      <td style="width: 240px;">{{ instance.volume.capacity|to_human_readable }}</td>
+      <td style="width: 240px;">{{ instance.volume.capacity.name }}</td>
       <th style="width: 50px;">Path</th>
       <td>{{ instance.volume.device_name }}</td>
     </tr>

@@ -30,7 +30,7 @@
             <td>{{ instance.creator }}</td>
             <td>{{ instance.created }}</td>
             <td>{{ instance.vcpu }}</td>
-            <td>{{ instance.memory|to_human_readable }}</td>
+            <td>{{ instance.memory.name }}</td>
             <td>{{ instance.volume.capacity|to_human_readable }}</td>
             <td>{{ instance.network.ip }}</td>
             <td>{{ instance.get_status_display }}</td>
@@ -68,8 +68,8 @@
             <td>{{ task.user }}</td>
             <td>{{ task.creator }}</td>
             <td>{{ task.vcpu }}</td>
-            <td>{{ task.memory|to_human_readable }}</td>
-            <td>{{ task.capacity|to_human_readable }}</td>
+            <td>{{ task.memory.name }}</td>
+            <td>{{ task.capacity.name }}</td>
             <td>
               <div class="progress progress-striped active">
                  <div class="bar" style="width: {{ task.percent }}%;"></div>

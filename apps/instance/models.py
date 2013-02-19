@@ -33,7 +33,15 @@ DETACH_DISK_TEMPLATE = \
     </disk>
   """
 
-# methods for generating unique mac addresses
+class Size(models.Model):
+  name = models.CharField(max_length=20)
+  size = models.BigIntegerField()
+
+  def __str__(self):
+    return unicode(self).encode('utf-8')
+
+  def __unicode__(self):
+    return "%s (%d)" % (self.name, self.size)
 
 class Instance(models.Model):
   name = models.CharField(max_length=100)
@@ -43,7 +51,8 @@ class Instance(models.Model):
   creator = models.ForeignKey(User)
   # virtual attributes
   vcpu = models.IntegerField(max_length=2, default=1)
-  memory = models.IntegerField(default=268435456) # 256MB
+  #memory = models.IntegerField(default=268435456) # 256MB
+  memory = models.ForeignKey(Size, related_name="instance_memory")
   disk = models.ForeignKey(InstallationDisk, null=True, blank=True)
   mac = MACAddressField()
   network = models.ForeignKey(InstanceNetwork)
@@ -79,8 +88,8 @@ class Instance(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "%s [%d CPU/%d MB RAM][%d GB][%s]" % \
-      (self.alias, self.vcpu, (self.memory/1024/1024.0), (self.volume.capacity/1024/1024/1024.0), self.get_status_display())
+    return "%s [%d CPU/%s RAM][%d GB][%s]" % \
+      (self.alias, self.vcpu, (self.memory.name), (self.volume.capacity/1024.0/1024.0), self.get_status_display())
 
   def get_vnc_port(self):
     instance = self.get_instance()
@@ -117,6 +126,7 @@ class Instance(models.Model):
         instance.destroy()
         instance.undefine()
         self.volume.delete(request)
+        self.network.delete()
         if request:
           persistent_messages.add_message(request, persistent_messages.SUCCESS, 'Deleted Instance %s' % (self))
           if request.user != self.user:
@@ -186,8 +196,10 @@ class InstanceTask(models.Model):
   storagepool = models.ForeignKey(StoragePool)
   creator = models.ForeignKey(User)
   vcpu = models.IntegerField(max_length=2, default=1)
-  memory = models.IntegerField(default=268435456) # 256MB
-  capacity = models.BigIntegerField(default=1073741824) # 1GB
+  #memory = models.IntegerField(default=268435456) # 256MB
+  #capacity = models.BigIntegerField(default=1073741824) # 1GB
+  memory = models.ForeignKey(Size, related_name="instancetask_memory")
+  capacity = models.ForeignKey(Size, related_name="instancetask_capacity")
   disk = models.ForeignKey(InstallationDisk, null=True, blank=True)
   volume = models.OneToOneField(Volume, null=True, blank=True)
   network = models.ForeignKey(Network)
@@ -204,8 +216,8 @@ class InstanceTask(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "Creating: %s [%d CPU/%d MB RAM][%d GB][%s]" % \
-      (self.user, self.vcpu, (self.memory/1024/1024.0), (self.capacity/1024/1024/1024.0), self.state)
+    return "Creating: %s [%d CPU/%s RAM/%s HDD][%s]" % \
+      (self.user, self.vcpu, (self.memory.name), (self.capacity.name), self.state)
 
   def abort(self, request=None):
     pass

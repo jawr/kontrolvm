@@ -1,7 +1,7 @@
 {% extends 'base_fluid.html' %}
 {% block title %}{{ user }}{% endblock %}
 {% block content %}
-  <h1>Hello {{ user }}</h1>
+  <h1><small>Hello</small> {{ user }}</h1>
 
   <ul class="nav nav-tabs">
     <li {% if not request.GET.page %}class="active"{% endif %}><a href="#overview" data-toggle="tab">Overview</a></li>
@@ -39,7 +39,7 @@
       {% if request.user.is_staff %}
       <hr>
       <h3>Admin <i class="icon-flag"></i> <small>Manage your nodes...</small></h3>
-      <div class="span2">
+      <div class="span3 offset1">
         <table class="table table-condensed table-striped">
           <tr>
             <th colspan="3">Hypervisors</th>
@@ -56,7 +56,7 @@
           </tr>
         </table>
       </div>
-      <div class="span2">
+      <div class="span3">
         <table class="table table-condensed table-striped">
           <tr>
             <th colspan="3">Storage Pools</th>
@@ -73,7 +73,7 @@
           </tr>
         </table>
       </div>
-      <div class="span2">
+      <div class="span3">
         <table class="table table-condensed table-striped">
           <tr>
             <th colspan="3">Volumes</th>
@@ -90,7 +90,7 @@
           </tr>
         </table>
       </div>
-      <div class="span2">
+      <div class="span3 offset1">
         <table class="table table-condensed table-striped">
           <tr>
             <th colspan="3">Instances</th>
@@ -107,7 +107,7 @@
           </tr>
         </table>
       </div>
-      <div class="span2">
+      <div class="span3">
         <table class="table table-condensed table-striped">
           <tr>
             <th colspan="3">Installation Disks</th>
@@ -124,7 +124,7 @@
           </tr>
         </table>
       </div>
-      <div class="span2">
+      <div class="span3">
         <table class="table table-condensed table-striped">
           <tr>
             <th colspan="3">VNC Sessions</th>

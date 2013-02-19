@@ -26,7 +26,7 @@ def create_instance(instancetask_name):
   (volume, created) = Volume.objects.get_or_create(
     name=volume_name,
     storagepool=instancetask.storagepool,
-    capacity=instancetask.capacity
+    capacity=instancetask.capacity.size
   )
   if created: volume.save()
   if not volume.create(request):
@@ -90,7 +90,7 @@ def create_instance(instancetask_name):
           </memballoon>
       </devices>
   </domain>""" \
-    % (instancetask.name, instancetask.memory, instancetask.memory, 
+    % (instancetask.name, instancetask.memory.size, instancetask.memory.size, 
       instancetask.vcpu, volume.path(), volume.storagepool.hypervisor.address)
   print xml
   con = instancetask.storagepool.hypervisor.get_connection()

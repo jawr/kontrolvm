@@ -64,4 +64,4 @@ class InstanceNetwork(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "%s [%s]" % (self.instance, self.ip)
+    return "%s [%s]" % (self.network, self.ip)
