@@ -21,16 +21,16 @@
         {% if my_instances_online %}
           <thead>
             <tr>
-              <th>Online</th>
+              <th width="190">Online</th>
               <td><span class="label label-info">{{ my_instances_online|length }}</span></td>
             </tr>
             <tr>
               <th>Name</th>
-              <th>IP</th>
-              <th>VCPUs</th>
-              <th>RAM</th>
-              <th>HDD</th>
-              <th>Status</th>
+              <th width="150">IP</th>
+              <th width="150">VCPUs</th>
+              <th width="150">RAM</th>
+              <th width="150">HDD</th>
+              <th width="150">Status</th>
           </thead>
           <tbody>
           {% for instance in my_instances_online %}
@@ -50,16 +50,16 @@
         <table class="table table-condensed table-bordered table-striped">
           <thead>
             <tr>
-              <th>Offline</th>
+              <th width="190">Offline</th>
               <td><span class="label label-warning">{{ my_instances_offline|length }}</span></td>
             </tr>
             <tr>
               <th>Name</th>
-              <th>IP</th>
-              <th>VCPUs</th>
-              <th>RAM</th>
-              <th>HDD</th>
-              <th>Status</th>
+              <th width="150">IP</th>
+              <th width="150">VCPUs</th>
+              <th width="150">RAM</th>
+              <th width="150">HDD</th>
+              <th width="150">Status</th>
           </thead>
           <tbody>
           {% for instance in my_instances_offline %}
