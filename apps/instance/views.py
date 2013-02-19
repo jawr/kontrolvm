@@ -210,24 +210,40 @@ def add(request):
   if request.method == 'POST':
     form = InstanceTaskForm(request.POST)
     if form.is_valid():
-      name = InstanceTask.get_random_name()
-      (instancetask, created) = InstanceTask.objects.get_or_create(
-        name=name,
-        user=form.cleaned_data['user'],
-        creator=request.user,
-        vcpu=form.cleaned_data['vcpu'],
-        memory=form.cleaned_data['memory'],
-        capacity=form.cleaned_data['capacity'],
-        storagepool=form.cleaned_data['storagepool'],
-        network=form.cleaned_data['network'],
-      )
-      if created: instancetask.save()
-      task = create_instance.delay(instancetask.name)
-      instancetask.task_id = task.id
-      instancetask.save()
-      messages.add_message(request, persistent_messages.INFO,
-        'Attempting to create Instance: %s' % (instancetask))
-      return redirect('/instance/')
+      # first check if we are not overallocating
+      hypervisor = form.cleaned_data['storagepool'].hypervisor
+      instances = Instance.objects.filter(volume__storagepool__hypervisor=hypervisor)
+      allocated_memory = 0
+      allocated_vcpus = 0
+      for i in instances:
+        allocated_memory += i.memory.size
+        allocated_vcpus += i.vcpu
+      if allocated_memory + form.cleaned_data['memory'].size > hypervisor.maximum_memory.size:
+        messages.add_message(request, persistent_messages.ERROR,
+          'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient VCPUs available to allocate' % (hypervisor.id))
+      elif allocated_vcpus + form.cleaned_data['vcpu'] > hypervisor.maximum_vcpus:
+        messages.add_message(request, persistent_messages.ERROR,
+          'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient VCPUs available to allocate' % (hypervisor.id))
+      else:
+        # end
+        name = InstanceTask.get_random_name()
+        (instancetask, created) = InstanceTask.objects.get_or_create(
+          name=name,
+          user=form.cleaned_data['user'],
+          creator=request.user,
+          vcpu=form.cleaned_data['vcpu'],
+          memory=form.cleaned_data['memory'],
+          capacity=form.cleaned_data['capacity'],
+          storagepool=form.cleaned_data['storagepool'],
+          network=form.cleaned_data['network'],
+        )
+        if created: instancetask.save()
+        task = create_instance.delay(instancetask.name)
+        instancetask.task_id = task.id
+        instancetask.save()
+        messages.add_message(request, persistent_messages.INFO,
+          'Attempting to create Instance: %s' % (instancetask))
+        return redirect('/instance/')
 
   return render_to_response('instance/add.html', {
       'form': form,
