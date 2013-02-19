@@ -8,11 +8,21 @@ import persistent_messages
 import os
 import libvirt
 
+class Size(models.Model):
+  name = models.CharField(max_length=20)
+  size = models.BigIntegerField(unique=True)
+
+  def __str__(self):
+    return unicode(self).encode('utf-8')
+
+  def __unicode__(self):
+    return "%s (%d)" % (self.name, self.size)
+
 class Volume(models.Model):
   name = models.CharField(max_length=100, unique=True)
   device_name = models.CharField(max_length=20, null=True, blank=True)
   storagepool = models.ForeignKey(StoragePool)
-  capacity = models.BigIntegerField(default=0)
+  capacity = models.ForeignKey(Size)
   allocated = models.BigIntegerField(default=0)
   # updated
   updated = models.DateTimeField(auto_now=True)
@@ -59,7 +69,6 @@ class Volume(models.Model):
     volume = self.get_volume()
     if volume:
       (vol_type, capacity, allocated) = volume.info()
-      self.capacity = capacity
       self.allocated = allocated
       self.save()
 
@@ -75,7 +84,7 @@ class Volume(models.Model):
             <format type="qcow2" />
           </target>
         </volume>""" \
-          % (self.name, self.capacity)
+          % (self.name, self.capacity.size)
       try:
         pool.createXML(xml, 0)
         return True

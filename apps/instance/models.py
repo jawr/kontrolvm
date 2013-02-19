@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib import messages
 from datetime import timedelta
-from apps.volume.models import Volume
+from apps.volume.models import Volume, Size
 from apps.installationdisk.models import InstallationDisk
 from apps.storagepool.models import StoragePool
 from apps.network.fields import MACAddressField
@@ -32,16 +32,6 @@ DETACH_DISK_TEMPLATE = \
         <target dev='hdc' bus='ide'/>
     </disk>
   """
-
-class Size(models.Model):
-  name = models.CharField(max_length=20)
-  size = models.BigIntegerField()
-
-  def __str__(self):
-    return unicode(self).encode('utf-8')
-
-  def __unicode__(self):
-    return "%s (%d)" % (self.name, self.size)
 
 class Instance(models.Model):
   name = models.CharField(max_length=100)

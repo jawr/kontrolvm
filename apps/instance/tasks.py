@@ -26,7 +26,7 @@ def create_instance(instancetask_name):
   (volume, created) = Volume.objects.get_or_create(
     name=volume_name,
     storagepool=instancetask.storagepool,
-    capacity=instancetask.capacity.size
+    capacity=instancetask.capacity
   )
   if created: volume.save()
   if not volume.create(request):

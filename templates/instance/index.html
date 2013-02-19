@@ -31,7 +31,7 @@
             <td>{{ instance.created }}</td>
             <td>{{ instance.vcpu }}</td>
             <td>{{ instance.memory.name }}</td>
-            <td>{{ instance.volume.capacity|to_human_readable }}</td>
+            <td>{{ instance.volume.capacity.name }}</td>
             <td>{{ instance.network.ip }}</td>
             <td>{{ instance.get_status_display }}</td>
             <td>
