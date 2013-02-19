@@ -48,7 +48,7 @@
     </thead>
     <tbody>
       <td>{{ allocated_memory|to_human_readable }}</td>
-      <td><a href="#" id="maximum_memory" data-pk="{{ instance.id }}">{{ instance.maximum_memory }}</a></td>
+      <td><a href="#" id="maximum_memory" data-pk="{{ instance.id }}">{{ instance.maximum_memory.name }}</a></td>
       <td>{{ allocated_vcpus }}</td>
       <td><a href="#" id="maximum_vcpus" data-pk="{{ instance.id }}">{{ instance.maximum_vcpus }}</a></td>
     </tbody>
@@ -87,15 +87,45 @@
       {% endfor %}
     </tbody>
     <tfoot>
-      <td colspan="3"></td>
-      <th>Total:</th>
-      <td>{{ total_storagepool_allocated|to_human_readable }}</td>
-      <td colspan="2"></td>
+      <tr>
+        <td colspan="3"></td>
+        <th>Total:</th>
+        <td>{{ total_storagepool_allocated|to_human_readable }}</td>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td colspan="3"></td>
+        <th>Maximum:</th>
+        <td><a href="#" id="maximum_hdd" data-pk="{{ instance.id }}">{{ instance.maximum_hdd.name }}</a></td>
+        <td colspan="2"></td>
+      </tr>
     </tfoot>
     </tbody>
   </table>
   <script>
     $(function() {
+      $('#name').editable({
+        type: 'text',
+        url: '/hypervisor/edit/',
+        title: 'Edit Name',
+      });
+      $('#maximum_hdd').editable({
+        type: 'select',
+        url: '/hypervisor/edit/',
+        title: 'Edit maximum HDD',
+        source: {{ size_array|safe }},
+      });
+      $('#maximum_memory').editable({
+        type: 'select',
+        url: '/hypervisor/edit/',
+        title: 'Edit maximum RAM',
+        source: {{ size_array|safe }},
+      });
+      $('#maximum_vcpus').editable({
+        type: 'text',
+        url: '/hypervisor/edit/',
+        title: 'Edit maximum VCPUs',
+      });
       $('#location').editable({
         type: 'text',
         url: '/hypervisor/edit/',

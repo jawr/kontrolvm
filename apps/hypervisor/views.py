@@ -6,6 +6,8 @@ from apps.hypervisor.models import Hypervisor
 from apps.storagepool.models import StoragePool
 from apps.instance.models import Instance
 from apps.hypervisor.forms import HypervisorForm
+from apps.shared.forms import SizeForm
+from apps.shared.models import Size
 from django.contrib import messages
 import persistent_messages
 import simplejson
@@ -25,6 +27,13 @@ def view(request, pk):
     allocated_memory += i.memory.size
     allocated_vcpus += i.vcpu
 
+  maximum_memory_form = SizeForm(prefix="memory")
+  maximum_hdd_form = SizeForm(prefix="memory")
+
+  size_array = []
+  for i in Size.objects.all():
+    size_array.append({'value': i.id, 'text': i.name})
+
   return render_to_response('hypervisor/view.html',
     {
     'instance': instance,
@@ -32,6 +41,9 @@ def view(request, pk):
     'total_storagepool_allocated': total_storagepool_allocated,
     'allocated_memory': allocated_memory,
     'allocated_vcpus': allocated_vcpus,
+    'maximum_memory_form': maximum_memory_form,
+    'maximum_hdd_form': maximum_hdd_form,
+    'size_array': simplejson.dumps(size_array),
     },
     context_instance=RequestContext(request))
 
@@ -60,6 +72,7 @@ def add(request):
         install_medium_path=form.cleaned_data['install_medium_path'],
         maximum_memory=form.cleaned_data['maximum_memory'],
         maximum_vcpus=form.cleaned_data['maximum_vcpus'],
+        maximum_hdd=form.cleaned_data['maximum_hdd'],
       )
       if created: hypervisor.save()
       return redirect('/hypervisor/')
@@ -95,6 +108,17 @@ def edit(request):
       elif json['name'] == 'node_port':
         orig_value = hypervisor.node_port
         hypervisor.node_port = json['value']
+      elif json['name'] == 'maximum_hdd':
+        size = Size.objects.get(id=json['value'])
+        orig_value = hypervisor.maximum_hdd
+        hypervisor.maximum_hdd = size
+      elif json['name'] == 'maximum_memory':
+        size = Size.objects.get(id=json['value'])
+        orig_value = hypervisor.maximum_memory
+        hypervisor.maximum_memory = size
+      elif json['name'] == 'maximum_vcpus':
+        orig_value = hypervisor.maximum_vcpus
+        hypervisor.maximum_vcpus = json['value']
       else:
         raise Http404
       hypervisor.save()

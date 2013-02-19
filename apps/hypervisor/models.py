@@ -33,8 +33,9 @@ class Hypervisor(models.Model):
   # install medium path
   install_medium_path = models.CharField(max_length=255)
   # limits
-  maximum_memory = models.ForeignKey(Size)
+  maximum_memory = models.ForeignKey(Size, related_name="hypervisor_max_memory")
   maximum_vcpus = models.IntegerField()
+  maximum_hdd = models.ForeignKey(Size, related_name="hypervisor_max_hdd")
 
   def __str__(self):
     return unicode(self).encode('utf-8')
