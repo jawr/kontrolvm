@@ -47,6 +47,41 @@
       </tr>
     </tbody>
   </table>
+  {% if instances %}
+  <hr>
+  <h3>Instances <i class="icon-hdd"></i> <small>Overview of all Hypervisor's instances..</small></h3>
+  <table class="table table-condensed table-striped table-bordered">
+    <thead>
+      <th>Name</th>
+      <th>Alias</th>
+      <th>User</th>
+      <th>Creator</th>
+      <th>Created</th>
+      <th>VCPU</th>
+      <th>Memory</th>
+      <th>Capacity</th>
+      <th>IP</th>
+      <th>Status</th>
+    </thead>
+    {% load pagination_tags %}
+    {% autopaginate instances 5 %}
+    {% for instance in instances %}
+      <tr>
+        <td><a href="/instance/{{ instance.name }}/">{{ instance.name|truncatechars:6 }}</a></td>
+        <td>{{ instance.alias|truncatechars:14 }}</td>
+        <td>{{ instance.user }}</td>
+        <td>{{ instance.creator }}</td>
+        <td>{{ instance.created }}</td>
+        <td>{{ instance.vcpu }}</td>
+        <td>{{ instance.memory.name }}</td>
+        <td>{{ instance.volume.capacity.name }}</td>
+        <td>{{ instance.network.ip }}</td>
+        <td>{{ instance.get_status_display }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  {% paginate %}
+  {% endif %}
   <hr>
   <h3>Allocated Resources <i class="icon-zoom-in"></i> <small>Look at what's being used..</h3>
   <table class="table table-condensed table-striped table-bordered">

@@ -43,6 +43,7 @@ def view(request, pk):
   return render_to_response('hypervisor/view.html',
     {
     'instance': instance,
+    'instances': instances,
     'instances_online': instances_online,
     'instances_offline': instances_offline,
     'storagepools': storagepools,
