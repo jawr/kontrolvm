@@ -3,10 +3,37 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, Http404
 from apps.hypervisor.models import Hypervisor
+from apps.storagepool.models import StoragePool
+from apps.instance.models import Instance
 from apps.hypervisor.forms import HypervisorForm
 from django.contrib import messages
 import persistent_messages
 import simplejson
+
+@staff_member_required
+def view(request, pk):
+  instance = get_object_or_404(Hypervisor, pk=pk)
+
+  storagepools = StoragePool.objects.filter(hypervisor=instance)
+  total_storagepool_allocated = 0
+  for i in storagepools: total_storagepool_allocated += i.allocated
+
+  instances = Instance.objects.filter(volume__storagepool__hypervisor=instance)
+  allocated_memory = 0
+  allocated_vcpus = 0
+  for i in instances:
+    allocated_memory += i.memory.size
+    allocated_vcpus += i.vcpu
+
+  return render_to_response('hypervisor/view.html',
+    {
+    'instance': instance,
+    'storagepools': storagepools,
+    'total_storagepool_allocated': total_storagepool_allocated,
+    'allocated_memory': allocated_memory,
+    'allocated_vcpus': allocated_vcpus,
+    },
+    context_instance=RequestContext(request))
 
 @staff_member_required
 def index(request):
@@ -30,7 +57,9 @@ def add(request):
         timeout=form.cleaned_data['timeout'],
         libvirt_port=form.cleaned_data['libvirt_port'],
         node_port=form.cleaned_data['node_port'],
-        install_medium_path=form.cleaned_data['install_medium_path']
+        install_medium_path=form.cleaned_data['install_medium_path'],
+        maximum_memory=form.cleaned_data['maximum_memory'],
+        maximum_vcpus=form.cleaned_data['maximum_vcpus'],
       )
       if created: hypervisor.save()
       return redirect('/hypervisor/')

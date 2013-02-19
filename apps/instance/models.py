@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib import messages
 from datetime import timedelta
-from apps.volume.models import Volume, Size
+from apps.volume.models import Volume
+from apps.shared.models import Size
 from apps.installationdisk.models import InstallationDisk
 from apps.storagepool.models import StoragePool
 from apps.network.fields import MACAddressField
@@ -78,8 +79,8 @@ class Instance(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "%s [%d CPU/%s RAM][%d GB][%s]" % \
-      (self.alias, self.vcpu, (self.memory.name), (self.volume.capacity/1024.0/1024.0), self.get_status_display())
+    return "%s [%d CPU/%s RAM][%s HDD][%s]" % \
+      (self.alias, self.vcpu, self.memory.name, self.volume.capacity.name, self.get_status_display())
 
   def get_vnc_port(self):
     instance = self.get_instance()

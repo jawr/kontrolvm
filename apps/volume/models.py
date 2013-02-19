@@ -2,21 +2,12 @@ from django.db import models
 from django.contrib import messages
 from django.utils import timezone
 from apps.storagepool.models import StoragePool
+from apps.shared.models import Size
 from datetime import timedelta
 from binascii import hexlify
 import persistent_messages
 import os
 import libvirt
-
-class Size(models.Model):
-  name = models.CharField(max_length=20)
-  size = models.BigIntegerField(unique=True)
-
-  def __str__(self):
-    return unicode(self).encode('utf-8')
-
-  def __unicode__(self):
-    return "%s (%d)" % (self.name, self.size)
 
 class Volume(models.Model):
   name = models.CharField(max_length=100, unique=True)

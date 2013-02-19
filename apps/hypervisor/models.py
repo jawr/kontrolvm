@@ -1,6 +1,10 @@
 from django.db import models
+from apps.shared.models import Size
 from utils.node import send_command
 import libvirt
+
+class Instance(object): pass
+class StoragePool(object): pass
 
 """
   Model used to wrap around a libvirt hypervisor. Offers functionality
@@ -28,6 +32,9 @@ class Hypervisor(models.Model):
     default=INIT)
   # install medium path
   install_medium_path = models.CharField(max_length=255)
+  # limits
+  maximum_memory = models.ForeignKey(Size)
+  maximum_vcpus = models.IntegerField()
 
   def __str__(self):
     return unicode(self).encode('utf-8')
@@ -44,13 +51,13 @@ class Hypervisor(models.Model):
   def get_libvirt_status_html(self):
     conn = self.get_connection()
     if conn:
-      return '<span class="label label-success pull-right">Responding</span>'
-    return '<span class="label label-error pull-right">Not Responding</span>'
+      return '<span class="label label-success">Responding</span>'
+    return '<span class="label label-error">Not Responding</span>'
 
   def get_node_status_html(self):
     if send_command(self, 'check', {}):
-      return '<span class="label label-success pull-right">Responding</span>'
-    return '<span class="label label-error pull-right">Not Responding</span>'
+      return '<span class="label label-success">Responding</span>'
+    return '<span class="label label-error">Not Responding</span>'
 
   def get_connection(self, update=False):
     conn = None

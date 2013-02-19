@@ -119,6 +119,7 @@ INSTALLED_APPS = (
   'dajaxice',
   'bootstrap_pagination',
   # apps
+  'apps.shared',
   'apps.account',
   'apps.hypervisor',
   'apps.storagepool',

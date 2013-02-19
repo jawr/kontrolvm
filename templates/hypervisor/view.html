@@ -1,0 +1,122 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Hypervisor {{ instance.name }}{% endblock %}
+{% block content %}
+  {% load size_utils %}
+  <h1>{{ instance.name }} <small>Hypervisor overview..</small></h1>
+  <hr>
+  <h3>Status <i class="icon-signal"></i></h3>
+  <dl>
+    <dt>Libvirt status: {{ instance.get_libvirt_status_html|safe }}</dt>
+    <dt>Node status: {{ instance.get_node_status_html|safe }}</dt>
+  </dl>
+  <hr>
+  <h3>Configuration <i class="icon-cog"></i> <small>Reconfigure your Hypervisor..</small></h3>
+  <table class="table table-condensed table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Location</th>
+        <th>Address</th>
+        <th>Libvirt Port</th>
+        <th>Node Port</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="#" id="name" data-pk="{{ instance.id }}">{{ instance.name }}</a></td>
+        <td>{{ instance.get_status_display }}</td>
+        <td><a href="#" id="location" data-pk="{{ instance.id }}">{{ instance.location }}</a></td>
+        <td><a href="#" id="address" data-pk="{{ instance.id }}">{{ instance.address }}</a></td>
+        <td><a href="#" id="libvirt_port" data-pk="{{ instance.id }}">{{ instance.libvirt_port }}</a></td>
+        <td><a href="#" id="node_port" data-pk="{{ instance.id }}">{{ instance.node_port }}</a></td>
+      </tr>
+    </tbody>
+  </table>
+  <hr>
+  <h3>Allocated Resources <i class="icon-zoom-in"></i> <small>Look at what's being used..</h3>
+  <table class="table table-condensed table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>RAM, VCPUs</th>
+      <tr>
+        <th>Allocated RAM</th>
+        <th>Maximum RAM</th>
+        <th>Allocated VCPUs</th>
+        <th>Maximum VCPUs</th>
+      </tr>
+    </thead>
+    <tbody>
+      <td>{{ allocated_memory|to_human_readable }}</td>
+      <td><a href="#" id="maximum_memory" data-pk="{{ instance.id }}">{{ instance.maximum_memory }}</a></td>
+      <td>{{ allocated_vcpus }}</td>
+      <td><a href="#" id="maximum_vcpus" data-pk="{{ instance.id }}">{{ instance.maximum_vcpus }}</a></td>
+    </tbody>
+  </table>
+  <br>
+  <table class="table table-condensed table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>Storage Pools</th>
+      </tr>
+      <tr>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Path</th>
+        <th>Capacity</th>
+        <th>Allocated</th>
+        <th>Available</th>
+        <th>Percent</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in storagepools %}
+      <tr>
+        <td>{{ row.name }}</td>
+        <td>{{ row.get_status_display }}</td>
+        <td>{{ row.path }}</td>
+        <td>{{ row.capacity|to_human_readable }}</td>
+        <td>{{ row.allocated|to_human_readable }}</td>
+        <td>{{ row.available|to_human_readable }}</td>
+        <td>
+          <div class="progress progress-striped active">
+             <div class="bar" style="width: {{ row.percent }}%;"></div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <td colspan="3"></td>
+      <th>Total:</th>
+      <td>{{ total_storagepool_allocated|to_human_readable }}</td>
+      <td colspan="2"></td>
+    </tfoot>
+    </tbody>
+  </table>
+  <script>
+    $(function() {
+      $('#location').editable({
+        type: 'text',
+        url: '/hypervisor/edit/',
+        title: 'Edit Location',
+      });
+      $('#address').editable({
+        type: 'text',
+        url: '/hypervisor/edit/',
+        title: 'Edit Address',
+      });
+      $('#libvirt_port').editable({
+        type: 'text',
+        url: '/hypervisor/edit/',
+        title: 'Edit Libvirt Port',
+      });
+      $('#node_port').editable({
+        type: 'text',
+        url: '/hypervisor/edit/',
+        title: 'Edit Node Port',
+      });
+    });
+  </script>
+
+{% endblock %}
