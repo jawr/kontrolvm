@@ -125,6 +125,7 @@ INSTALLED_APPS = (
   'apps.installationdisk',
   'apps.volume',
   'apps.instance',
+  'apps.network',
   'apps.vnc'
 )
 

@@ -16,6 +16,7 @@
         <th>VCPU</th>
         <th>Memory</th>
         <th>Capacity</th>
+        <th>IP</th>
         <th>Status</th>
         <th style="width: 15px;">Options</th>
       </thead>
@@ -31,6 +32,7 @@
             <td>{{ instance.vcpu }}</td>
             <td>{{ instance.memory|to_human_readable }}</td>
             <td>{{ instance.volume.capacity|to_human_readable }}</td>
+            <td>{{ instance.network.ip }}</td>
             <td>{{ instance.get_status_display }}</td>
             <td>
               <a href="#" id="delete"><i id="{{ instance.name }}" class="icon-trash"></i></a>

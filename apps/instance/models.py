@@ -6,6 +6,8 @@ from datetime import timedelta
 from apps.volume.models import Volume
 from apps.installationdisk.models import InstallationDisk
 from apps.storagepool.models import StoragePool
+from apps.network.fields import MACAddressField
+from apps.network.models import Network, InstanceNetwork
 from binascii import hexlify
 from xml.etree import ElementTree
 import libvirt
@@ -31,6 +33,8 @@ DETACH_DISK_TEMPLATE = \
     </disk>
   """
 
+# methods for generating unique mac addresses
+
 class Instance(models.Model):
   name = models.CharField(max_length=100)
   alias = models.CharField(max_length=100, default="My Instance", null=True, blank=True)
@@ -41,6 +45,8 @@ class Instance(models.Model):
   vcpu = models.IntegerField(max_length=2, default=1)
   memory = models.IntegerField(default=268435456) # 256MB
   disk = models.ForeignKey(InstallationDisk, null=True, blank=True)
+  mac = MACAddressField()
+  network = models.ForeignKey(InstanceNetwork)
   # time fields
   updated = models.DateTimeField(auto_now=True)
   created = models.DateTimeField(auto_now_add=True)
@@ -184,6 +190,7 @@ class InstanceTask(models.Model):
   capacity = models.BigIntegerField(default=1073741824) # 1GB
   disk = models.ForeignKey(InstallationDisk, null=True, blank=True)
   volume = models.OneToOneField(Volume, null=True, blank=True)
+  network = models.ForeignKey(Network)
   # time fields
   updated = models.DateTimeField(auto_now=True)
   created = models.DateTimeField(auto_now_add=True)
@@ -237,4 +244,3 @@ class InstanceTask(models.Model):
           volume = Instance.objects.get(name=name)
         except Instance.DoesNotExist:
           return name
-

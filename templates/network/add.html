@@ -1,0 +1,10 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Add Network{% endblock %}
+{% block content %}
+<form method="POST" class="form" action="{{ request.get_full_path }}">
+  {% csrf_token %}
+  {% load bootstrap %}
+  {{ form|bootstrap }}
+  <button class="btn btn-large btn-primary" type="submit">Add Network</button>
+</form>
+{% endblock %}

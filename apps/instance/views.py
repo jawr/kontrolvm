@@ -217,7 +217,8 @@ def add(request):
         creator=request.user,
         vcpu=form.cleaned_data['vcpu'],
         memory=form.cleaned_data['memory'],
-        storagepool=form.cleaned_data['storagepool']
+        storagepool=form.cleaned_data['storagepool'],
+        network=form.cleaned_data['network'],
       )
       if created: instancetask.save()
       task = create_instance.delay(instancetask.name)

@@ -151,7 +151,7 @@
         {% for message in unread_messages %}
           <blockquote>
             <p class="text-{{ message.level|message_level_as_text }}">{{ message }}</p>
-            <small><a class="muted" href="{% url message_mark_read message.pk %}">mark as read</a> - {{ message.created }}</small>
+            {% if message.is_persistent %}<small><a class="muted" href="{% url message_mark_read message.pk %}">mark as read</a> - {{ message.created }}</small>{% endif %}
           </blockquote>
         {% endfor %}
       {% endif %}

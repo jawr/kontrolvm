@@ -1,0 +1,33 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Networks{% endblock %}
+{% block content %}
+<h1>Networks <i class="icon-globe"></i><small>Overview of Networks</small></h1>
+<a href="/network/add/">Add another</a>
+<hr>
+<table class="table table-condensed table-striped table-bordered">
+  <thead>
+    <th>Hypervisor</th>
+    <th>Netmask</th>
+    <th>Gateway</th>
+    <th>Broadcast</th>
+    <th>Network</th>
+    <th>Start</th>
+    <th>End</th>
+    <th>Instances</th>
+  </thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      <td>{{ row.hypervisor }}</td>
+      <td>{{ row.netmask }}</td>
+      <td>{{ row.gateway }}</td>
+      <td>{{ row.broadcast }}</td>
+      <td>{{ row.network }}</td>
+      <td>{{ row.start }}</td>
+      <td>{{ row.end }}</td>
+      <td>{{ row.get_number_of_instances }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

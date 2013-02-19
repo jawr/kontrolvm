@@ -154,6 +154,39 @@
       <th style="width: 50px;">CD/DVD</th>
       <td style="width: 240px;" colspan="3">{{ instance.disk }}</td>
     </tr>
+    <tr>
+      <th colspan="4" style="width: 50px;">Network</th>
+    </tr>
+    <tr>
+      <td></td>
+      <th>MAC</th>
+      <td colspan="2">{{ instance.mac }}</td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>IP</th>
+      <td colspan="2">{{ instance.network.ip }}</td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>Network</th>
+      <td colspan="2">{{ instance.network.network.network }}</td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>Gateway</th>
+      <td colspan="2">{{ instance.network.network.gateway }}</td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>Netmask</th>
+      <td colspan="2">{{ instance.network.network.netmask }}</td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>Broadcast</th>
+      <td colspan="2">{{ instance.network.network.broadcast }}</td>
+    </tr>
   </tbody>
   </table>
 {% endblock %}

@@ -16,6 +16,7 @@
               <li {% if request.get_full_path == "/hypervisor/" %}class="active"{% endif %}><a href="/hypervisor/">Hypervisors</a></li>
               <li {% if request.get_full_path == "/storagepool/" %}class="active"{% endif %}><a href="/storagepool/">Storage Pools</a></li>
               <li {% if request.get_full_path == "/installationdisk/" %}class="active"{% endif %}><a href="/installationdisk/">Installation Disks</a></li>
+              <li {% if request.get_full_path == "/network/" %}class="active"{% endif %}><a href="/network/">Network</a></li>
               <li {% if request.get_full_path == "/instance/" %}class="active"{% endif %}><a href="/instance/">Instances</a></li>
             {% endif %}
           </ul>

@@ -8,6 +8,7 @@ admin.autodiscover()
 dajaxice_autodiscover()
 
 urlpatterns = patterns('',
+  url(r'^network/', include('apps.network.urls')),
   url(r'^account/', include('apps.account.urls')),
   url(r'^instance/', include('apps.instance.urls')),
   url(r'^installationdisk/', include('apps.installationdisk.urls')),
