@@ -14,7 +14,7 @@
       </tr>
       <tr>
         <th style="width: 50px;">Status</th>
-        <td>{{ instance.get_status_display }}</td>
+        <td>{{ instance.get_status_html|safe }}</td>
       </tr>
         <th style="width: 50px;"></th>
         <td>
@@ -129,7 +129,7 @@
 
   <hr>
   <h2>Overview <i class="icon-globe"></i> <small>A quick look at your Instance..</small></h2>
-  <table class="table table-striped">
+  <table class="table table-striped table-condensed table-bordered">
     <thead>
       <tr>
         <th colspan="4">Hardware</th>

@@ -1,6 +1,7 @@
 from django.template import RequestContext, loader
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404
 from apps.instance.models import Instance, InstanceTask
 from apps.instance.forms import InstanceTaskForm
@@ -54,29 +55,27 @@ def instance(request, name):
   return render_to_response('instance/instance.html', response,
     context_instance=RequestContext(request))
 
-@staff_member_required
+@login_required
 def edit(request):
   if request.is_ajax() and request.method == 'POST':
     json = request.POST
     try:
-      print json['name']
       instance = Instance.objects.get(name=json['pk'])
+      if not request.user.is_staff:
+        if request.user != instance.user: raise Http404
       orig_name = instance.alias
       orig_value = None
       if json['name'] == 'name':
         orig_value = instance.alias
         instance.alias = json['value']
       else:
-        print "no match"
         raise Http404
       instance.save()
       messages.add_message(request, persistent_messages.SUCCESS,
         'Changed Instance %s %s from %s to %s' % (orig_name, json['name'], orig_value, json['value']))
     except Instance.DoesNotExist:
-      print "doesnt exist"
       raise Http404
     return HttpResponse('{}', mimetype="application/json")
-  print "other"
   raise Http404
 
 def update(request, name):

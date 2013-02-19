@@ -89,6 +89,11 @@ class Instance(models.Model):
     graphics = tree.findall('devices/graphics')
     return int(graphics[0].get('port'))
 
+  def get_status_html(self):
+    if self.status == 1:
+      return '<span class="label label-success">%s</span>' % (self.get_status_display())
+    return '<span class="label label-warning">%s</span>' % (self.get_status_display())
+
   def get_instance(self):
     hypervisor = self.volume.storagepool.hypervisor.get_connection()
     instance = None

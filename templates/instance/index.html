@@ -36,7 +36,7 @@
             <td>{{ instance.memory.name }}</td>
             <td>{{ instance.volume.capacity.name }}</td>
             <td>{{ instance.network.ip }}</td>
-            <td>{{ instance.get_status_display }}</td>
+            <td>{{ instance.get_status_html|safe }}</td>
             <td>
               <a href="#" id="delete"><i id="{{ instance.name }}" class="icon-trash"></i></a>
             </td>
