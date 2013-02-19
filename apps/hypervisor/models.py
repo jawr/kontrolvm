@@ -1,4 +1,5 @@
 from django.db import models
+from utils.node import send_command
 import libvirt
 
 """
@@ -39,6 +40,17 @@ class Hypervisor(models.Model):
 
   def get_node_address(self):
     return "http://%s:%d" % (self.address, self.node_port)
+
+  def get_libvirt_status_html(self):
+    conn = self.get_connection()
+    if conn:
+      return '<span class="label label-success pull-right">Responding</span>'
+    return '<span class="label label-error pull-right">Not Responding</span>'
+
+  def get_node_status_html(self):
+    if send_command(self, 'check', {}):
+      return '<span class="label label-success pull-right">Responding</span>'
+    return '<span class="label label-error pull-right">Not Responding</span>'
 
   def get_connection(self, update=False):
     conn = None
