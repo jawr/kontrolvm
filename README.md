@@ -13,6 +13,7 @@ Requirements
 * X-editable () - http://vitalets.github.com/x-editable/
 * django-bootstrap-form (2.0.5) - https://github.com/tzangms/django-bootstrap-form
 * django-email-as-username (1.6.2) - https://github.com/dabapps/django-email-as-username
+* django-bootstrap-pagination () - http://tgdn.github.com/django-bootstrap-pagination/
 * jquery.cookie.js (1.3) - https://github.com/carhartl/jquery-cookie
 * kontrolvm-node - https://github.com/jawr/kontrolvm-node
 

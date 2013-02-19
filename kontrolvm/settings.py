@@ -94,6 +94,7 @@ MIDDLEWARE_CLASSES = (
   'django.contrib.messages.middleware.MessageMiddleware',
   'django.middleware.clickjacking.XFrameOptionsMiddleware',
   'apps.account.middleware.AjaxMessaging',
+  'bootstrap_pagination.middleware.PaginationMiddleware',
 )
 
 ROOT_URLCONF = 'kontrolvm.urls'
@@ -116,6 +117,7 @@ INSTALLED_APPS = (
   'persistent_messages',
   'dajax',
   'dajaxice',
+  'bootstrap_pagination',
   # apps
   'apps.account',
   'apps.hypervisor',
