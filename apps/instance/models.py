@@ -42,7 +42,6 @@ class Instance(models.Model):
   creator = models.ForeignKey(User)
   # virtual attributes
   vcpu = models.IntegerField(max_length=2, default=1)
-  #memory = models.IntegerField(default=268435456) # 256MB
   memory = models.ForeignKey(Size, related_name="instance_memory")
   disk = models.ForeignKey(InstallationDisk, null=True, blank=True)
   mac = MACAddressField()
@@ -79,8 +78,9 @@ class Instance(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "%s [%d CPU/%s RAM][%s HDD][%s]" % \
-      (self.alias, self.vcpu, self.memory.name, self.volume.capacity.name, self.get_status_display())
+  #  return "%s [%d CPU/%s RAM][%s HDD][%s]" % \
+  #    (self.alias, self.vcpu, self.memory.name, self.volume.capacity.name, self.get_status_display())
+    return "%s // %s // %d VCPUs / %s RAM / %s HDD" % (self.alias, self.network.ip, self.vcpu, self.memory.name, self.volume.capacity.name)
 
   def get_vnc_port(self):
     instance = self.get_instance()

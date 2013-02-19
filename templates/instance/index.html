@@ -3,7 +3,9 @@
 {% block content %}
   <h1>Instances <i class="icon-hdd"></i></h1>
   <p>Overview of Instances. <a href="/instance/add/">Add another</a>.</p>
+  {% if search %}<p><span class="label label-info">{{ search }}</span></p>{% endif %}
   {% load size_utils %}
+  {% load pagination_tags %}
   {% if instances %}
     <h2>Instances</h2>
     <table class="table table-condensed table-striped table-bordered">
@@ -22,6 +24,7 @@
       </thead>
 
       <tbody>
+  {% autopaginate instances 10 %}
         {% for instance in instances %}
           <tr>
             <td><a href="/instance/{{ instance.name }}/">{{ instance.name|truncatechars:6 }}</a></td>
@@ -41,6 +44,24 @@
         {% endfor %}
       </tbody>
     </table>
+    {% paginate %}
+    <hr>
+    <h4>Search Instances <i class="icon-zoom-in"></i> <small>Refine ye old list of servers..</small></h4>
+    <form method="POST" action="/instance/search/" class="form-search">
+      {% csrf_token %}
+      <select id="search-option" name="search-option" class="input-medium">
+        <option value="0">Alias</option>
+        <option value="1">Name</option>
+        <option value="2">User</option>
+        <option value="3">Creator</option>
+        <option value="4">IP</option>
+      </select>
+      <div class="input-append">
+        <input id="search-text" name="search-text" type="text" class="input-large search-query">
+        <button type="submit" class="btn">Search</button>
+      </div>
+    </form>
+      
   {% else %}
     <p>Oops. No Instance's added.</p>
   {% endif %}

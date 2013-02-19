@@ -31,8 +31,8 @@ def index(request):
     read=False).order_by('-pk')
   read_messages = persistent_messages.models.Message.objects.filter(user=request.user,
     read=True).order_by('-pk')
-  my_instances_online = Instance.objects.filter(status=1)
-  my_instances_offline = Instance.objects.filter(~Q(status=1))
+  my_instances_online = Instance.objects.filter(status=1, user=request.user)
+  my_instances_offline = Instance.objects.filter(~Q(status=1), user=request.user)
   response = {
       'unread_messages': unread_messages,
       'read_messages': read_messages,

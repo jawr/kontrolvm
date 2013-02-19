@@ -5,144 +5,188 @@
 
   <ul class="nav nav-tabs">
     <li {% if not request.GET.page %}class="active"{% endif %}><a href="#overview" data-toggle="tab">Overview</a></li>
+    {% if request.user.is_staff %}
+    <li><a href="#admin" data-toggle="tab">Admin Overview</a></li>
+    {% endif %}
+    {% if messages or read_messages %}
     <li {% if request.GET.page %}class="active"{% endif %}><a href="#messages" data-toggle="tab">Messages{% if messages|length > 0 %} ({{ messages|length }}){% endif %}</a></li>
+    {% endif %}
   </ul>
 
   <div class="tab-content">
     <div class="tab-pane fade {% if not request.GET.page %}in active{% endif %}" id="overview"> 
-      <h2>Overview</h2>
+     <h2>Instances <i class="icon-hdd"></i> <small>A quick look at all your instances..</small></h2>
       {% if my_instances_online or my_instances_offline %}
-        <hr>
-        <h3>Instances <i class="icon-hdd"></i> <small>A quick look at all my instances...</small></h3>
-        <table class="table table-condensed table-striped">
+        <table class="table table-condensed table-striped table-bordered">
         {% if my_instances_online %}
-          <tr>
-            <th>Online</th>
-            <td>{{ my_instances_online|length }}</td>
-          </tr>
+          <thead>
+            <tr>
+              <th>Online</th>
+              <td><span class="label label-info">{{ my_instances_online|length }}</span></td>
+            </tr>
+            <tr>
+              <th>Name</th>
+              <th>IP</th>
+              <th>VCPUs</th>
+              <th>RAM</th>
+              <th>HDD</th>
+              <th>Status</th>
+          </thead>
+          <tbody>
           {% for instance in my_instances_online %}
-            <tr><td></td><td><a href="/instance/{{ instance.name }}/">{{ instance }}</a></td></tr>
+            <tr>
+              <td><a href="/instance/{{ instance.name }}/">{{ instance.alias }}</a></td>
+              <td>{{ instance.network.ip }}</td>
+              <td>{{ instance.vcpu }}</td>
+              <td>{{ instance.memory.name }}</td>
+              <td>{{ instance.volume.capacity.name }}</td>
+              <td>{{ instance.get_status_display }}</td>
+            </tr>
           {% endfor %}
+          </tbody>
         </table>
         {% endif %}
         {% if my_instances_offline %}
-          <tr>
-            <th>Offline</th>
-            <td>{{ my_instances_offline|length }}</td>
-          </tr>
+        <table class="table table-condensed table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Offline</th>
+              <td><span class="label label-warning">{{ my_instances_offline|length }}</span></td>
+            </tr>
+            <tr>
+              <th>Name</th>
+              <th>IP</th>
+              <th>VCPUs</th>
+              <th>RAM</th>
+              <th>HDD</th>
+              <th>Status</th>
+          </thead>
+          <tbody>
           {% for instance in my_instances_offline %}
-            <tr><td></td><td><a href="/instance/{{ instance.name }}/">{{ instance }}</a></td></tr>
+            <tr>
+              <td><a href="/instance/{{ instance.name }}/">{{ instance.alias }}</a></td>
+              <td>{{ instance.network.ip }}</td>
+              <td>{{ instance.vcpu }}</td>
+              <td>{{ instance.memory.name }}</td>
+              <td>{{ instance.volume.capacity.name }}</td>
+              <td>{{ instance.get_status_display }}</td>
+            </tr>
           {% endfor %}
+          </tbody>
         </table>
         {% endif %}
+      {% else %}
+        <p>Woops. You currently don't have any instances.</p>
       {% endif %}
-      {% if request.user.is_staff %}
-      <hr>
-      <h3>Admin <i class="icon-flag"></i> <small>Manage your nodes...</small></h3>
-      <div class="span3 offset1">
-        <table class="table table-condensed table-striped">
-          <tr>
-            <th colspan="3">Hypervisors</th>
-          </tr>
-          <tr>
-            <td width="20"></td>
-            <td width="20">Online</td>
-            <td>{{ hypervisors_online }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>Offline</td>
-            <td>{{ hypervisors_offline }}</td>
-          </tr>
-        </table>
-      </div>
-      <div class="span3">
-        <table class="table table-condensed table-striped">
-          <tr>
-            <th colspan="3">Storage Pools</th>
-          </tr>
-          <tr>
-            <td width="20"></td>
-            <td width="20">Online</td>
-            <td>{{ storagepools_online }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>Offline</td>
-            <td>{{ storagepools_offline }}</td>
-          </tr>
-        </table>
-      </div>
-      <div class="span3">
-        <table class="table table-condensed table-striped">
-          <tr>
-            <th colspan="3">Volumes</th>
-          </tr>
-          <tr>
-            <td width="20"></td>
-            <td width="20">Online</td>
-            <td>{{ volumes_online }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>Offline</td>
-            <td>{{ volumes_offline }}</td>
-          </tr>
-        </table>
-      </div>
-      <div class="span3 offset1">
-        <table class="table table-condensed table-striped">
-          <tr>
-            <th colspan="3">Instances</th>
-          </tr>
-          <tr>
-            <td width="20"></td>
-            <td width="20">Online</td>
-            <td>{{ instances_online }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>Offline</td>
-            <td>{{ instances_offline }}</td>
-          </tr>
-        </table>
-      </div>
-      <div class="span3">
-        <table class="table table-condensed table-striped">
-          <tr>
-            <th colspan="3">Installation Disks</th>
-          </tr>
-          <tr>
-            <td width="20"></td>
-            <td width="20">Disks</td>
-            <td>{{ installationdisks }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>Tasks</td>
-            <td>{{ installationdisktasks }}</td>
-          </tr>
-        </table>
-      </div>
-      <div class="span3">
-        <table class="table table-condensed table-striped">
-          <tr>
-            <th colspan="3">VNC Sessions</th>
-          </tr>
-          <tr>
-            <td width="20"></td>
-            <td width="20">Active</td>
-            <td>{{ vnc_sessions }}/({{ vnc_sessions_rt }})</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>Total</td>
-            <td>{{ vnc_sessions_total}}</td>
-          </tr>
-        </table>
-      </div>
-      {% endif %}
+  
     </div>
+      {% if request.user.is_staff %}
+      <div class="tab-pane fade" id="admin"> 
+        <h3>Admin <i class="icon-flag"></i> <small>Quick overview of nodes...</small></h3>
+        <div class="span3 offset1">
+          <table class="table table-condensed table-striped">
+            <tr>
+              <th colspan="3">Hypervisors</th>
+            </tr>
+            <tr>
+              <td width="20"></td>
+              <td width="20">Online</td>
+              <td>{{ hypervisors_online }}</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Offline</td>
+              <td>{{ hypervisors_offline }}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="span3">
+          <table class="table table-condensed table-striped">
+            <tr>
+              <th colspan="3">Storage Pools</th>
+            </tr>
+            <tr>
+              <td width="20"></td>
+              <td width="20">Online</td>
+              <td>{{ storagepools_online }}</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Offline</td>
+              <td>{{ storagepools_offline }}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="span3">
+          <table class="table table-condensed table-striped">
+            <tr>
+              <th colspan="3">Volumes</th>
+            </tr>
+            <tr>
+              <td width="20"></td>
+              <td width="20">Online</td>
+              <td>{{ volumes_online }}</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Offline</td>
+              <td>{{ volumes_offline }}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="span3 offset1">
+          <table class="table table-condensed table-striped">
+            <tr>
+              <th colspan="3">Instances</th>
+            </tr>
+            <tr>
+              <td width="20"></td>
+              <td width="20">Online</td>
+              <td>{{ instances_online }}</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Offline</td>
+              <td>{{ instances_offline }}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="span3">
+          <table class="table table-condensed table-striped">
+            <tr>
+              <th colspan="3">Installation Disks</th>
+            </tr>
+            <tr>
+              <td width="20"></td>
+              <td width="20">Disks</td>
+              <td>{{ installationdisks }}</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Tasks</td>
+              <td>{{ installationdisktasks }}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="span3">
+          <table class="table table-condensed table-striped">
+            <tr>
+              <th colspan="3">VNC Sessions</th>
+            </tr>
+            <tr>
+              <td width="20"></td>
+              <td width="20">Active</td>
+              <td>{{ vnc_sessions }}/({{ vnc_sessions_rt }})</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Total</td>
+              <td>{{ vnc_sessions_total}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% endif %}
     <div class="tab-pane fade {% if request.GET.page %}in active{% endif %}" id="messages">
       <h2>Messages</h2>
       {% load message_utils %}
@@ -158,7 +202,7 @@
       {% if read_messages %}
         {% load pagination_tags %}
         <h3>Read messages</h3>
-        {% autopaginate read_messages 5 %}
+        {% autopaginate read_messages 7 %}
         {% for message in read_messages %}
           <blockquote>
             <p class="text-{{ message.level|message_level_as_text }}">{{ message }}</p>

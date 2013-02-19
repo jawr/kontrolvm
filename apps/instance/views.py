@@ -14,7 +14,7 @@ import libvirt
 
 def instance(request, name):
   instance = get_object_or_404(Instance, name=name)
-  
+
   # check if user is staff or owner
   if not request.user.is_staff and request.user != instance.user:
     raise Http404
@@ -70,7 +70,7 @@ def edit(request):
         print "no match"
         raise Http404
       instance.save()
-      messages.add_message(request, persistent_messages.SUCCESS, 
+      messages.add_message(request, persistent_messages.SUCCESS,
         'Changed Instance %s %s from %s to %s' % (orig_name, json['name'], orig_value, json['value']))
     except Instance.DoesNotExist:
       print "doesnt exist"
@@ -85,7 +85,7 @@ def update(request, name):
     raise Http404
   instance.update(True)
   return redirect('/instance/' + instance.name + '/')
-  
+
 
 def start(request, name):
   instance = get_object_or_404(Instance, name=name)
@@ -103,7 +103,7 @@ def start(request, name):
       'Unable to get instance %s when trying to Start it' % (instance))
 
   return redirect('/instance/' + instance.name + '/')
-     
+
 def resume(request, name):
   instance = get_object_or_404(Instance, name=name)
   if not request.user.is_staff and request.user != instance.user:
@@ -200,6 +200,41 @@ def index(request):
   return render_to_response('instance/index.html', {
       'instances': instances,
       'tasks': tasks,
+    },
+    context_instance=RequestContext(request))
+
+@staff_member_required
+def search(request):
+  search = 'Invalid search'
+  rows = None
+  if request.method == 'POST':
+    search_type = int(request.POST.get('search-option'))
+    search_text = request.POST.get('search-text')
+    search = 'Searching for %s in' % (search_text)
+
+    if search_type == 0:
+      rows = Instance.objects.filter(alias__icontains=search_text)
+      search += ' Alias'
+    elif search_type == 1:
+      rows = Instance.objects.filter(name__icontains=search_text)
+      search += ' Name'
+    elif search_type == 2:
+      rows = Instance.objects.filter(user__email__icontains=search_text)
+      search += ' User'
+    elif search_type == 3:
+      rows = Instance.objects.filter(creator__email__icontains=search_text)
+      search += ' Creator'
+    elif search_type == 4:
+      rows = Instance.objects.filter(network__ip__icontains=search_text)
+      search += ' IP'
+
+  if search == 'Invalid search':
+    rows = Instance.objects.filter()
+
+  return render_to_response('instance/index.html',
+    {
+    'instances': rows,
+    'search': search,
     },
     context_instance=RequestContext(request))
 
