@@ -4,11 +4,25 @@
   {% load size_utils %}
   <h1>{{ instance.name }} <small>Hypervisor overview..</small></h1>
   <hr>
-  <h3>Status <i class="icon-signal"></i></h3>
-  <dl>
-    <dt>Libvirt status: {{ instance.get_libvirt_status_html|safe }}</dt>
-    <dt>Node status: {{ instance.get_node_status_html|safe }}</dt>
-  </dl>
+  <h3>Status <i class="icon-signal"></i> <small>Quick look at what's running..</small></h3>
+  <table class="table table-condensed table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>Libvirt</th>
+        <th>Node</th>
+        <th>Instances Online</th>
+        <th>Instances Offline</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ instance.get_libvirt_status_html|safe }}</td>
+        <td>{{ instance.get_node_status_html|safe }}</td>
+        <td><span class="label label-info">{{ instances_online }}</span></td>
+        <td><span class="label label-warning">{{ instances_offline }}</span></td>
+      </tr>
+    </tbody>
+  </table>
   <hr>
   <h3>Configuration <i class="icon-cog"></i> <small>Reconfigure your Hypervisor..</small></h3>
   <table class="table table-condensed table-striped table-bordered">

@@ -21,6 +21,12 @@ def view(request, pk):
   for i in storagepools: total_storagepool_allocated += i.allocated
 
   instances = Instance.objects.filter(volume__storagepool__hypervisor=instance)
+
+  instances_online = 0
+  instances_offline = 0
+  for i in instances: 
+    if i.status == 1: instances_online += 1 
+    else: instances_offline += 1
   allocated_memory = 0
   allocated_vcpus = 0
   for i in instances:
@@ -37,6 +43,8 @@ def view(request, pk):
   return render_to_response('hypervisor/view.html',
     {
     'instance': instance,
+    'instances_online': instances_online,
+    'instances_offline': instances_offline,
     'storagepools': storagepools,
     'total_storagepool_allocated': total_storagepool_allocated,
     'allocated_memory': allocated_memory,
