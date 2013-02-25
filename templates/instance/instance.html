@@ -3,6 +3,14 @@
 {% block content %}
   {% load bootstrap %}
   {% load size_utils %}
+  {% if not instance.initialised %}
+    <h2>Welcome! <small>Hello from your new VPS</small></h2>
+    <p>In order to get you started, here is a little HowTo.</p>
+    <p>First pick an install medium from the drop down list (CD/DVD), then hit 'Start'. Give it a few ticks then hit 'Launch VNC' (you will need Java for this!).</p>
+    <p>When prompted for network details, configure manually using all the details specified below.</p>
+    <p>Any questions, drop us an email! Click <a href="/instance/{{ instance.name }}/?init">here</a> to get rid of this!</p>
+    <hr>
+  {% endif %}
 
   <h2>Controls <i class="icon-cog"></i> <small>Make changes to your Instance..</small></h2>
 

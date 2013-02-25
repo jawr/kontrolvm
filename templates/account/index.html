@@ -194,7 +194,7 @@
         <h3>Unread messages</h3>
         {% for message in unread_messages %}
           <blockquote>
-            <p class="text-{{ message.level|message_level_as_text }}">{{ message }}</p>
+            <p class="text-{{ message.level|message_level_as_text }}">{{ message|safe }}</p>
             {% if message.is_persistent %}<small><a class="muted" href="{% url message_mark_read message.pk %}">mark as read</a> - {{ message.created }}</small>{% endif %}
           </blockquote>
         {% endfor %}
@@ -205,7 +205,7 @@
         {% autopaginate read_messages 7 %}
         {% for message in read_messages %}
           <blockquote>
-            <p class="text-{{ message.level|message_level_as_text }}">{{ message }}</p>
+            <p class="text-{{ message.level|message_level_as_text }}">{{ message|safe }}</p>
             <small>{{ message.created }}</small>
           </blockquote>
         {% endfor %}

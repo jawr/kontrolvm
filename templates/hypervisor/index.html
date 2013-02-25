@@ -19,7 +19,7 @@
         {% for hypervisor in hypervisors %}
           <tr>
             <td><a href="/hypervisor/{{ hypervisor.id }}/">{{ hypervisor.name }}</a></td>
-            <td>{{ hypervisor.get_status_display }}</td>
+            <td>{{ hypervisor.get_status_html|safe }}</td>
             <td>{{ hypervisor.location }}</td>
             <td>{{ hypervisor.address }}</td>
             <td width="190">{{ hypervisor.libvirt_port }} {{ hypervisor.get_libvirt_status_html|safe }}</td>

@@ -20,6 +20,11 @@ def instance(request, name):
   if not request.user.is_staff and request.user != instance.user:
     raise Http404
 
+  if request.method == 'GET':
+    if 'init' in request.GET:
+      instance.initialised = True
+      instance.save()
+
   instance.update()
 
   installationdisks_form = InstallationDisksForm(instance)

@@ -49,6 +49,11 @@ class StoragePool(models.Model):
   def __unicode__(self):
     return "%s [%s][%s]" % (self.name, self.hypervisor, self.get_status_display())
 
+  def get_status_html(self):
+    if self.status == 2:
+      return '<span class="label label-success">%s</span>' % (self.get_status_display())
+    return '<span class="label label-warning">%s</span>' % (self.get_status_display())
+
   def get_storagepool(self):
     storagepool = None
     try:

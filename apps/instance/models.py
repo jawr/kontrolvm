@@ -49,6 +49,7 @@ class Instance(models.Model):
   # time fields
   updated = models.DateTimeField(auto_now=True)
   created = models.DateTimeField(auto_now_add=True)
+  initialised = models.BooleanField(default=False)
   # status
   NOSTATE = 0
   RUNNING = 1

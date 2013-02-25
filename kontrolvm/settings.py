@@ -207,3 +207,5 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'dajaxice.finders.DajaxiceFinder',
 )
+
+BROKER_HEARTBEAT = 0 # http://stackoverflow.com/questions/14817181/django-celery-connectionerror-too-many-heartbeats-missed

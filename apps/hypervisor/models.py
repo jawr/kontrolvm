@@ -43,6 +43,11 @@ class Hypervisor(models.Model):
   def __unicode__(self):
     return '%s [%s][%s]' % (self.name, self.location, self.get_status_display())
 
+  def get_status_html(self):
+    if self.status == 'UP':
+      return '<span class="label label-success">%s</span>' % (self.get_status_display())
+    return '<span class="label label-warning">%s</span>' % (self.get_status_display())
+
   def get_libvirt_address(self):
     return "qemu+tcp://%s:%d/system" % (self.address, self.libvirt_port)
 

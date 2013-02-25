@@ -23,7 +23,7 @@
           <tr>
             <td>{{ storagepool.name }}</td>
             <td>{{ storagepool.hypervisor }}</td>
-            <td>{{ storagepool.get_status_display }}</td>
+            <td>{{ storagepool.get_status_html|safe }}</td>
             <td>{{ storagepool.path }}</td>
             <td>{{ storagepool.capacity|to_human_readable }}</td>
             <td>{{ storagepool.allocated|to_human_readable }}</td>

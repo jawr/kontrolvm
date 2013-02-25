@@ -115,6 +115,9 @@ def create_instance(instancetask_name):
       'msg': 'Creating the Instance on the Hypervisor..',
     })
 
+    # shutdown initially so that user can pick their own install medium
+    instance.destroy()
+
     # get mac info and setup network
     tree = ElementTree.fromstring(instance.XMLDesc(0))
     address = tree.findall('devices/interface/mac')
@@ -141,6 +144,7 @@ def create_instance(instancetask_name):
       created=instancetask.created,
       mac=mac,
       network=network_address,
+      initialised=False,
     )
     new_instance.save()
     instancetask.delete(False)
