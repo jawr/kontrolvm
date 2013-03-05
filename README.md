@@ -9,6 +9,7 @@ Requirements
 * RabbitMQ - http://www.rabbitmq.com/
 * Celery (3.0+) - http://www.celeryproject.org
 * Bootstrap (2.2.2) - http://twitter.github.com/bootstrap/
+* Flatstrap (0.2) - http://littlesparkvt.com/flatstrap/
 * bootbox.js (2.4.2) - http://github.com/makeusabrew/bootbox/
 * X-editable () - http://vitalets.github.com/x-editable/
 * django-bootstrap-form (2.0.5) - https://github.com/tzangms/django-bootstrap-form
