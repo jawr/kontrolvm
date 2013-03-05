@@ -56,7 +56,7 @@ def edit(request):
         network.start = json['value']
       elif json['name'] == 'end':
         orig = network.end
-        network.end = json['end']
+        network.end = json['value']
       else:
         raise Http404
       network.save()

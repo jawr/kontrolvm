@@ -25,7 +25,10 @@ def instance(request, name):
       instance.initialised = True
       instance.save()
 
-  instance.update()
+  if not instance.initalised:
+    instance.update(True)
+  else:
+    instance.update()
 
   installationdisks_form = InstallationDisksForm(instance)
   if request.method == 'POST':
