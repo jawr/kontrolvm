@@ -71,10 +71,8 @@ class ProxyPipe(Thread):
       except:
         break
     self.cleanup()
-    print "Closing ProxyPipe down..."
 
   def heartbeat(self):
-    print "PIPE HEARTBEAT"
     self._heartbeat = True
 
   def cleanup(self):
@@ -132,10 +130,7 @@ class Proxy(Thread):
     print "Closing Proxy down..."
 
   def heartbeat(self):
-    print "HELLO"
     if self.pipe1: 
-      print "PIPE1 HEARTBEAT"
       self.pipe1.heartbeat()
     if self.pipe2:
-      print "PIPE2 HEARTBEAT"
       self.pipe2.heartbeat()

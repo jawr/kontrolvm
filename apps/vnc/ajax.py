@@ -14,9 +14,7 @@ def heartbeat(request, port, name):
   try:
     session = Session.objects.get(port=port, active=True)
     instance = Instance.objects.get(name=name)
-    print "AJAX DO HEARTBEAT"
     VNCSessions().heartbeat(session.id)
-    print "AJAX HEARTBEAT DONE"
   except (Session.DoesNotExist, Instance.DoesNotExist):
     print "NO SESSION"
 

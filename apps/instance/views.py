@@ -25,7 +25,7 @@ def instance(request, name):
       instance.initialised = True
       instance.save()
 
-  if not instance.initalised:
+  if not instance.initialised:
     instance.update(True)
   else:
     instance.update()
