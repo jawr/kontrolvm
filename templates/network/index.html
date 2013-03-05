@@ -19,15 +19,49 @@
   {% for row in rows %}
     <tr>
       <td>{{ row.hypervisor }}</td>
-      <td>{{ row.netmask }}</td>
-      <td>{{ row.gateway }}</td>
-      <td>{{ row.broadcast }}</td>
-      <td>{{ row.network }}</td>
-      <td>{{ row.start }}</td>
-      <td>{{ row.end }}</td>
+      <td><a href="#" id="netmask" data-pk="{{ row.id }}">{{ row.netmask }}</a></td>
+      <td><a href="#" id="gateway" data-pk="{{ row.id }}">{{ row.gateway }}</a></td>
+      <td><a href="#" id="broadcast" data-pk="{{ row.id }}">{{ row.broadcast }}</a></td>
+      <td><a href="#" id="network" data-pk="{{ row.id }}">{{ row.network }}</a></td>
+      <td><a href="#" id="start" data-pk="{{ row.id }}">{{ row.start }}</a></td>
+      <td><a href="#" id="end" data-pk="{{ row.id }}">{{ row.end }}</a></td>
       <td>{{ row.get_number_of_instances }}</td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
+<script>
+  $(function() {
+    $('#netmask').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit Netmask',
+    });
+    $('#gateway').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit Gateway',
+    });
+    $('#broadcast').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit Broadcast',
+    });
+    $('#network').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit Network',
+    });
+    $('#start').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit Start Address',
+    });
+    $('#end').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit End Address',
+    });
+  });
+</script>
 {% endblock %}
