@@ -12,6 +12,7 @@
             {% if user.is_staff %}
               <li class="divider"></li>
               <li class="nav-header">Admin</li>
+              <li {% if request.get_full_path == "/account/admin/" %}class="active"{% endif %}><a href="/account/admin/">Users</a></li>
               <li {% if request.get_full_path == "/hypervisor/" %}class="active"{% endif %}><a href="/hypervisor/">Hypervisors</a></li>
               <li {% if request.get_full_path == "/storagepool/" %}class="active"{% endif %}><a href="/storagepool/">Storage Pools</a></li>
               <li {% if request.get_full_path == "/installationdisk/" %}class="active"{% endif %}><a href="/installationdisk/">Installation Disks</a></li>

@@ -127,3 +127,11 @@ def account_login(request):
 def account_logout(request):
   logout(request)
   return redirect('/account/') 
+
+@staff_member_required
+def admin(request):
+  rows = User.objects.all()
+  return render_to_response('account/admin.html', {
+    'rows': users,
+  },
+  context_instance=RequestContext(request))

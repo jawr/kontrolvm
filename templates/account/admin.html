@@ -1,0 +1,11 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Users{% endblock %}
+{% block content %}
+  <h1>Users <i class="icon-user"></i></h1>
+  <p>Overview of Users. <a href="/account/add/">Add another</a></p>
+  {% load pagination_tags %}
+  {% if rows %}
+  {% else %}
+  <p>No users added!</p>
+  {% endif %}
+{% endblock %}
