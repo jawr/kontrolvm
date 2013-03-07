@@ -39,6 +39,14 @@ in to one file that logs output and wraps them into one thread of sorts.
   celery worker -A tasks.installationdisk
 ```
 
+Bridged Networking
+------------------
+KontrolVM is designed to provide each instance with it's own public IP address
+it achieves this by allowing the guests to use the host's physical interface.
+
+Debian provides a very informative and clear explanation as well as instructions
+on setting this up: http://wiki.debian.org/BridgeNetworkConnections
+
 OpenVPN
 -------
 The following describes how to setup an OpenVPN server with the ability to add 
