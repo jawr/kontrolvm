@@ -32,10 +32,11 @@ class VNCSessions(Thread):
       proxy.heartbeat()
 
   def stop(self, key):
-    if key in self.sessions:
-      self.sessions[key].stop()
+    proxy = get(key)
+    if proxy:
+      proxy.stop()
       del self.sessions[key]
-      #self.sessions[key].join() # needed?
+      del proxy
       
 
 class ProxyPipe(Thread):
@@ -109,6 +110,8 @@ class Proxy(Thread):
 
   def stop(self):
     print "STOP PROXY"
+    print self.pipe1
+    print self.pipe2
     if self.pipe1: self.pipe1.stop()
     if self.pipe2: self.pipe2.stop()
     self._stop.set()

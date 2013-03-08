@@ -18,8 +18,8 @@
   <tbody>
   {% for row in rows %}
     <tr>
-      <td>{{ row.hypervisor }}</td>
-      <td><a href="#" class="netmask" data-pk="{{ row.id }}">{{ row.netmask }}</a></td>
+      <td><a href="/hypervisor/{{ row.hypervisor.pk }}/" rel="tooltip" title="{{ row.hypervisor }}">{{ row.hypervisor.name }}</a></td>
+<td><a href="#" class="netmask" data-pk="{{ row.id }}">{{ row.netmask }}</a></td>
       <td><a href="#" class="gateway" data-pk="{{ row.id }}">{{ row.gateway }}</a></td>
       <td><a href="#" class="broadcast" data-pk="{{ row.id }}">{{ row.broadcast }}</a></td>
       <td><a href="#" class="network" data-pk="{{ row.id }}">{{ row.network }}</a></td>

@@ -31,7 +31,7 @@
             <td>{{ instance.alias|truncatechars:14 }}</td>
             <td>{{ instance.user }}</td>
             <td>{{ instance.creator }}</td>
-            <td>{{ instance.created }}</td>
+            <td><a rel="tooltip" title="{{ instance.created }}" href="#">{{ instance.created|date:"d/m/y" }}</a></td>
             <td>{{ instance.vcpu }}</td>
             <td>{{ instance.memory.name }}</td>
             <td>{{ instance.volume.capacity.name }}</td>
@@ -96,9 +96,9 @@
                  <div class="bar" style="width: {{ task.percent }}%;"></div>
               </div>
             </td>
-            <td>{{ task.message }}</td>
+            <td><a href="#" rel="tooltip" title="{{ task.message }}">{{ task.message|truncatechars:"15" }}</a></td>
             <td>{{ task.state }}</td>
-            <td>{{ task.created }}</td>
+            <td><a href="#" rel="tooltip" title="{{ task.created }}">{{ task.created|date:"d/m/y" }}</a></td>
             <td>
               <a href="/instamce/restart/{{ task.id }}/" id="task-restart"><i id="{{ task.id }}" class="icon-repeat"></i></a>
               <a href="#" id="delete-task"><i id="{{ task.id }}" class="icon-trash"></i></a>

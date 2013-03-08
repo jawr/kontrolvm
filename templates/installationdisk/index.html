@@ -19,7 +19,7 @@
         {% for disk in disks %}
           <tr>
             <td><a href="#" id="name" data-pk="{{ disk.id }}">{{ disk.name }}</a></td>
-            <td>{{ disk.hypervisor }}</td>
+            <td><a href="/hypervisor/{{ disk.hypervisor.pk }}/" rel="tooltip" title="{{ disk.hypervisor }}">{{ disk.hypervisor.name }}</a></td>
             <td>{{ disk.filename }}</td>
             <td>{{ disk.total_bytes|to_human_readable }}</td>
             <td>

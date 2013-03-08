@@ -22,9 +22,9 @@
         {% for storagepool in storagepools %}
           <tr>
             <td>{{ storagepool.name }}</td>
-            <td>{{ storagepool.hypervisor }}</td>
+            <td><a href="/hypervisor/{{ storagepool.hypervisor.pk }}/" rel="tooltip" title="{{storagepool.hypervisor }}">{{ storagepool.hypervisor.name }}</a></td>
             <td>{{ storagepool.get_status_html|safe }}</td>
-            <td>{{ storagepool.path }}</td>
+            <td><a href="#" rel="tooltip" title="{{ storagepool.path }}"</a>{{ storagepool.path|truncatechars:"40" }}</a></td>
             <td>{{ storagepool.capacity|to_human_readable }}</td>
             <td>{{ storagepool.allocated|to_human_readable }}</td>
             <td>{{ storagepool.available|to_human_readable }}</td>
