@@ -94,6 +94,7 @@ MIDDLEWARE_CLASSES = (
   'django.contrib.messages.middleware.MessageMiddleware',
   'django.middleware.clickjacking.XFrameOptionsMiddleware',
   'apps.account.middleware.AjaxMessaging',
+  'apps.shared.middleware.KontrolVM',
   'bootstrap_pagination.middleware.PaginationMiddleware',
 )
 
@@ -110,6 +111,7 @@ INSTALLED_APPS = (
   'django.contrib.messages',
   'django.contrib.staticfiles',
   'django.contrib.admin',
+  'django.contrib.humanize',
   # libs
   'djcelery',
   'emailusernames',

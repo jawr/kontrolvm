@@ -4,5 +4,5 @@ urlpatterns = patterns('apps.account.views',
   url(r'^login', 'account_login'),
   url(r'^logout', 'account_logout'),
   url(r'^$', 'index'),
-  url(r'^admin', 'account.admin'),
+  url(r'^admin', 'admin'),
 )

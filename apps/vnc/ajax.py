@@ -20,7 +20,6 @@ def heartbeat(request, port, name):
 
 @dajaxice_register
 def stop_vnc(request, name):
-  print threading.current_thread()
   instance = get_object_or_404(Instance, name=name)
   if not request.user.is_staff and request.user != instance.user:
     raise Http404
@@ -30,6 +29,7 @@ def stop_vnc(request, name):
       session.active = False
       session.save()
       VNCSessions().stop(session.id)
+      print "STOPPED SESSION"
     dajax.script('$("#vnc-container").hide(2000);')
     dajax.script('connected = 0;')
     dajax.assign('#vnc-connect-button', 'innerHTML', '<i class="icon-share"></i> Launch VNC')

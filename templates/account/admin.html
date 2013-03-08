@@ -3,8 +3,41 @@
 {% block content %}
   <h1>Users <i class="icon-user"></i></h1>
   <p>Overview of Users. <a href="/account/add/">Add another</a></p>
-  {% load pagination_tags %}
   {% if rows %}
+  {% load pagination_tags %}
+  {% load humanize %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <th>User</th>
+      <th>Instances</th>
+      <th>VNC Sessions</th>
+      <th>Active</th>
+      <th>Last Page</th>
+      <th>Browser</th>
+      <th>Current IP</th>
+      <th>Joined</th>
+    </thead>
+    <tbody>
+      {% autopaginate rows 10 %}
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.user }}</td>
+        <td>{{ row.instance_count }}</td>
+        <td>{{ row.vnc_session_count }}</td>
+        <td>{{ row.audit.time|naturaltime }}</td>
+        <td>{{ row.audit.page }}</td>
+        <td><a href="#" rel="tooltip" title="{{ row.audit.current_browser }}">{{ row.audit.current_browser|truncatechars:"15" }}</a></td>
+        <td>{{ row.audit.current_ip }}</td>
+        <td><a href="#" rel="tooltip" title="{{ row.user.date_joined }}">{{ row.user.date_joined|date:"d/m/y" }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <script>
+    $(function() {
+      $("[rel='tooltip']").tooltip();
+    });
+  </script>
   {% else %}
   <p>No users added!</p>
   {% endif %}

@@ -53,6 +53,7 @@ class ProxyPipe(Thread):
     ProxyPipe.pipes.append(self)
 
   def stop(self):
+    print "STOP PROXYPIPE"
     self._stop.set()
 
   def run(self):
@@ -79,6 +80,7 @@ class ProxyPipe(Thread):
     self.sink.close()
     self.source.close()
     try:
+      print "CLEANUP PROXYPIPE"
       ProxyPipe.pipes.remove(self)
     except ValueError:
       pass
@@ -106,6 +108,7 @@ class Proxy(Thread):
     Proxy.listeners.append(self)
 
   def stop(self):
+    print "STOP PROXY"
     if self.pipe1: self.pipe1.stop()
     if self.pipe2: self.pipe2.stop()
     self._stop.set()

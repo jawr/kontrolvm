@@ -2,12 +2,14 @@ from django.template import RequestContext, loader
 from django.shortcuts import redirect, render_to_response
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.db.models import Q
 import persistent_messages
 from emailusernames.utils import get_user
+from django.contrib.auth.models import User
 from apps.account.forms import LoginForm
-from apps.account.models import UserLogin, InvalidLogin, UserBrowser
+from apps.account.models import UserLogin, InvalidLogin, UserBrowser, UserProfile
 from apps.hypervisor.models import Hypervisor
 from apps.storagepool.models import StoragePool
 from apps.volume.models import Volume
@@ -130,8 +132,8 @@ def account_logout(request):
 
 @staff_member_required
 def admin(request):
-  rows = User.objects.all()
+  rows = UserProfile.objects.all()
   return render_to_response('account/admin.html', {
-    'rows': users,
+    'rows': rows,
   },
   context_instance=RequestContext(request))
