@@ -1,4 +1,4 @@
-Hello!
+Hello {{ email }}!
 
 You have been invited to create a VPS. Please login to http://jess.lawrence.pm:7000 using your email and this randomly generated password: {{ password }} to setup your account.
 

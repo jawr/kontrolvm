@@ -7,6 +7,8 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.db.models import Q
 from django.forms.util import ErrorList
+from django.template.loader import get_template
+from django.template import Context
 import persistent_messages
 from emailusernames.utils import get_user
 from django.contrib.auth.models import User
@@ -154,12 +156,16 @@ def add(request):
       else:
         # handle user creation
         password = User.objects.make_random_password()
-        message = render(request, 'account/add_user_email.html', {
+        message = get_template('account/add_user_email.txt')
+        message_context = Context({
+          'email': email,
           'password': password
-        }, content_type='application/html')
+        })
+        message = message.render(message_context)
 
-        print message
-        #send_mail('test email', 'hello world', '', ['jess@lawrence.pm']) 
+        send_mail('KontrolVM Signup', message, '', [email]) 
+        return redirect('/account/success/')
+
   return render_to_response('account/add.html', {
     'form': form,
   },
