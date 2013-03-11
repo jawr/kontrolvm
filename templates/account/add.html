@@ -1,0 +1,11 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Add User{% endblock %}
+{% block content %}
+  <form class="form" action="{{ request.get_full_path }}" method="POST">
+    {% csrf_token %}
+    {% load bootstrap %}
+    {{ form|bootstrap }}
+    <button class="btn btn-large btn-primary" type="submit">Add User</button>
+  </form>
+{% endblock %}
+
