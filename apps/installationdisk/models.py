@@ -25,7 +25,7 @@ class InstallationDisk(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "%s [%s]" % (self.name, self.hypervisor)
+    return self.name
 
   """
     Cleanup disk on node.
