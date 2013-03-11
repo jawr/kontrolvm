@@ -30,7 +30,7 @@
             <td>{{ storagepool.available|to_human_readable }}</td>
             <td>
               <div class="progress progress-striped active">
-                 <div class="bar" style="width: {{ storagepool.percent }}%;"></div>
+                 <div class="bar" style="width: {{ storagepool.percent }}%;"></div><span class="label pull-right">{{ storagepool.percent|floatformat }}%</span>
               </div>
             </td>
             <td>

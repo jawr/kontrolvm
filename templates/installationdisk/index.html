@@ -80,7 +80,7 @@
             <td>{{ task.filename }}</td>
             <td>
               <div class="progress progress-striped active">
-                 <div class="bar" style="width: {{ task.percent }}%;"></div>
+                 <div class="bar" style="width: {{ task.percent }}%;"></div><span class="label pull-right">{{ task.percent|floatformat }}%</span>
               </div>
             </td>
             <td>{{ task.total_bytes_dl|to_human_readable }}/{{ task.total_bytes|to_human_readable }}</td>

@@ -129,7 +129,7 @@
         <td>{{ row.available|to_human_readable }}</td>
         <td>
           <div class="progress progress-striped active">
-             <div class="bar" style="width: {{ row.percent }}%;"></div>
+             <div class="bar" style="width: {{ row.percent }}%;"></div><span class="label pull-right">{{ row.percent|floatformat }}%</span>
           </div>
         </td>
       </tr>

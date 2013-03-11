@@ -211,3 +211,8 @@ STATICFILES_FINDERS = (
 )
 
 BROKER_HEARTBEAT = 0 # http://stackoverflow.com/questions/14817181/django-celery-connectionerror-too-many-heartbeats-missed
+
+try:
+    from local_settings import *
+except ImportError:
+    pass

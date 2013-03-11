@@ -93,7 +93,7 @@
             <td>{{ task.capacity.name }}</td>
             <td>
               <div class="progress progress-striped active">
-                 <div class="bar" style="width: {{ task.percent }}%;"></div>
+                 <div class="bar" style="width: {{ task.percent }}%;"></div><span class="label pull-right">{{ task.percent|floatformat }}%</span>
               </div>
             </td>
             <td><a href="#" rel="tooltip" title="{{ task.message }}">{{ task.message|truncatechars:"15" }}</a></td>

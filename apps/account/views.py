@@ -1,14 +1,16 @@
 from django.template import RequestContext, loader
-from django.shortcuts import redirect, render_to_response
+from django.shortcuts import redirect, render_to_response, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.mail import send_mail
 from django.contrib import messages
 from django.db.models import Q
+from django.forms.util import ErrorList
 import persistent_messages
 from emailusernames.utils import get_user
 from django.contrib.auth.models import User
-from apps.account.forms import LoginForm
+from apps.account.forms import LoginForm, AddUserForm
 from apps.account.models import UserLogin, InvalidLogin, UserBrowser, UserProfile
 from apps.hypervisor.models import Hypervisor
 from apps.storagepool.models import StoragePool
@@ -135,5 +137,30 @@ def admin(request):
   rows = UserProfile.objects.all()
   return render_to_response('account/admin.html', {
     'rows': rows,
+  },
+  context_instance=RequestContext(request))
+
+@staff_member_required
+def add(request):
+  form = AddUserForm()
+  if request.method == 'POST':
+    form = AddUserForm(request.POST)
+    if form.is_valid():
+      email = form.cleaned_data['email']
+      if email != form.cleaned_data['email_check']:
+        error = ErrorList([u'Email\'s do not match!'])
+        form._errors.setdefault('email', error)
+        form._errors.setdefault('email_check', error)
+      else:
+        # handle user creation
+        password = User.objects.make_random_password()
+        message = render(request, 'account/add_user_email.html', {
+          'password': password
+        }, content_type='application/html')
+
+        print message
+        #send_mail('test email', 'hello world', '', ['jess@lawrence.pm']) 
+  return render_to_response('account/add.html', {
+    'form': form,
   },
   context_instance=RequestContext(request))
