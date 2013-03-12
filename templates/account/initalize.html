@@ -1,0 +1,31 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Initalize{% endblock %}
+{% block content %}
+<h1>Initalize user</h1>
+<p>Please enter your details below</p>
+{% load bootstrap %}
+<form class="form" action="{{ request.get_full_path }}" method="post">
+  {% csrf_token %}
+  {{ name_form|bootstrap }}
+  <hr>
+  {{ user_init_form|bootstrap }}
+  <hr>
+  <div id="change-password">
+    {{ password_form|bootstrap }}
+  </div>
+  <button class="btn btn-large btn-primary" type="submit">Submit</button>
+</form>
+<script>
+  $(function() {
+    function password_check() {
+      if ($('#id_keep_password').is(':checked')) {
+        $('#change-password').hide();
+      } else {
+        $('#change-password').show();
+      }
+    }
+    $('#id_keep_password').click(password_check);
+    password_check();
+  });
+</script>
+{% endblock %}

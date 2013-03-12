@@ -12,7 +12,7 @@ from django.template import Context
 import persistent_messages
 from emailusernames.utils import get_user
 from django.contrib.auth.models import User
-from apps.account.forms import LoginForm, AddUserForm
+from apps.account.forms import LoginForm, AddUserForm, UserInitForm, UserNameForm, UserPasswordForm
 from apps.account.models import UserLogin, InvalidLogin, UserBrowser, UserProfile
 from apps.hypervisor.models import Hypervisor
 from apps.storagepool.models import StoragePool
@@ -30,9 +30,55 @@ def get_client_ip (request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+def initalize(request):
+  name_form = UserNameForm()
+  user_init_form = UserInitForm()
+  password_form = UserPasswordForm()
+
+  success = False
+
+  if request.method == 'POST':
+    name_form = UserNameForm(request.POST)
+    user_init_form = UserInitForm(request.POST)
+    if name_form.is_valid():
+      # update user details
+      request.user.first_name = name_form.cleaned_data['first_name']
+      request.user.last_name = name_form.cleaned_data['last_name']
+      request.user.save()
+      if user_init_form.is_valid():
+        if not user_init_form.cleaned_data['keep_password']:
+          password_form = UserPasswordForm(request.POST)
+          if password_form.is_valid():
+            password = password_form.cleaned_data['password']
+            if password != password_form.cleaned_data['password_check']:
+              error = ErrorList([u'Password\'s do not match!'])
+              password_form._errors.setdefault('password', error)
+              password_form._errors.setdefault('password_check', error)
+            else:
+              request.user.set_password(password)
+              request.user.save()
+              success = True
+        else: success = True
+
+  if success:
+    request.user.get_profile().init = True
+    request.user.get_profile().save()
+    return redirect('/')
+
+  return render_to_response('account/initalize.html', {
+    'name_form': name_form,
+    'user_init_form': user_init_form,
+    'password_form': password_form,
+  },
+  context_instance=RequestContext(request))
 
 @login_required
 def index(request):
+
+  if not request.user.get_profile().init:
+    # initalize user
+    return initalize(request)
+
   unread_messages = persistent_messages.models.Message.objects.filter(user=request.user,
     read=False).order_by('-pk')
   read_messages = persistent_messages.models.Message.objects.filter(user=request.user,
@@ -155,16 +201,28 @@ def add(request):
         form._errors.setdefault('email_check', error)
       else:
         # handle user creation
-        password = User.objects.make_random_password()
-        message = get_template('account/add_user_email.txt')
-        message_context = Context({
-          'email': email,
-          'password': password
-        })
-        message = message.render(message_context)
 
-        send_mail('KontrolVM Signup', message, '', [email]) 
-        return redirect('/account/success/')
+        user, created = User.objects.get_or_create(email=email)
+        if not created:
+          # user already exists
+          error = ErrorList([u'User already exists. Initalized %s.' % (user.get_profile().init)])
+          form._errors.setdefault('email', error)
+        else:
+
+          message = get_template('account/add_user_email.txt')
+
+          password = User.objects.make_random_password()
+          message_context = Context({
+            'email': email,
+            'password': password
+          })
+          message = message.render(message_context)
+
+          user.set_password(password)
+          user.save()
+
+          send_mail('KontrolVM Signup', message, '', [email]) 
+          return redirect('/account/success/')
 
   return render_to_response('account/add.html', {
     'form': form,

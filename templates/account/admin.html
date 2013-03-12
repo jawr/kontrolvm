@@ -9,6 +9,7 @@
   <table class="table table-bordered table-striped">
     <thead>
       <th>User</th>
+      <th>Initalized</th>
       <th>Instances</th>
       <th>VNC Sessions</th>
       <th>Active</th>
@@ -22,6 +23,7 @@
       {% for row in rows %}
       <tr>
         <td>{{ row.user }}</td>
+        <td>{{ row.init }}</td>
         <td>{{ row.instance_count }}</td>
         <td>{{ row.vnc_session_count }}</td>
         <td>{{ row.audit.time|naturaltime }}</td>

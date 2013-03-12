@@ -24,7 +24,7 @@
       </thead>
 
       <tbody>
-  {% autopaginate instances 10 %}
+        {% autopaginate instances 10 %}
         {% for instance in instances %}
           <tr>
             <td><a href="/instance/{{ instance.name }}/">{{ instance.name|truncatechars:6 }}</a></td>

@@ -1,6 +1,8 @@
 {% extends 'base_fluid.html' %}
 {% block title %}{{ user }}{% endblock %}
 {% block content %}
+  {% if not request.user.get_profile.init %}
+  {% else %}
   <h1><small>Hello</small> {{ user }}</h1>
 
   <ul class="nav nav-tabs">
@@ -213,4 +215,5 @@
       {% endif %}
     </div>
   </div>
+  {% endif %}
 {% endblock %}

@@ -21,6 +21,7 @@ class UserAudit(models.Model):
 
 class UserProfile(models.Model):
   user = models.ForeignKey(User, unique=True)
+  init = models.BooleanField(default=False)
  
   def __unicode__(self):
     return "%s's Profile" % (self.user.username)
