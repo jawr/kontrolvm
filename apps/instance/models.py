@@ -120,7 +120,11 @@ class Instance(models.Model):
     instance = self.get_instance()
     if instance:
       try:
-        instance.destroy()
+        try:
+          # shutdown/destroy the vm if it's still up and running. 
+          instance.destroy()
+        except libvirt.libvirtError as e:
+          if str(e) != 'Requested operation is not valid: domain is not running': raise e
         instance.undefine()
         self.volume.delete(request)
         self.network.delete()
@@ -130,6 +134,8 @@ class Instance(models.Model):
             persistent_messages.add_message(request, persistent_messages.SUCCESS, 'Deleted Instance %s' % (self), user=self.user)
         super(Instance, self).delete()
       except libvirt.libvirtError as e:
+        print e
+        print type(e)
         if request:
           persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to delete Instance %s: %s' % (self, e))
           if request.user != self.user:
