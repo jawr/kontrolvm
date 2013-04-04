@@ -1,7 +1,7 @@
 KontrolVM
 =========
 
-Kontrol panel for KVM
+Kontrol panel for KVM - http://www.kontrolvm.com
 
 Requirements
 ============
@@ -83,6 +83,8 @@ can be found at:
 
 * http://www.kontrolvm.com/openvpn/client.conf
 * http://www.kontrolvm.com/openvpn/server.conf
+
+The only change that needs to be changed is the <SERVER_IP> dirivative in both files.
 
 For a client to be able to connect, it needs the following files:
 
