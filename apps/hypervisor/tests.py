@@ -1,9 +1,15 @@
 from django.utils import unittest
+from django.test import Client
+from django.contrib.auth.models import User
 from apps.hypervisor.models import Hypervisor
 from apps.shared.models import Size
 
 class HypervisorTestCase(unittest.TestCase):
   def setUp(self):
+    # create a test user
+    self.user, created = User.objects.get_or_create(email="test@example.com")
+    self.user.set_password("test-password")
+    self.user.save()
 
     # create a test size and test it
     size, created = Size.objects.get_or_create(name="1GB", size=1073741824)
@@ -20,6 +26,27 @@ class HypervisorTestCase(unittest.TestCase):
         maximum_hdd = size,
         maximum_vcpus = 1
     )
+
+  """
+    Test View permissions
+  """
+  def test_hypervisor_index_perms(self):
+    client = Client()
+    response = client.get('/hypervisor/', follow=False)
+    self.assertEqual(404, response.status_code)
+    client.login(email="test@example.com", password="test-password")
+    response = client.get('/hypervisor/', follow=False)
+    self.assertEqual(404, response.status_code)
+    # upgrade user to staff and retry
+    self.user.is_staff = True
+    self.user.save()
+    response = client.get('/hypervisor/', follow=False)
+    self.assertEqual(200, response.status_code)
+  
+
+  """
+    Test Hypervisor model methods
+  """
 
   def test_string_display(self):
     self.assertEqual(str(self.item), 'Test Name [Test Location][Initalize]')
