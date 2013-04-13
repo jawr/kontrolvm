@@ -52,7 +52,10 @@ class HypervisorTestCase(unittest.TestCase):
 
   def test_hypervisor_instance_perms(self):
     check_url(self, self.user, '/hypervisor/1/')
-  
+
+  def test_hypervisor_add_perms(self):
+    check_url(self, self.user, '/hypervisor/add/')
+
 
   """
     Test Hypervisor model methods
