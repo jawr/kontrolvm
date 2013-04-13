@@ -4,6 +4,22 @@ from django.contrib.auth.models import User
 from apps.hypervisor.models import Hypervisor
 from apps.shared.models import Size
 
+def check_url(test, user, url):
+  client = Client()
+  response = client.get(url, follow=False)
+  test.assertEqual(404, response.status_code)
+  client.login(email="test@example.com", password="test-password")
+  response = client.get(url, follow=False)
+  test.assertEqual(404, response.status_code)
+  # upgrade user
+  user.is_staff = True
+  user.save()
+  response = client.get(url, follow=False)
+  test.assertEqual(200, response.status_code)
+  # downgrade user
+  user.is_staff = False
+  user.save()
+
 class HypervisorTestCase(unittest.TestCase):
   def setUp(self):
     # create a test user
@@ -26,22 +42,16 @@ class HypervisorTestCase(unittest.TestCase):
         maximum_hdd = size,
         maximum_vcpus = 1
     )
+    self.item.save()
 
   """
     Test View permissions
   """
   def test_hypervisor_index_perms(self):
-    client = Client()
-    response = client.get('/hypervisor/', follow=False)
-    self.assertEqual(404, response.status_code)
-    client.login(email="test@example.com", password="test-password")
-    response = client.get('/hypervisor/', follow=False)
-    self.assertEqual(404, response.status_code)
-    # upgrade user to staff and retry
-    self.user.is_staff = True
-    self.user.save()
-    response = client.get('/hypervisor/', follow=False)
-    self.assertEqual(200, response.status_code)
+    check_url(self, self.user, '/hypervisor/')
+
+  def test_hypervisor_instance_perms(self):
+    check_url(self, self.user, '/hypervisor/1/')
   
 
   """
