@@ -1,16 +1,18 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
+from django.test import Client
 
-Replace this with more appropriate tests for your application.
-"""
+def check_url_perms(test, user, url):
+  client = Client()
+  response = client.get(url, follow=False)
+  test.assertEqual(404, response.status_code)
+  client.login(email="test@example.com", password="test-password")
+  response = client.get(url, follow=False)
+  test.assertEqual(404, response.status_code)
+  # upgrade user
+  user.is_staff = True
+  user.save()
+  response = client.get(url, follow=False)
+  test.assertEqual(200, response.status_code)
+  # downgrade user
+  user.is_staff = False
+  user.save()
 
-from django.test import TestCase
-
-
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.assertEqual(1 + 1, 2)

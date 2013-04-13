@@ -1,26 +1,10 @@
-from django.utils import unittest
-from django.test import Client
+from django.test import Client, TestCase
 from django.contrib.auth.models import User
+from apps.shared.tests import check_url_perms
 from apps.hypervisor.models import Hypervisor
 from apps.shared.models import Size
 
-def check_url(test, user, url):
-  client = Client()
-  response = client.get(url, follow=False)
-  test.assertEqual(404, response.status_code)
-  client.login(email="test@example.com", password="test-password")
-  response = client.get(url, follow=False)
-  test.assertEqual(404, response.status_code)
-  # upgrade user
-  user.is_staff = True
-  user.save()
-  response = client.get(url, follow=False)
-  test.assertEqual(200, response.status_code)
-  # downgrade user
-  user.is_staff = False
-  user.save()
-
-class HypervisorTestCase(unittest.TestCase):
+class HypervisorTestCase(TestCase):
   def setUp(self):
     # create a test user
     self.user, created = User.objects.get_or_create(email="test@example.com")
@@ -48,14 +32,13 @@ class HypervisorTestCase(unittest.TestCase):
     Test View permissions
   """
   def test_hypervisor_index_perms(self):
-    check_url(self, self.user, '/hypervisor/')
+    check_url_perms(self, self.user, '/hypervisor/')
 
   def test_hypervisor_instance_perms(self):
-    check_url(self, self.user, '/hypervisor/1/')
+    check_url_perms(self, self.user, '/hypervisor/1/')
 
   def test_hypervisor_add_perms(self):
-    check_url(self, self.user, '/hypervisor/add/')
-
+    check_url_perms(self, self.user, '/hypervisor/add/')
 
   """
     Test Hypervisor model methods
