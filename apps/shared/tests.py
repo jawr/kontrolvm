@@ -1,6 +1,7 @@
 from django.test import Client
 from django.contrib.auth.models import User
 from apps.hypervisor.models import Hypervisor
+from apps.installationdisk.models import InstallationDisk
 from apps.shared.models import Size
 
 def check_url_perms(test, user, url):
@@ -42,3 +43,15 @@ def get_dummy_hypervisor():
   )
   return hypervisor
 
+def get_dummy_installationdisk():
+  hypervisor = get_dummy_hypervisor()
+  user = get_dummy_user()
+  item = InstallationDisk.objects.get_or_create(
+    name="Test Disk",
+    hypervisor=hypervisor,
+    url="http://www.example.com/test.iso",
+    filename="test.iso",
+    total_bytes=536870912,
+    user=user
+  )
+  return item

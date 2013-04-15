@@ -1,16 +1,10 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
+from django.test import TestCase, Client
+from apps.shared.tests import check_url_perms, get_dummy_user, get_dummy_hypervisor
 
-Replace this with more appropriate tests for your application.
-"""
+class InstallationDiskTestCase(TestCase):
+  def setUp(self):
+    self.user = get_dummy_user()
+    self.item = get_dummy_installationdisk()
 
-from django.test import TestCase
-
-
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.assertEqual(1 + 1, 2)
+  def test_string(self):
+    self.assertEqual(str(self.item), "Test Disk")
