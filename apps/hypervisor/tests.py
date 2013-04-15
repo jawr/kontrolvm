@@ -1,15 +1,13 @@
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
-from apps.shared.tests import check_url_perms
+from apps.shared.tests import check_url_perms, get_dummy_user
 from apps.hypervisor.models import Hypervisor
 from apps.shared.models import Size
 
 class HypervisorTestCase(TestCase):
   def setUp(self):
     # create a test user
-    self.user, created = User.objects.get_or_create(email="test@example.com")
-    self.user.set_password("test-password")
-    self.user.save()
+    self.user = get_dummy_user()
 
     # create a test size and test it
     size, created = Size.objects.get_or_create(name="1GB", size=1073741824)
