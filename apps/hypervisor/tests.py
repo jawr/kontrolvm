@@ -1,6 +1,6 @@
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
-from apps.shared.tests import check_url_perms, get_dummy_user
+from apps.shared.tests import check_url_perms, get_dummy_user, get_dummy_hypervisor
 from apps.hypervisor.models import Hypervisor
 from apps.shared.models import Size
 
@@ -9,22 +9,8 @@ class HypervisorTestCase(TestCase):
     # create a test user
     self.user = get_dummy_user()
 
-    # create a test size and test it
-    size, created = Size.objects.get_or_create(name="1GB", size=1073741824)
-    self.assertEqual(size.name, "1GB")
-    self.assertEqual(size.size, 1073741824)
-
     # try localhost and default ports
-    self.item = Hypervisor(
-        name = 'Test Name',
-        location = 'Test Location',
-        address = '127.0.0.1',
-        install_medium_path = '/tmp',
-        maximum_memory = size,
-        maximum_hdd = size,
-        maximum_vcpus = 1
-    )
-    self.item.save()
+    self.item = get_dummy_hypervisor()
 
   """
     Test View permissions
