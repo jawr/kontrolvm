@@ -1,8 +1,6 @@
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 from apps.shared.tests import check_url_perms, get_dummy_user, get_dummy_hypervisor
-from apps.hypervisor.models import Hypervisor
-from apps.shared.models import Size
 
 class HypervisorTestCase(TestCase):
   def setUp(self):
