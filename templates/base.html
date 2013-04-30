@@ -25,7 +25,7 @@
           $.bootstrapGrowl('{{ message|safe }}', {
             type: '{{ message.level|message_level_as_text }}',
             {% if message.is_persistent %}
-              read_url: '{% url message_mark_read message.pk %}',
+              read_url: '{% url 'message_mark_read' message.pk %}',
             {% endif %}
           });
         {% endfor %}
