@@ -85,9 +85,28 @@
       function vnc_handle(button) {
         if (!connected) {
           $(button).toggleClass('active');
+          $(button).html('Initalizing...');
+          Dajaxice.apps.vnc.setup_vnc(Dajax.process, 
+            {
+              'name': '{{ instance.name }}',
+              'applet': false
+            }
+          );
+          vnc_heartbeat();
+        } else {
+          stop_heartbeat(button);
+        }
+      }
+        
+      function vnc_handle_applet(button) {
+        if (!connected) {
+          $(button).toggleClass('active');
           $(button).html('Connecting...');
           Dajaxice.apps.vnc.setup_vnc(Dajax.process, 
-            {'name': '{{ instance.name }}'}
+            {
+              'name': '{{ instance.name }}',
+              'applet': true
+            }
           );
           vnc_heartbeat();
         } else {
@@ -100,6 +119,9 @@
         <td>
           <button id="vnc-connect-button" class="btn" onClick="vnc_handle(this);">
             <i class="icon-share"></i> Launch VNC
+          </button>
+          <button id="vnc-connect-button" class="btn" onClick="vnc_handle_applet(this);">
+            <i class="icon-share"></i> Launch VNC Java Applet
           </button>
         </td>
       </tr>

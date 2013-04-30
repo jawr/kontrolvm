@@ -14,6 +14,8 @@ from xml.etree import ElementTree
 import libvirt
 import persistent_messages
 import os
+import string
+from random import choice
 from celery.result import AsyncResult
 
 # template taken from: http://virtips.virtwind.com/2012/05/attaching-disk-via-libvirt-using-python/
@@ -89,6 +91,7 @@ class Instance(models.Model):
     tree = ElementTree.fromstring(instance.XMLDesc(0))
     graphics = tree.findall('devices/graphics')
     return int(graphics[0].get('port'))
+
 
   def get_status_html(self):
     if self.status == 1:
@@ -191,7 +194,30 @@ class Instance(models.Model):
       messages.add_message(request, persistent_messages.ERROR, 'Unable to mount %s on %s, unable to get dom' % (disk, self.name))
     elif request:
       messages.add_message(request, persistent_messages.ERROR, 'Unable to mount %s on %s' % (disk, self.name))
-      
+
+  def create_random_vnc_password(self, request=None):
+    instance = self.get_instance()
+    if instance == None:
+      if request:
+        messages.add_message(request, persistent_messages.ERRPR, 'Unable to get instance in order to create a random VNC password')
+      return
+
+    xml = ElementTree.fromstring(instance.XMLDesc(0))
+    graphic_element = xml.find('.//graphics')
+    passwd = ''.join(choice(string.letters + string.digits) for _ in xrange(8)) 
+    graphic_element.attrib['passwd'] = passwd
+    try:
+      instance.updateDeviceFlags(ElementTree.tostring(graphic_element), 0)
+    except libvirt.libvirtError as e:
+      if request and request.user.is_staff:
+        messages.add_message(request, persistent_messages.ERROR, 'Unable to create random VNC password on %s, error: %s' % (self.name, e))
+      elif request:
+        messages.add_message(request, persistent_messages.ERROR, 'Unable to create random VNC password on %s' % (self.name))
+      return ""
+    return passwd
+    
+  def get_vnc_password(self, request=None):
+    return self.create_random_vnc_password(request)
 
 class InstanceTask(models.Model):
   name = models.CharField(max_length=100)
