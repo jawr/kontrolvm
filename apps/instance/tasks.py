@@ -17,6 +17,11 @@ def create_instance(instancetask_name):
   except InstanceTask.DoesNotExist:
     return {'custum_state': 'FAILURE', 'msg': 'Unable to find InstanceTask with name: %s' % (instancetask_name)}
 
+  try:
+    network_address = instancetask.network.create_unique_address()
+  except NoUniqueAddress:
+    return {'custum_state': 'FAILURE', 'msg': 'Error while creating instance: No unique address available on specified network (%s)' % (instancetask.network)}
+
   request = HttpRequest()
   storagepool = instancetask.storagepool.get_storagepool()
   if not storagepool:
@@ -65,9 +70,8 @@ def create_instance(instancetask_name):
             <disk type='file' device='disk'>
                 <driver name='qemu' type='qcow2'/>
                 <source file='%s'/>
-                <target dev='hda' bus='ide'/>
+                <target dev='hda' bus='virtio'/>
                 <alias name='ide0-0-0'/>
-                <address type='drive' controller='0' bus='0' target='0' unit='0'/>
             </disk>
             <controller type='ide' index='0'>
                 <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x1'/>
@@ -75,6 +79,10 @@ def create_instance(instancetask_name):
             <interface type='bridge'>
                 <source bridge='br0' />
                 <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+                <filterref filter='clean-traffic'>
+                  <parameter name='IP' value='%s' />
+                </filterref>
+                <model type='virtio'/>
             </interface>
             <input type='tablet' bus='usb'/>
             <input type='mouse' bus='ps2'/>
@@ -91,7 +99,7 @@ def create_instance(instancetask_name):
       </devices>
   </domain>""" \
     % (instancetask.name, instancetask.memory.size, instancetask.memory.size, 
-      instancetask.vcpu, volume.path(), volume.storagepool.hypervisor.address)
+      instancetask.vcpu, volume.path(), network_address.ip, volume.storagepool.hypervisor.address)
   print xml
   con = instancetask.storagepool.hypervisor.get_connection()
   if not con:
@@ -126,10 +134,6 @@ def create_instance(instancetask_name):
     if Instance.objects.filter(mac=mac).count() > 0:
       return {'custum_state': 'FAILURE', 'msg': 'Error while creating instance: MAC address is already being used (%s)' % (mac)}
 
-    try:
-      network_address = instancetask.network.create_unique_address()
-    except NoUniqueAddress:
-      return {'custum_state': 'FAILURE', 'msg': 'Error while creating instance: No unique address available on specified network (%s)' % (instancetask.network)}
       
 
     # switch instance task for an instance
