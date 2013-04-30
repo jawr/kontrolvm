@@ -32,7 +32,7 @@ class VNCSessions(Thread):
       proxy.heartbeat()
 
   def stop(self, key):
-    proxy = get(key)
+    proxy = self.get(key)
     if proxy:
       proxy.stop()
       del self.sessions[key]
