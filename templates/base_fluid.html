@@ -16,7 +16,7 @@
               <li {% ifregex "/account/.*/" request.get_full_path %}class="active"{% endifregex %}><a href="/account/admin/">Users <span class="label pull-right">{{ request.user_count }}</span></a></li>
               <li {% ifregex "/hypervisor/" request.get_full_path %}class="active"{% endifregex %}><a href="/hypervisor/">Hypervisors <span class="label pull-right">{{ request.hypervisor_count }}</span></a></li>
               <li {% ifregex "/storagepool/" request.get_full_path %}class="active"{% endifregex %}><a href="/storagepool/">Storage Pools <span class="label pull-right">{{ request.storagepool_count }}</span></a></li>
-              <li {% ifregex "/installationdisk/" request.get_full_path %}class="active"{% endifregex %}><a href="/installationdisk/">Installation Disks <span class="label pull-right">{{ request.installationdisk_count }}</span></a></li>
+              <li {% ifregex "/installationdisk/" request.get_full_path %}class="active"{% endifregex %}><a href="/installationdisk/">Install Disks <span class="label pull-right">{{ request.installationdisk_count }}</span></a></li>
               <li {% ifregex "/network/" request.get_full_path %}class="active"{% endifregex %}><a href="/network/">Network <span class="label pull-right">{{ request.network_count }}</span></a></li>
               <li {% ifregex "/instance/" request.get_full_path %}class="active"{% endifregex %}><a href="/instance/">Instances <span class="label pull-right">{{ request.instance_count }}</span></a></li>
               <li class="divider"></li>
