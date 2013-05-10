@@ -8,6 +8,7 @@ from apps.storagepool.models import StoragePool
 from apps.installationdisk.models import InstallationDisk
 from apps.volume.models import Volume
 from apps.instance.models import Instance
+from apps.shared.models import Size
 from utils import node
 import libvirt
 import time
@@ -21,18 +22,55 @@ def initalize_hypervisor_instances(hypervisor):
     domains = []
     for dom_id in conn.listDomainsID():
       dom = conn.lookupByID(dom_id)
-      print dom
       xml = minidom.parseString(dom.XMLDesc(0))
       items = xml.getElementsByTagName('name')
       name = items[0].childNodes[0].data
       domains.append(name)
     domains += conn.listDefinedDomains()
     print domains
+    dummy_user = User.objects.all()[0]
     for name in domains:
       dom = conn.lookupByName(name)
       xml = minidom.parseString(dom.XMLDesc(0))
       items = xml.getElementsByTagName('memory')
-      memory = items[0].childNodes[0].data
+      memory = int(items[0].childNodes[0].data)
+      memory_size, created = Size.objects.get_or_create(
+        name="%d KiB" % (memory), # make more robust, i.e. detect unit size
+        size=memory
+      )
+      items = xml.getElementsByTagName('vcpu')
+      vcpus = int(items[0].childNodes[0].data)
+      items = xml.getElementsByTagName('mac')
+      mac = items[0].getAttributeNode('address').nodeValue
+      volume_path = None
+      for disk in xml.getElementsByTagName('disk'):
+        if disk.getAttributeNode('device').nodeValue == 'disk':
+          items = disk.getElementsByTagName('source')
+          volume_path = items[0].getAttributeNode('file').nodeValue
+      if not volume_path:
+        # print error
+        continue
+      vol = con.storageVolLookupByPath(volume_path)
+      volume = Volume(
+        name=volume_path.split('/')[-1].split('.')[0],
+        capacity=vol.info()[1],
+        allocted=vol.info()[2],
+        storagepool=storagepool
+      )
+      volume.save()
+
+      instance = Instance(
+        name=name,
+        user=dummy_user,
+        creator=dummy_user,
+        vcpu=vcpus,
+        memory=memory_size,
+        mac=mac,
+        volume=volume,
+        # todo: network
+      )
+      instance.save() 
+      
       
 
 @task()
