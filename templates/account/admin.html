@@ -11,7 +11,7 @@
       <th>User</th>
       <th>Initalized</th>
       <th>Instances</th>
-      <th>VNC Sessions</th>
+      <th>VNC</th>
       <th>Active</th>
       <th>Last Page</th>
       <th>Browser</th>
@@ -22,11 +22,11 @@
       {% autopaginate rows 10 %}
       {% for row in rows %}
       <tr>
-        <td>{{ row.user }}</td>
+        <td><a href="#" rel="tooltip" title="{{ row.user }}"</a>{{ row.user|truncatechars:18 }}</a></td>
         <td>{{ row.init }}</td>
         <td>{{ row.instance_count }}</td>
         <td>{{ row.vnc_session_count }}</td>
-        <td>{{ row.audit.time|naturaltime }}</td>
+        <td><a href="#" rel="tooltip" title="{{ row.audit.time|naturaltime }}">{{ row.audit.time|naturaltime|truncatechars:5 }}</a></td>
         <td><a href="#" rel="tooltip" title="{{ row.audit.page }}">{{ row.audit.page|truncatechars:"15" }}</a></td>
         <td><a href="#" rel="tooltip" title="{{ row.audit.current_browser }}">{{ row.audit.current_browser|truncatechars:"15" }}</a></td>
         <td>{{ row.audit.current_ip }}</td>
