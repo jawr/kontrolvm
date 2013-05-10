@@ -7,12 +7,33 @@ from apps.hypervisor.models import Hypervisor
 from apps.storagepool.models import StoragePool
 from apps.installationdisk.models import InstallationDisk
 from apps.volume.models import Volume
+from apps.instance.models import Instance
 from utils import node
 import libvirt
 import time
 import re
 
 match_vol = re.compile('\.qcow2$')
+
+def initalize_hypervisor_instances(hypervisor):
+  conn = hypervisor.get_connection(True)
+  if conn:
+    domains = []
+    for dom_id in conn.listDomainsID():
+      dom = conn.lookupByID(dom_id)
+      print dom
+      xml = minidom.parseString(dom.XMLDesc(0))
+      items = xml.getElementsByTagName('name')
+      name = items[0].childNodes[0].data
+      domains.append(name)
+    domains += conn.listDefinedDomains()
+    print domains
+    for name in domains:
+      dom = conn.lookupByName(name)
+      xml = minidom.parseString(dom.XMLDesc(0))
+      items = xml.getElementsByTagName('memory')
+      memory = items[0].childNodes[0].data
+      
 
 @task()
 def initalize_hypervisor(hypervisor):
@@ -33,16 +54,8 @@ def initalize_hypervisor(hypervisor):
       )
       if created: new_pool.save()
       new_pool.update(True) 
-      pool = new_pool.get_storagepool()
-      if pool and pool.isActive():
-        # get a list of volumes
-        for dom_id in conn.listDomainsID():
-          dom = conn.lookupByID(dom_id)
-          print dom
-          xml = minidom.parseString(dom.XMLDesc(0))
-          items = xml.getElementsByTagName('name')
-          name = items[0].childNodes[0].data
-          items = xml.getElementsByTagName('memory')
+
+    initalize_hypervisor_instances(hypervisor)
         
     # get a list of existing installation disks
     task_id = node.send_command(hypervisor, 'installationdisk_list', 
