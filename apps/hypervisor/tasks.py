@@ -51,6 +51,10 @@ def initalize_hypervisor_instances(hypervisor):
         # print error
         continue
       vol = con.storageVolLookupByPath(volume_path)
+      storagepool = StoragePool.objects.filter(name=vol.name())
+      if not storagepool:
+        # print error
+        continue
       volume = Volume(
         name=volume_path.split('/')[-1].split('.')[0],
         capacity=vol.info()[1],
