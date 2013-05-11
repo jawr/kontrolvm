@@ -8,6 +8,7 @@ from apps.storagepool.models import StoragePool
 from apps.installationdisk.models import InstallationDisk
 from apps.volume.models import Volume
 from apps.instance.models import Instance
+from apps.network.models import Network, InstanceNetwork
 from apps.shared.models import Size
 from utils import node
 import libvirt
@@ -19,6 +20,17 @@ match_vol = re.compile('\.qcow2$')
 def initalize_hypervisor_instances(hypervisor):
   conn = hypervisor.get_connection(True)
   if conn:
+    # create dummy network
+    network, created = Network.objects.get_or_create(
+      hypervisor=hypervisor,
+      netmask="255.255.255.255",
+      gateway="0.0.0.0",
+      broadcast="0.0.0.255",
+      network="0.0.0.0",
+      start="0.0.0.0",
+      end="255.255.255.255"
+    )
+
     domains = []
     for dom_id in conn.listDomainsID():
       dom = conn.lookupByID(dom_id)
@@ -34,10 +46,13 @@ def initalize_hypervisor_instances(hypervisor):
       xml = minidom.parseString(dom.XMLDesc(0))
       items = xml.getElementsByTagName('memory')
       memory = int(items[0].childNodes[0].data)
-      memory_size, created = Size.objects.get_or_create(
-        name="%d KiB" % (memory), # make more robust, i.e. detect unit size
-        size=memory
-      )
+      memory_size = Size.objects.filter(size=memory*1024)
+      if not memory_size:
+        memory_size, created = Size.objects.get_or_create(
+          name="%d KiB" % (memory), # make more robust, i.e. detect unit size
+          size=memory*1024
+        )
+      else: memory_size = memory_size[0]
       items = xml.getElementsByTagName('vcpu')
       vcpus = int(items[0].childNodes[0].data)
       items = xml.getElementsByTagName('mac')
@@ -49,31 +64,65 @@ def initalize_hypervisor_instances(hypervisor):
           volume_path = items[0].getAttributeNode('file').nodeValue
       if not volume_path:
         # print error
+        print "no volume path for %s" % (name)
         continue
-      vol = con.storageVolLookupByPath(volume_path)
-      storagepool = StoragePool.objects.filter(name=vol.name())
+      try:
+        vol = conn.storageVolLookupByPath(volume_path)
+        storagepool = StoragePool.objects.get(
+          name=vol.storagePoolLookupByVolume().name()
+        )
+      except libvirt.libvirtError as e:
+        print e
+        continue
       if not storagepool:
         # print error
+        print "no storage pool for %s" % (name)
         continue
-      volume = Volume(
-        name=volume_path.split('/')[-1].split('.')[0],
-        capacity=vol.info()[1],
-        allocted=vol.info()[2],
-        storagepool=storagepool
-      )
-      volume.save()
+      capacity = Size.objects.get(size=vol.info()[1])
+      if not capacity:
+        capacity, created = Size.objects.get_or_create(
+          name=vol.info()[1],
+          size=vol.info()[1]
+        )
+      volume = Volume.objects.filter(name=volume_path.split('/')[-1].split('.')[0])
+      if not volume:
+        volume = Volume(
+          name=volume_path.split('/')[-1].split('.')[0],
+          capacity=capacity,
+          allocated=vol.info()[2],
+          storagepool=storagepool
+        )
+        volume.save()
+      else: volume = volume[0]
 
-      instance = Instance(
-        name=name,
-        user=dummy_user,
-        creator=dummy_user,
-        vcpu=vcpus,
-        memory=memory_size,
-        mac=mac,
-        volume=volume,
-        # todo: network
-      )
-      instance.save() 
+      instance_network = None
+      # might need to detect multiple networks here, apeend to list
+      for param in xml.getElementsByTagName('parameter'):
+        if param.getAttributeNode('name').nodeValue == 'IP':
+          instance_network = param.getAttributeNode('value').nodeValue
+      if instance_network:
+        instance_network, created = InstanceNetwork.objects.get_or_create(
+          ip=instance_network,
+          network=network
+        )
+      else:
+        instance_network = network.create_unique_address()
+
+      print "Create instance object..."
+
+      instance = Instance.objects.filter(name=name)
+      if not instance:
+        instance = Instance(
+          name=name,
+          user=dummy_user,
+          creator=dummy_user,
+          vcpu=vcpus,
+          memory=memory_size,
+          mac=mac,
+          volume=volume,
+          network=instance_network,
+        )
+        instance.save() 
       
       
 
