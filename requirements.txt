@@ -1,0 +1,11 @@
+Django
+django-celery
+django-bootstrap-form
+django-email-as-username
+django-dajax
+django-dajaxice
+-e git://github.com/tgdn/django-bootstrap-pagination.git#egg=bootstrap_pagination
+-e git://github.com/philomat/django-persistent-messages.git#egg=persistent_messages
+psycopg2
+requests
+simplejson
