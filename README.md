@@ -39,8 +39,8 @@ Installation Notes
 ==================
 The following instructions are for Debian systems.
 
-* [KontrolVM](https://github.com/jawr/kontrolvm/wiki/Installation---Debian-(Wheezy-7.0.0))
-* [Hypervisor setup](https://github.com/jawr/kontrolvm/wiki/Hypervisor-Installation-Debian-(Wheezy-7.0.0))
+* [KontrolVM](https://github.com/jawr/kontrolvm/wiki/Installation---Debian-Wheezy-7.0.0)
+* [Hypervisor setup](https://github.com/jawr/kontrolvm/wiki/Hypervisor-Installation-Debian-Wheezy-7.0.0)
 
 License
 =======
