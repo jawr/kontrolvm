@@ -1,9 +1,3 @@
-# Django settings for kontrolvm project.
-try:
-    from local_settings import *
-except:
-    pass
-
 import djcelery
 djcelery.setup_loader()
 
