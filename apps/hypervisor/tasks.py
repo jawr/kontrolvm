@@ -42,6 +42,7 @@ def initalize_hypervisor_instances(hypervisor):
     print domains
     dummy_user = User.objects.all()[0]
     for name in domains:
+      print name
       dom = conn.lookupByName(name)
       xml = minidom.parseString(dom.XMLDesc(0))
       items = xml.getElementsByTagName('memory')
@@ -73,6 +74,7 @@ def initalize_hypervisor_instances(hypervisor):
         )
       except libvirt.libvirtError as e:
         print e
+        print "HERRRO"
         continue
       if not storagepool:
         # print error
@@ -123,7 +125,7 @@ def initalize_hypervisor_instances(hypervisor):
           network=instance_network,
         )
         instance.save() 
-      
+  print "DONE..." 
       
 
 @task()
@@ -146,11 +148,17 @@ def initalize_hypervisor(hypervisor):
       if created: new_pool.save()
       new_pool.update(True) 
 
-    initalize_hypervisor_instances(hypervisor)
+    try:
+      initalize_hypervisor_instances(hypervisor)
+    except Exception as e:
+      print "Initalize hypervisor instances error: %s" % (e)
+
+    print "HELLO"
         
     # get a list of existing installation disks
     task_id = node.send_command(hypervisor, 'installationdisk_list', 
       {'path': hypervisor.install_medium_path})
+    print task_id
     now = time.time()
     while True:
       time.sleep(2.5)

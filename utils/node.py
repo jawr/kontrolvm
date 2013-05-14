@@ -8,7 +8,8 @@ def send_command(hypervisor, command, args):
   try:
     result = requests.post(addr, data=simplejson.dumps(payload), headers=headers)
     return result.text
-  except Exception:
+  except Exception as e:
+    print e
     return None
 
 def check_command(hypervisor, task_id):
