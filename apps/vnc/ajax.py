@@ -58,7 +58,7 @@ def setup_vnc(request, name, applet):
     )
     session.save()
 
-    proxy = Proxy('jess.lawrence.pm', local_port, instance.volume.storagepool.hypervisor.address, remote_port, session)
+    proxy = Proxy(settings.VNC_HOST, local_port, instance.volume.storagepool.hypervisor.address, remote_port, session)
     proxy.start()
     VNCSessions().set(session.id, proxy)
 
