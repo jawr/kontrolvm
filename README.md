@@ -6,21 +6,21 @@ Kontrol panel for KVM - http://www.kontrolvm.com
 Requirements
 ============
 
-* Django
-* libvirt
-* OpenVPN
+* Django - https://www.djangoproject.com/
+* libvirt - http://libvirt.org/
+* OpenVPN - http://openvpn.net/
 * RabbitMQ - http://www.rabbitmq.com/
 * Celery (3.0+) - http://www.celeryproject.org
 * kontrolvm-node - https://github.com/jawr/kontrolvm-node
 
 Included in requirements.txt (pip install -r requirements.txt):
 
-* psycopg2
-* requests
-* simplejson
-* django-celery
-* django-dajax
-* django-dajaxice
+* psycopg2 - http://initd.org/psycopg/
+* requests - http://docs.python-requests.org/en/latest/
+* simplejson - https://pypi.python.org/pypi/simplejson/
+* django-celery - https://pypi.python.org/pypi/django-celery
+* django-dajax - http://www.dajaxproject.com/
+* django-dajaxice - http://www.dajaxproject.com/
 * django-persistent-messages - https://github.com/philomat/django-persistent-messages
 * django-bootstrap-pagination - https://github.com/tgdn/django-bootstrap-pagination
 * django-bootstrap-form (2.0.5) - https://github.com/tzangms/django-bootstrap-form
