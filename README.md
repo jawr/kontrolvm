@@ -1,7 +1,7 @@
 KontrolVM
 =========
 
-Kontrol panel for KVM - http://www.kontrolvm.com
+Kontrol panel for KVM
 
 Requirements
 ============
