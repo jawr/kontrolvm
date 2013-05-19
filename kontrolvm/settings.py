@@ -123,7 +123,8 @@ INSTALLED_APPS = (
   'apps.volume',
   'apps.instance',
   'apps.network',
-  'apps.vnc'
+  'apps.vnc',
+  'apps.snapshot',
 )
 
 AUTHENTICATION_BACKENDS = (

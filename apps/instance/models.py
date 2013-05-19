@@ -15,6 +15,7 @@ import libvirt
 import persistent_messages
 import os
 import string
+import time
 from random import choice
 from celery.result import AsyncResult
 
@@ -81,8 +82,6 @@ class Instance(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-  #  return "%s [%d CPU/%s RAM][%s HDD][%s]" % \
-  #    (self.alias, self.vcpu, self.memory.name, self.volume.capacity.name, self.get_status_display())
     return "%s // %s // %d VCPUs / %s RAM / %s HDD" % (self.alias, self.network.ip, self.vcpu, self.memory.name, self.volume.capacity.name)
 
   def get_vnc_port(self):
@@ -91,7 +90,6 @@ class Instance(models.Model):
     tree = ElementTree.fromstring(instance.XMLDesc(0))
     graphics = tree.findall('devices/graphics')
     return int(graphics[0].get('port'))
-
 
   def get_status_html(self):
     if self.status == 1:

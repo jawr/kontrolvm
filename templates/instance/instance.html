@@ -125,10 +125,10 @@
             <th style="width: 50px;">VNC</th>
             <td>
               <button id="vnc-connect-button" class="btn" onClick="vnc_handle(this);">
-                <i class="icon-share"></i> Launch VNC
+                <i class="icon-share"></i> Launch
               </button>
               <button id="vnc-connect-button" class="btn" onClick="vnc_handle_applet(this);">
-                <i class="icon-share"></i> Launch VNC Java Applet
+                <i class="icon-share"></i> Launch Java Applet
               </button>
             </td>
           </tr>
@@ -138,6 +138,15 @@
               <p id="vnc-container-p">For security reasons, the VNC session will only be accessible via this page, and the route through to your Server will only be active while you are connected to this page.</p>
               <div id="vnc-applet" style="padding: 0 auto;">
               </div>
+            </td>
+          </tr>
+
+          <tr>
+            <th style="width: 50px;">Snapshot</th>
+            <td>
+              <a id="snapshot-button" class="btn" href="/snapshot/create/{{ instance.name }}/">
+                <i class="icon-book"></i> Create
+              </a>
             </td>
           </tr>
 
