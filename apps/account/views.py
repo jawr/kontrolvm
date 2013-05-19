@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.forms.util import ErrorList
 from django.template.loader import get_template
 from django.template import Context
+from django.conf import settings
 import persistent_messages
 from emailusernames.utils import get_user
 from django.contrib.auth.models import User
@@ -202,7 +203,7 @@ def add(request):
       else:
         # handle user creation
 
-        user, created = User.objects.get_or_create(email=email)
+        user, created = User.objects.get_or_create(email=email, username=email)
         if not created:
           # user already exists
           error = ErrorList([u'User already exists. Initalized %s.' % (user.get_profile().init)])
@@ -214,7 +215,8 @@ def add(request):
           password = User.objects.make_random_password()
           message_context = Context({
             'email': email,
-            'password': password
+            'password': password,
+            'email_url': settings.EMAIL_URL
           })
           message = message.render(message_context)
 
