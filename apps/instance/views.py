@@ -7,6 +7,7 @@ from apps.instance.models import Instance, InstanceTask
 from apps.instance.forms import InstanceTaskForm
 from apps.installationdisk.forms import InstallationDisksForm
 from apps.instance.tasks import create_instance
+from apps.snapshot.models import Snapshot
 from django.contrib import messages
 from xml.etree import ElementTree
 import persistent_messages
@@ -36,9 +37,12 @@ def instance(request, name):
     if installationdisks_form.is_valid():
       instance.attach_disk(installationdisks_form.cleaned_data['installation_disk'], request)
 
+  snapshots = Snapshot.objects.filter(instance=instance)
+
   response = {
     'instance': instance,
-    'installationdisks_form': installationdisks_form
+    'installationdisks_form': installationdisks_form,
+    'snapshots': snapshots
   }
 
   try:
