@@ -15,6 +15,7 @@ from xml.etree import ElementTree
 import persistent_messages
 import simplejson
 import libvirt
+import time
 
 def instance_init(request, name):
   instance = get_object_or_404(Instance, name=name)
@@ -35,9 +36,11 @@ def instance_init(request, name):
 
   return instance
 
+@login_required
 def instance(request, name):
   return instance_main(request, instance_init(request, name))
 
+@login_required
 def instance_form(request, name, form):
   print "OIOI"
   instance = instance_init(request, name)
@@ -55,7 +58,6 @@ def instance_form(request, name, form):
   return instance_main(request, instance)
 
 def instance_main(request, instance):
-
   snapshots = Snapshot.objects.filter(instance=instance)
 
   installationdisks_form = InstallationDisksForm(instance)
@@ -67,7 +69,9 @@ def instance_main(request, instance):
     'instance': instance,
     'installationdisks_form': installationdisks_form,
     'snapshots_form': snapshots_form,
-    'snapshots': snapshots
+    'snapshots': snapshots,
+    'cpu_percent': get_cpu_usage(instance),
+    'memory_percent': get_memory_usage(instance)[1],
   }
 
   try:
@@ -91,6 +95,37 @@ def instance_main(request, instance):
 
   return render_to_response('instance/instance.html', response,
     context_instance=RequestContext(request))
+
+# borrowed from https://github.com/retspen/webvirtmgr/blob/master/virtmgr/views.py#L1298
+
+def get_memory_usage(instance):
+  hypervisor = instance.volume.storagepool.hypervisor.get_connection()
+  dom = instance.get_instance()
+  if dom and hypervisor:
+    try:
+      all_mem = hypervisor.getInfo()[1] * 1048576
+      dom_mem = dom.info()[1] * 1024
+      percent = (dom_mem * 100) / all_mem
+      return all_mem, percent
+    except libvirt.libvirtError as e:
+      pass
+    return (0, 0)
+
+def get_cpu_usage(instance):
+  hypervisor = instance.volume.storagepool.hypervisor.get_connection()
+  dom = instance.get_instance()
+  if dom and hypervisor:
+    try:
+      nbcore = hypervisor.getInfo()[2]
+      cpu_use_ago = dom.info()[4]
+      time.sleep(1)
+      cpu_use_now = dom.info()[4]
+      diff_usage = cpu_use_now - cpu_use_ago
+      cpu_usage = 100 * diff_usage / (1 * nbcore * 10**9L)
+      return cpu_usage
+    except libvirt.libvirtError as e:
+      pass
+  return 0
 
 @login_required
 def edit(request):
