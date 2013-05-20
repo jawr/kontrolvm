@@ -14,16 +14,17 @@ def create_snapshot(instance_name):
   if not dom:
     snapshot.status = 'Unable to get Instance (%s) in order to create snapshot' % (instance)
 
-  current_time = snapshot.get_unixtime()
+  else:
+    current_time = snapshot.get_unixtime()
 
-  snapshot_name = "%s_%d" % (instance.name, current_time)
-  xml = SNAPSHOT_TEMPLATE % (snapshot_name)
-  try:
-    dom.snapshotCreateXML(xml, 0)
-    snapshot.status = 'Created snapshot for %s' % (instance)
-    snapshot.creating = False
-    snapshot.save()
-  except libvirt.libvirtError as e:
-    snapshot.status = 'Unable to create snapshot for %s: %s' % (instance, e)
+    snapshot_name = "%s_%d" % (instance.name, current_time)
+    xml = SNAPSHOT_TEMPLATE % (snapshot_name)
+    try:
+      dom.snapshotCreateXML(xml, 0)
+      snapshot.status = 'Created snapshot for %s' % (instance)
+      snapshot.creating = False
+      snapshot.save()
+    except libvirt.libvirtError as e:
+      snapshot.status = 'Unable to create snapshot for %s: %s' % (instance, e)
   snapshot.save()
 
