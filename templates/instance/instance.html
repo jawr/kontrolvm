@@ -63,7 +63,7 @@
           <tr>
             <th style="width: 50px;">CD/DVD</th>
             <td>
-                <form class="form-inline" method="POST">
+                <form class="form-inline" method="POST" action="./installation_disk/">
                   {% csrf_token %}
                   {{ installationdisks_form.installation_disk }}
                   <button type="submit" class="btn
@@ -147,9 +147,16 @@
           <tr>
             <th style="width: 50px;">Snapshot</th>
             <td>
-              <a id="snapshot-button" class="btn {% if instance.status != 5 %}disabled" rel="tooltip" title="Instance must be shutdown in order to take a snapshot"{% else %}"{% endif %} href="/snapshot/create/{{ instance.name }}/">
+              <a id="snapshot-button" style="margin-right:4px;" class="btn pull-left {% if instance.status != 5 %}disabled" rel="tooltip" title="Instance must be shutdown in order to take a snapshot"{% else %}"{% endif %} href="/snapshot/create/{{ instance.name }}/">
                 <i class="icon-book"></i> Create
               </a>
+              {% if snapshots_form %}
+                <form class="form-inline pull-left" method="POST" action="./snapshot/">
+                  {% csrf_token %}
+                  {{ snapshots_form.snapshot }}
+                  <button type="submit" class="btn"><i class="icon-download-alt"></i> Restore</button>
+                </form>
+              {% endif %}
             </td>
           </tr>
 

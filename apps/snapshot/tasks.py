@@ -1,5 +1,6 @@
 from celery import task
 from django.http import HttpRequest
+from django.contrib import messages
 from apps.instance.models import Instance
 from apps.snapshot.models import Snapshot, SNAPSHOT_TEMPLATE
 import persistent_messages
@@ -28,3 +29,14 @@ def create_snapshot(instance_name):
       snapshot.status = 'Unable to create snapshot for %s: %s' % (instance, e)
   snapshot.save()
 
+def restore_snapshot(snapshot, request):
+  instance = snapshot.instance.get_instance()
+  snap = snapshot.get_snapshot()
+  if snap and instance:
+    try:
+      instance.revertToSnapshot(snap, 0)
+      messages.add_message(request, persistent_messages.SUCCESS, 'restored Snapshot %s' % (snapshot))
+    except libvirt.libvirtError as e:
+      messages.add_message(request, persistent_messages.ERROR, 'Unable to restore Snapshot %s: %s' % (snapshot, e))
+  else:
+    messages.add_message(request, persistent_messages.ERROR, 'Unable to restore Snapshot %s: unable to get snapshot or instance' % (snapshot, e))

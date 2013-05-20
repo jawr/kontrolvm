@@ -7,6 +7,8 @@ from apps.instance.models import Instance, InstanceTask
 from apps.instance.forms import InstanceTaskForm
 from apps.installationdisk.forms import InstallationDisksForm
 from apps.instance.tasks import create_instance
+from apps.snapshot.forms import SnapshotForm
+from apps.snapshot.tasks import restore_snapshot
 from apps.snapshot.models import Snapshot
 from django.contrib import messages
 from xml.etree import ElementTree
@@ -14,7 +16,7 @@ import persistent_messages
 import simplejson
 import libvirt
 
-def instance(request, name):
+def instance_init(request, name):
   instance = get_object_or_404(Instance, name=name)
 
   # check if user is staff or owner
@@ -31,17 +33,40 @@ def instance(request, name):
   else:
     instance.update()
 
-  installationdisks_form = InstallationDisksForm(instance)
+  return instance
+
+def instance(request, name):
+  return instance_main(request, instance_init(request, name))
+
+def instance_form(request, name, form):
+  print "OIOI"
+  instance = instance_init(request, name)
   if request.method == 'POST':
-    installationdisks_form = InstallationDisksForm(instance, request.POST)
-    if installationdisks_form.is_valid():
-      instance.attach_disk(installationdisks_form.cleaned_data['installation_disk'], request)
+    if form == 'installation_disk':
+      installationdisks_form = InstallationDisksForm(instance, request.POST)
+      if installationdisks_form.is_valid():
+        instance.attach_disk(installationdisks_form.cleaned_data['installation_disk'], request)
+
+    if form == 'snapshot':
+      snapshots_form = SnapshotForm(instance, request.POST)
+      if snapshots_form.is_valid():
+        restore_snapshot(snapshots_form.cleaned_data['snapshot'], request)
+
+  return instance_main(request, instance)
+
+def instance_main(request, instance):
 
   snapshots = Snapshot.objects.filter(instance=instance)
+
+  installationdisks_form = InstallationDisksForm(instance)
+  snapshots_form = None
+  if instance.status == 5:
+    snapshots_form = SnapshotForm(instance)
 
   response = {
     'instance': instance,
     'installationdisks_form': installationdisks_form,
+    'snapshots_form': snapshots_form,
     'snapshots': snapshots
   }
 

@@ -22,7 +22,7 @@ class Snapshot(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "%s %s (%s - %s)" % (self.name, self.instance, self.creating, self.created)
+    return "%s // %s" % (self.name, self.instance)
 
   def get_unixtime(self):
     return int(time.mktime(self.created.timetuple())*1000)
