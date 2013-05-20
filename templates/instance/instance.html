@@ -12,211 +12,228 @@
     <hr>
   {% endif %}
 
-  <h2>Controls <i class="icon-cog"></i> <small>Make changes to your Instance..</small></h2>
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#controls" data-toggle="tab">Controls</a></li>
+    <li><a href="#overview" data-toggle="tab">Overview</a></li>
+  </ul>
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th style="width: 50px;">Name</th>
-        <td><a href="#" id="name" data-pk="{{ instance.name }}">{{ instance.alias }}</a></td>
-      </tr>
-      <tr>
-        <th style="width: 50px;">Status</th>
-        <td>{{ instance.get_status_html|safe }}</td>
-      </tr>
-        <th style="width: 50px;"></th>
-        <td>
-          <a href="/instance/update/{{ instance.name }}/" class="btn btn-success btn-mini"><i class="icon-refresh"></i> Refresh</a>
-          <a href="#" id="{{ instance.name }}" class="btn btn-mini btn-inverse"><i class="icon-trash"></i> Delete</a>
-        </td>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th style="width: 50px;">Power</th>
-        <td>
-          <a class="btn btn-primary
-            {% if instance.status != 5 %}disabled"{% else %}" href="/instance/start/{{ instance.name }}/"{% endif %}><i class="icon-play"></i> Start</a>
-          <a class="btn btn-info
-            {% if instance.status != 3 %}disabled"{% else %}" href="/instance/resume/{{ instance.name }}/"{% endif %}><i class="icon-play"></i> Resume</a>
-          <a class="btn btn-warning
-            {% if instance.status != 1 %}disabled"{% else %}" href="/instance/suspend/{{ instance.name }}/"{% endif %}><i class="icon-pause"></i> Suspend</a>
-          <a class="btn btn-success
-            {% if instance.status != 1 %}disabled"{% else %}" href="/instance/restart/{{ instance.name }}/"{% endif %}><i class="icon-refresh"></i> Restart</a>
-          <a class="btn btn-danger
-            {% if instance.status != 1 %}disabled"{% else %}" href="/instance/shutdown/{{ instance.name }}/"{% endif %}><i class="icon-stop"></i> Shutdown</a>
-          <a class="btn btn-inverse
-            {% if instance.status != 1 %}disabled"{% else %}" href="/instance/force/{{ instance.name }}/"{% endif %}><i class="icon-eject"></i> Force Shutdown</a>
-        </td>
-      </tr>
-      <!-- hdd options -->
-      <tr>
-        <th style="width: 50px;">CD/DVD</th>
-        <td>
-            <form class="form-inline" method="POST">
-              {% csrf_token %}
-              {{ installationdisks_form.installation_disk }}
-              <button type="submit" class="btn
-                {% if instance.status == 0 or instance.status == 8 or instance.status == 9 %}disabled{% endif %}"><i class="icon-plus"></i> Mount Disk</button>
-            </form>
-        </td>
-      </tr>
-      <!-- vnc options -->
+  <div class="tab-content">
+    <div class="tab-pane active" id="controls">
+      <h2>Controls <i class="icon-cog"></i> <small>Make changes to your Instance..</small></h2>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width: 50px;">Name</th>
+            <td><a href="#" id="name" data-pk="{{ instance.name }}">{{ instance.alias }}</a></td>
+          </tr>
+          <tr>
+            <th style="width: 50px;">Status</th>
+            <td>{{ instance.get_status_html|safe }}</td>
+          </tr>
+            <th style="width: 50px;"></th>
+            <td>
+              <a href="/instance/update/{{ instance.name }}/" class="btn btn-success btn-mini"><i class="icon-refresh"></i> Refresh</a>
+              <a href="#" id="{{ instance.name }}" class="btn btn-mini btn-inverse"><i class="icon-trash"></i> Delete</a>
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th style="width: 50px;">Power</th>
+            <td>
+              <a class="btn btn-primary
+                {% if instance.status != 5 %}disabled"{% else %}" href="/instance/start/{{ instance.name }}/"{% endif %}><i class="icon-play"></i> Start</a>
+              <a class="btn btn-info
+                {% if instance.status != 3 %}disabled"{% else %}" href="/instance/resume/{{ instance.name }}/"{% endif %}><i class="icon-play"></i> Resume</a>
+              <a class="btn btn-warning
+                {% if instance.status != 1 %}disabled"{% else %}" href="/instance/suspend/{{ instance.name }}/"{% endif %}><i class="icon-pause"></i> Suspend</a>
+              <a class="btn btn-success
+                {% if instance.status != 1 %}disabled"{% else %}" href="/instance/restart/{{ instance.name }}/"{% endif %}><i class="icon-refresh"></i> Restart</a>
+              <a class="btn btn-danger
+                {% if instance.status != 1 %}disabled"{% else %}" href="/instance/shutdown/{{ instance.name }}/"{% endif %}><i class="icon-stop"></i> Shutdown</a>
+              <a class="btn btn-inverse
+                {% if instance.status != 1 %}disabled"{% else %}" href="/instance/force/{{ instance.name }}/"{% endif %}><i class="icon-eject"></i> Force Shutdown</a>
+            </td>
+          </tr>
+          <!-- hdd options -->
+          <tr>
+            <th style="width: 50px;">CD/DVD</th>
+            <td>
+                <form class="form-inline" method="POST">
+                  {% csrf_token %}
+                  {{ installationdisks_form.installation_disk }}
+                  <button type="submit" class="btn
+                    {% if instance.status == 0 or instance.status == 8 or instance.status == 9 %}disabled{% endif %}"><i class="icon-plus"></i> Mount Disk</button>
+                </form>
+            </td>
+          </tr>
+          <!-- vnc options -->
+          <script>
+            var connected = 0;
+            var session_id = 0;
+            var heartbeat;
+            function vnc_heartbeat (port) {
+              if (port > 0) {
+                heartbeat = setInterval(function() {
+                  Dajaxice.apps.vnc.heartbeat(Dajax.process, {
+                    'port': port,
+                    'name': '{{ instance.name }}'
+                  });
+                }, 10000);
+              }
+            }
+          function stop_heartbeat(button) {
+            clearInterval(heartbeat);
+            Dajaxice.apps.vnc.stop_vnc(Dajax.process, {
+              'name': '{{ instance.name }}'
+            });
+          }
+          function vnc_handle(button) {
+            if (!connected) {
+              $(button).toggleClass('active');
+              $(button).html('Initalizing...');
+              Dajaxice.apps.vnc.setup_vnc(Dajax.process, 
+                {
+                  'name': '{{ instance.name }}',
+                  'applet': false
+                }
+              );
+              vnc_heartbeat();
+            } else {
+              stop_heartbeat(button);
+            }
+          }
+            
+          function vnc_handle_applet(button) {
+            if (!connected) {
+              $(button).toggleClass('active');
+              $(button).html('Connecting...');
+              Dajaxice.apps.vnc.setup_vnc(Dajax.process, 
+                {
+                  'name': '{{ instance.name }}',
+                  'applet': true
+                }
+              );
+              vnc_heartbeat();
+            } else {
+              stop_heartbeat(button);
+            }
+          }
+          </script>
+          <tr>
+            <th style="width: 50px;">VNC</th>
+            <td>
+              <button id="vnc-connect-button" class="btn" onClick="vnc_handle(this);">
+                <i class="icon-share"></i> Launch VNC
+              </button>
+              <button id="vnc-connect-button" class="btn" onClick="vnc_handle_applet(this);">
+                <i class="icon-share"></i> Launch VNC Java Applet
+              </button>
+            </td>
+          </tr>
+          <tr id="vnc-container" style="display: none;">
+            <th style="width: 50px;"></th>
+            <td>
+              <p id="vnc-container-p">For security reasons, the VNC session will only be accessible via this page, and the route through to your Server will only be active while you are connected to this page.</p>
+              <div id="vnc-applet" style="padding: 0 auto;">
+              </div>
+            </td>
+          </tr>
+
+          <!-- other options -->
+        </tbody>
+      </table>
+
       <script>
-        var connected = 0;
-        var session_id = 0;
-        var heartbeat;
-        function vnc_heartbeat (port) {
-          if (port > 0) {
-            heartbeat = setInterval(function() {
-              Dajaxice.apps.vnc.heartbeat(Dajax.process, {
-                'port': port,
-                'name': '{{ instance.name }}'
-              });
-            }, 10000);
-          }
-        }
-      function stop_heartbeat(button) {
-        clearInterval(heartbeat);
-        Dajaxice.apps.vnc.stop_vnc(Dajax.process, {
-          'name': '{{ instance.name }}'
+        $(function() {
+          $('a#{{ instance.name }}').click(function(e) {
+            e.preventDefault();
+            bootbox.confirm("Are you sure you want to delete this Instance?", function(confirmed) {
+              if (confirmed) {
+                window.location = '/instance/delete/' + e.srcElement.id + '/';
+              }
+            });
+          });
+
+          $('#name').editable({
+            type: 'text',
+            url: '/instance/edit/',
+            title: 'Edit Instance Name',
+          });
         });
-      }
-      function vnc_handle(button) {
-        if (!connected) {
-          $(button).toggleClass('active');
-          $(button).html('Initalizing...');
-          Dajaxice.apps.vnc.setup_vnc(Dajax.process, 
-            {
-              'name': '{{ instance.name }}',
-              'applet': false
-            }
-          );
-          vnc_heartbeat();
-        } else {
-          stop_heartbeat(button);
-        }
-      }
-        
-      function vnc_handle_applet(button) {
-        if (!connected) {
-          $(button).toggleClass('active');
-          $(button).html('Connecting...');
-          Dajaxice.apps.vnc.setup_vnc(Dajax.process, 
-            {
-              'name': '{{ instance.name }}',
-              'applet': true
-            }
-          );
-          vnc_heartbeat();
-        } else {
-          stop_heartbeat(button);
-        }
-      }
       </script>
-      <tr>
-        <th style="width: 50px;">VNC</th>
-        <td>
-          <button id="vnc-connect-button" class="btn" onClick="vnc_handle(this);">
-            <i class="icon-share"></i> Launch VNC
-          </button>
-          <button id="vnc-connect-button" class="btn" onClick="vnc_handle_applet(this);">
-            <i class="icon-share"></i> Launch VNC Java Applet
-          </button>
-        </td>
-      </tr>
-      <tr id="vnc-container" style="display: none;">
-        <th style="width: 50px;"></th>
-        <td>
-          <p id="vnc-container-p">For security reasons, the VNC session will only be accessible via this page, and the route through to your Server will only be active while you are connected to this page.</p>
-          <div id="vnc-applet" style="padding: 0 auto;">
-          </div>
-        </td>
-      </tr>
+    </div>
 
-      <!-- other options -->
-    </tbody>
-  </table>
-
-  <script>
-    $(function() {
-      $('a#{{ instance.name }}').click(function(e) {
-        e.preventDefault();
-        bootbox.confirm("Are you sure you want to delete this Instance?", function(confirmed) {
-          if (confirmed) {
-            window.location = '/instance/delete/' + e.srcElement.id + '/';
-          }
-        });
-      });
-
-      $('#name').editable({
-        type: 'text',
-        url: '/instance/edit/',
-        title: 'Edit Instance Name',
-      });
-    });
-  </script>
-
-  <hr>
-  <h2>Overview <i class="icon-globe"></i> <small>A quick look at your Instance..</small></h2>
-  <table class="table table-striped table-condensed table-bordered">
-    <thead>
-      <tr>
-        <th colspan="4">Hardware</th>
-      </tr>
-    </thead>
-  <tbody>
-    <tr>
-      <th style="width: 50px;">VCPU</th>
-      <td style="width: 240px;" colspan="3">{{ instance.vcpu }}</td>
-    </tr>
-    <tr>
-      <th style="width: 50px;">RAM</th>
-      <td style="width: 240px;" colspan="3">{{ instance.memory.name }}</td>
-    </tr>
-    <tr>
-      <th style="width: 50px;">HDD</th>
-      <td style="width: 240px;">{{ instance.volume.capacity.name }}</td>
-      <th style="width: 50px;">Path</th>
-      <td>{{ instance.volume.device_name }}</td>
-    </tr>
-    <tr>
-      <th style="width: 50px;">CD/DVD</th>
-      <td style="width: 240px;" colspan="3">{{ instance.disk }}</td>
-    </tr>
-    <tr>
-      <th colspan="4" style="width: 50px;">Network</th>
-    </tr>
-    <tr>
-      <td></td>
-      <th>MAC</th>
-      <td colspan="2">{{ instance.mac }}</td>
-    </tr>
-    <tr>
-      <td></td>
-      <th>IP</th>
-      <td colspan="2">{{ instance.network.ip }}</td>
-    </tr>
-    <tr>
-      <td></td>
-      <th>Network</th>
-      <td colspan="2">{{ instance.network.network.network }}</td>
-    </tr>
-    <tr>
-      <td></td>
-      <th>Gateway</th>
-      <td colspan="2">{{ instance.network.network.gateway }}</td>
-    </tr>
-    <tr>
-      <td></td>
-      <th>Netmask</th>
-      <td colspan="2">{{ instance.network.network.netmask }}</td>
-    </tr>
-    <tr>
-      <td></td>
-      <th>Broadcast</th>
-      <td colspan="2">{{ instance.network.network.broadcast }}</td>
-    </tr>
-  </tbody>
-  </table>
+    <!-- overview -->
+    <div class="tab-pane" id="overview">
+      <h2>Overview <i class="icon-globe"></i> <small>A quick look at your Instance..</small></h2>
+      <table class="table table-striped table-condensed table-bordered">
+        <thead>
+          <tr>
+            <th colspan="4">Hardware</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th style="width: 50px;">VCPU</th>
+            <td style="width: 240px;" colspan="3">{{ instance.vcpu }}</td>
+          </tr>
+          <tr>
+            <th style="width: 50px;">RAM</th>
+            <td style="width: 240px;" colspan="3">{{ instance.memory.name }}</td>
+          </tr>
+          <tr>
+            <th style="width: 50px;">HDD</th>
+            <td style="width: 240px;">{{ instance.volume.capacity.name }}</td>
+            <th style="width: 50px;">Path</th>
+            <td>{{ instance.volume.device_name }}</td>
+          </tr>
+          <tr>
+            <th style="width: 50px;">CD/DVD</th>
+            <td style="width: 240px;" colspan="3">{{ instance.disk }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table table-striped table-condensed table-bordered">
+        <thead>
+          <tr>
+            <th colspan="4" style="width: 50px;">Network</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <th>MAC</th>
+            <td colspan="2">{{ instance.mac }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <th>IP</th>
+            <td colspan="2">{{ instance.network.ip }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <th>Network</th>
+            <td colspan="2">{{ instance.network.network.network }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <th>Gateway</th>
+            <td colspan="2">{{ instance.network.network.gateway }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <th>Netmask</th>
+            <td colspan="2">{{ instance.network.network.netmask }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <th>Broadcast</th>
+            <td colspan="2">{{ instance.network.network.broadcast }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 {% endblock %}
