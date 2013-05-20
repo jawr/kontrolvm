@@ -166,6 +166,11 @@
             });
           });
 
+          $('.snapshot_name').editable({
+            type: 'text',
+            url: '/snapshot/edit/',
+            title: 'Edit Snapshot Name',
+          });
           $('#name').editable({
             type: 'text',
             url: '/instance/edit/',
@@ -252,18 +257,18 @@
       <table class="table table-striped table-condensed table-bordered">
         <thead>
           <th>Name</th>
-          <th>In progress</th>
+          <th style="width: 80px;">In progress</th>
           <th>Status</th>
-          <th>Date</th>
+          <th style="width: 40px;">Date</th>
           <th style="width: 40px;"><i class="icon-cog"></i></th>
         </thead>
         <tbody>
         {% for row in snapshots %}
         <tr>
-          <td>{{ row.name }}</td>
+          <td><a href="#" class="snapshot_name" data-pk="{{ row.id }}">{{ row.name }}</a></td>
           <td>{{ row.creating }}</td>
           <td><a rel="tooltip" href="#" title="{{ row.status }}">{{ row.status|truncatewords:5 }}</a></td>
-          <td>{{ row.created }}</td>
+          <td><a rel="tooltip" href="#" title="{{ row.created }}">{{ row.created|date:"d/m/y" }}</a></td>
           <td>
             <div class="dropdown">
               <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">

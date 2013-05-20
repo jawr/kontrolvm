@@ -70,7 +70,7 @@ def create_instance(instancetask_name):
             <disk type='file' device='disk'>
                 <driver name='qemu' type='qcow2'/>
                 <source file='%s'/>
-                <target dev='hda' bus='virtio'/>
+                <target dev='vda' bus='virtio'/>
                 <alias name='ide0-0-0'/>
             </disk>
             <controller type='ide' index='0'>

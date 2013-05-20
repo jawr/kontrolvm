@@ -1,9 +1,11 @@
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.instance.models import Instance
 from apps.snapshot.models import Snapshot
 from apps.snapshot.tasks import create_snapshot
+import simplejson
 import persistent_messages
 import libvirt
 
@@ -34,3 +36,22 @@ def delete(request, name, pk):
   
   return redirect('/instance/%s/' % (name))
   
+@login_required
+def edit(request):
+  if request.is_ajax() and request.method == 'POST':
+    json = request.POST
+    try:
+      snapshot = Snapshot.objects.get(id=json['pk'])
+      if not request.user.is_staff:
+        if request.user != snapshot.instance.user: raise Http404
+      orig_name = snapshot.name
+      orig_value = None
+      orig_value = snapshot.name
+      snapshot.name = json['value']
+      snapshot.save()
+      messages.add_message(request, persistent_messages.SUCCESS,
+        'Changed Snapshot %s %s from %s to %s' % (orig_name, json['name'], orig_value, json['value']))
+    except Snapshot.DoesNotExist:
+      raise Http404
+    return HttpResponse('{}', mimetype="application/json")
+  raise Http404
