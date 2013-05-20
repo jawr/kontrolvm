@@ -15,6 +15,7 @@
   <ul class="nav nav-tabs">
     <li class="active"><a href="#controls" data-toggle="tab">Controls</a></li>
     <li><a href="#overview" data-toggle="tab">Overview</a></li>
+    <li><a href="#snapshots" data-toggle="tab">Snapshots</a></li>
   </ul>
 
   <div class="tab-content">
@@ -244,5 +245,40 @@
         </tbody>
       </table>
     </div>
+
+    {% if snapshots %}
+    <div class="tab-pane" id="snapshots">
+      <h2>Snapshots <i class="icon-book"></i> <small>A quick look at snapshots for your instance..</small></h2>
+      <table class="table table-striped table-condensed table-bordered">
+        <thead>
+          <th>Name</th>
+          <th>In progress</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th style="width: 40px;"><i class="icon-cog"></i></th>
+        </thead>
+        <tbody>
+        {% for row in snapshots %}
+        <tr>
+          <td>{{ row.name }}</td>
+          <td>{{ row.creating }}</td>
+          <td><a rel="tooltip" href="#" title="{{ row.status }}">{{ row.status|truncatewords:5 }}</a></td>
+          <td>{{ row.created }}</td>
+          <td>
+            <div class="dropdown">
+              <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a tabindex="-1" href="/snapshot/delete/{{ instance.name }}/{{ row.pk }}/"><i class="icon-trash"></i> Delete</a></li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
   </div>
 {% endblock %}

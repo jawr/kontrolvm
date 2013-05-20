@@ -1,21 +1,19 @@
 from django.db import models
-from django.contrib.auth.models import User
-from django.contrib import messages
 from apps.instance.models import Instance
-import libvirt
-import persistent_messages
+import time
 
 # snapshot xml taken from https://github.com/retspen/webvirtmgr/blob/master/virtmgr/views.py#L1411
 SNAPSHOT_TEMPLATE = \
   """
     <domainsnapshot>
       <name>%s</name>
-      <state>shutoff</state>
-      <creationTime>%d</creationTime>
     </domainsnapshot>
   """
 
 class Snapshot(models.Model):
+  name = models.CharField(max_length=100, default="Snapshot")
+  creating = models.BooleanField(default=True)
+  status = models.CharField(max_length=200, blank=True, null=True)
   instance = models.ForeignKey(Instance)
   created = models.DateTimeField(auto_now_add=True)
 
@@ -23,4 +21,17 @@ class Snapshot(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "%s (%s)" % (self.instance, self.created)
+    return "%s %s (%s - %s)" % (self.name, self.instance, self.creating, self.created)
+
+  def get_unixtime(self):
+    return int(time.mktime(self.created.timetuple())*1000)
+
+  def get_snapshot(self):
+    instance = self.instance.get_instance()
+    snapshot = None
+    if instance:
+      try:
+        snapshot = instance.snapshotLookupByName("%s_%d" % (self.instance.name, self.get_unixtime), 0)
+      except Exception:
+        pass
+    return snapshot
