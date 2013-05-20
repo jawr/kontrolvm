@@ -15,7 +15,9 @@
   <ul class="nav nav-tabs">
     <li class="active"><a href="#controls" data-toggle="tab">Controls</a></li>
     <li><a href="#overview" data-toggle="tab">Overview</a></li>
-    <li><a href="#snapshots" data-toggle="tab">Snapshots</a></li>
+    {% if snapshots %}
+      <li><a href="#snapshots" data-toggle="tab">Snapshots</a></li>
+    {% endif %}
   </ul>
 
   <div class="tab-content">
