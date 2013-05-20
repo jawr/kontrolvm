@@ -147,7 +147,7 @@
           <tr>
             <th style="width: 50px;">Snapshot</th>
             <td>
-              <a id="snapshot-button" class="btn" href="/snapshot/create/{{ instance.name }}/">
+              <a id="snapshot-button" class="btn {% if instance.status != 5 %}disabled" rel="tooltip" title="Instance must be shutdown in order to take a snapshot"{% else %}"{% endif %} href="/snapshot/create/{{ instance.name }}/">
                 <i class="icon-book"></i> Create
               </a>
             </td>
@@ -259,18 +259,18 @@
       <table class="table table-striped table-condensed table-bordered">
         <thead>
           <th>Name</th>
-          <th style="width: 80px;">In progress</th>
           <th>Status</th>
-          <th style="width: 40px;">Date</th>
           <th style="width: 40px;"><i class="icon-cog"></i></th>
         </thead>
         <tbody>
         {% for row in snapshots %}
         <tr>
           <td><a href="#" class="snapshot_name" data-pk="{{ row.id }}">{{ row.name }}</a></td>
-          <td>{{ row.creating }}</td>
-          <td><a rel="tooltip" href="#" title="{{ row.status }}">{{ row.status|truncatewords:5 }}</a></td>
-          <td><a rel="tooltip" href="#" title="{{ row.created }}">{{ row.created|date:"d/m/y" }}</a></td>
+          {% if row.creating %}
+            <td><a rel="tooltip" href="#" title="{{ row.status }}">{{ row.status|truncatewords:5 }}</a></td>
+          {% else %}
+            <td>Created <a rel="tooltip" href="#" title="{{ row.created }}">{{ row.created|date:"d/m/y" }}</a></td>
+          {% endif %}
           <td>
             <div class="dropdown">
               <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">

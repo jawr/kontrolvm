@@ -1,5 +1,6 @@
 from django.db import models
 from apps.instance.models import Instance
+import libvirt
 import time
 
 # snapshot xml taken from https://github.com/retspen/webvirtmgr/blob/master/virtmgr/views.py#L1411
@@ -31,7 +32,7 @@ class Snapshot(models.Model):
     snapshot = None
     if instance:
       try:
-        snapshot = instance.snapshotLookupByName("%s_%d" % (self.instance.name, self.get_unixtime), 0)
-      except Exception:
+        snapshot = instance.snapshotLookupByName("%s_%d" % (self.instance.name, self.get_unixtime()), 0)
+      except libvirt.libvirtError:
         pass
     return snapshot

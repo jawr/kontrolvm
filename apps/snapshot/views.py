@@ -12,7 +12,10 @@ import libvirt
 @login_required
 def create(request, name):
   instance = get_object_or_404(Instance, name=name)
-  if Snapshot.objects.filter(creating=True, instance=instance).count() > 0:
+
+  if instance.status != 5:
+    persistent_messages.add_message(request, persistent_messages.ERROR, 'Error %s must be shutdown in order to take a snapshot.' % (instance))
+  elif Snapshot.objects.filter(creating=True, instance=instance).count() > 0:
     persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to create a snapshot for %s, already creating one.' % (instance))
   else:
     persistent_messages.add_message(request, persistent_messages.INFO, 'Attempting to create a snapshot for %s' % (instance))
@@ -28,7 +31,9 @@ def delete(request, name, pk):
     dom = instance.get_instance()
     if not dom: raise libvirt.libvirtError()
     snap = snapshot.get_snapshot()
-    if snap: snap.delete(0)
+    if snap: 
+      print "deleting.. %d" % (snapshot.get_unixtime())
+      snap.delete(0)
     snapshot.delete()
     persistent_messages.add_message(request, persistent_messages.SUCCESS, 'Deleted snapshot for %s' % (instance))
   except libvirt.libvirtError as e:
