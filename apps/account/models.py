@@ -36,7 +36,7 @@ class UserProfile(models.Model):
     return Instance.objects.filter(user=self.user).count()
 
   def vnc_session_count(self):
-    return Session.objects.filter(user=self.user).count()
+    return Session.objects.filter(user=self.user, active=True).count()
 
 def create_profile(sender, **kw):
   user = kw["instance"]
