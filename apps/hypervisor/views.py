@@ -5,6 +5,8 @@ from django.http import HttpResponse, Http404
 from apps.hypervisor.models import Hypervisor
 from apps.storagepool.models import StoragePool
 from apps.instance.models import Instance
+from apps.network.models import Network
+from apps.installationdisk.models import InstallationDisk
 from apps.hypervisor.forms import HypervisorForm
 from apps.shared.forms import SizeForm
 from apps.shared.models import Size
@@ -41,10 +43,15 @@ def view(request, pk):
   for i in Size.objects.all():
     size_array.append({'value': i.id, 'text': i.name})
 
+  installation_disks = InstallationDisk.objects.filter(hypervisor=instance).count()
+  networks = Network.objects.filter(hypervisor=instance).count()
+
   return render_to_response('hypervisor/view.html',
     {
     'instance': instance,
     'instances': instances,
+    'networks': networks,
+    'installation_disks': installation_disks,
     'instances_online': instances_online,
     'instances_offline': instances_offline,
     'storagepools': storagepools,
