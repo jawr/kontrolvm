@@ -9,24 +9,22 @@
   <table class="table table-bordered table-striped">
     <thead>
       <th>User</th>
-      <th>Initalized</th>
-      <th>Instances</th>
-      <th>VNC</th>
+      <th><i class="icon-hdd"></i></th>
+      <th style="width:20px;">VNC</th>
       <th>Active</th>
       <th>Last Page</th>
-      <th>Browser</th>
-      <th>Current IP</th>
-      <th>Joined</th>
+      <th style="width:90px;">Browser</th>
+      <th style="width:90px;">Current IP</th>
+      <th style="width:40px;">Joined</th>
     </thead>
     <tbody>
       {% autopaginate rows 10 %}
       {% for row in rows %}
       <tr>
-        <td><a href="#" rel="tooltip" title="{{ row.user }}"</a>{{ row.user|truncatechars:18 }}</a></td>
-        <td>{{ row.init }}</td>
+        <td><a href="#" rel="tooltip" title="{{ row.user }} - initalized: {{ row.init }}"</a>{{ row.user|truncatechars:18 }}</a></td>
         <td>{{ row.instance_count }}</td>
         <td>{{ row.vnc_session_count }}</td>
-        <td><a href="#" rel="tooltip" title="{{ row.audit.time|naturaltime }}">{{ row.audit.time|naturaltime|truncatechars:5 }}</a></td>
+        <td><a href="#" rel="tooltip" title="{{ row.audit.time|naturaltime }}">{{ row.audit.time|naturaltime|truncatewords:5 }}</a></td>
         <td><a href="#" rel="tooltip" title="{{ row.audit.page }}">{{ row.audit.page|truncatechars:"15" }}</a></td>
         <td><a href="#" rel="tooltip" title="{{ row.audit.current_browser }}">{{ row.audit.current_browser|truncatechars:"15" }}</a></td>
         <td>{{ row.audit.current_ip }}</td>
