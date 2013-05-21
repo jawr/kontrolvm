@@ -125,6 +125,7 @@ INSTALLED_APPS = (
   'apps.network',
   'apps.vnc',
   'apps.snapshot',
+  'apps.reversedns',
 )
 
 AUTHENTICATION_BACKENDS = (
