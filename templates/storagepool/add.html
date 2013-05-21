@@ -1,10 +1,41 @@
 {% extends 'base_fluid.html' %}
 {% block title %}Add Storage Pool{% endblock %}
 {% block content %}
+  <h2>Add Storage Pool <i class="icon-plus"></i></h2>
   <form class="form" action="{{ request.get_full_path }}" method="POST">
     {% csrf_token %}
     {% load bootstrap %}
-    {{ form|bootstrap }}
-    <button class="btn btn-large btn-primary" type="submit">Add Storage Pool</button>
+    <div class="span9">
+      <p class="muted pull-left">Basic description of storagepool</p><hr>
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span3">
+      {{ form.name|bootstrap }}
+    </div>
+    
+    <div class="row"></div>
+
+    <div class="span9">
+      <p class="muted pull-left">Hypervisor configuration</p><hr>
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span3">
+      {{ form.hypervisor|bootstrap }}
+    </div>
+
+    <div class="span3">
+      {{ form.path|bootstrap }}
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span9">
+      <hr>
+      <button class="btn btn-large btn-primary" type="submit">Add Storage Pool</button>
+    </div>
   </form>
 {% endblock %}

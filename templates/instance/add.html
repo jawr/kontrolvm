@@ -1,10 +1,44 @@
 {% extends 'base_fluid.html' %}
 {% block title %}Add Instance Task{% endblock %}
 {% block content %}
+  <h2>Add Instance <i class="icon-plus"></i></h2>
   <form class="form" action="{{ request.get_full_path }}" method="POST">
     {% csrf_token %}
     {% load bootstrap %}
-    {{ form|bootstrap }}
-    <button class="btn btn-large btn-primary" type="submit">Add Instance</button>
+    <div class="span9">
+      <p class="muted pull-left">Create for</p><hr>
+    </div>
+    <div class="span3">
+      {{ form.user|bootstrap }}
+    </div>
+    <div class="row"></div>
+    <div class="span9">
+      <p class="muted pull-left">Where to create the instance</p><hr>
+    </div>
+    <div class="span3">
+      {{ form.storagepool|bootstrap }}
+    </div>
+    <div class="row"></div>
+    <div class="span9">
+      <p class="muted pull-left">Configuration</p><hr>
+    </div>
+    <div class="span3">
+      {{ form.vcpu|bootstrap }}
+    </div>
+    <div class="span3">
+      {{ form.memory|bootstrap }}
+    </div>
+    <div class="span3">
+      {{ form.capacity|bootstrap }}
+    </div>
+    <div class="row"></div>
+    <div class="span3">
+      {{ form.network|bootstrap }}
+    </div>
+    <div class="row"></div>
+    <div class="span9">
+      <hr>
+      <button class="btn btn-large btn-primary" type="submit">Add Instance</button>
+    </div>
   </form>
 {% endblock %}

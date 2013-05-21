@@ -1,10 +1,48 @@
 {% extends 'base_fluid.html' %}
 {% block title %}Add Network{% endblock %}
 {% block content %}
-<form method="POST" class="form" action="{{ request.get_full_path }}">
-  {% csrf_token %}
-  {% load bootstrap %}
-  {{ form|bootstrap }}
-  <button class="btn btn-large btn-primary" type="submit">Add Network</button>
-</form>
+  <h2>Add user <i class="icon-plus"></i></h2>
+  <form method="POST" class="form" action="{{ request.get_full_path }}">
+    {% csrf_token %}
+    {% load bootstrap %}
+    
+    <div class="span9">
+      <p class="muted pull-left">Where to create the network</p><hr>
+    </div>
+    <div class="span3">
+      {{ form.hypervisor|bootstrap }}
+    </div>
+    <div class="row"></div>
+    <div class="span9">
+      <p class="muted pull-left">Network configuration</p><hr>
+    </div>
+    <div class="span3">
+      {{ form.netmask|bootstrap }}
+    </div>
+    <div class="span3">
+      {{ form.gateway|bootstrap }}
+    </div>
+    <div class="row"></div>
+    <div class="span3">
+      {{ form.network|bootstrap }}
+    </div>
+    <div class="span3">
+      {{ form.broadcast|bootstrap }}
+    </div>
+    <div class="row"></div>
+    <div class="span9">
+      <p class="muted pull-left">Range</p><hr>
+    </div>
+    <div class="span3">
+      {{ form.start|bootstrap }}
+    </div>
+    <div class="span3">
+      {{ form.end|bootstrap }}
+    </div>
+    <div class="row"></div>
+    <div class="span9">
+      <hr>
+      <button class="btn btn-large btn-primary" type="submit">Add Network</button>
+    </div>
+  </form>
 {% endblock %}

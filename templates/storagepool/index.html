@@ -10,7 +10,7 @@
         <th>Name</th>
         <th>Hypervisor</th>
         <th style="width: 20px;">Status</th>
-        <th>Path</th>
+        <th style="width: 30px;">Path</th>
         <th>Capacity</th>
         <th>Alloc</th>
         <th>Avail</th>
@@ -24,7 +24,7 @@
             <td>{{ storagepool.name }}</td>
             <td><a href="/hypervisor/{{ storagepool.hypervisor.pk }}/" rel="tooltip" title="{{storagepool.hypervisor }}">{{ storagepool.hypervisor.name }}</a></td>
             <td>{{ storagepool.get_status_html|safe }}</td>
-            <td><a href="#" rel="tooltip" title="{{ storagepool.path }}"</a>{{ storagepool.path|truncatechars:"40" }}</a></td>
+            <td style="width: 30px;"><a href="#" rel="tooltip" title="{{ storagepool.path }}"</a>{{ storagepool.path|truncatechars:"30" }}</a></td>
             <td>{{ storagepool.capacity|to_human_readable }}</td>
             <td>{{ storagepool.allocated|to_human_readable }}</td>
             <td>{{ storagepool.available|to_human_readable }}</td>

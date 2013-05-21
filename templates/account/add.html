@@ -1,11 +1,24 @@
 {% extends 'base_fluid.html' %}
 {% block title %}Add User{% endblock %}
 {% block content %}
-  <form class="form" action="{{ request.get_full_path }}" method="POST">
+  <h2>Add user <i class="icon-plus"></i></h2>
+  <form class="form-inline" action="{{ request.get_full_path }}" method="POST">
     {% csrf_token %}
+    <div class="span9">
+      <p class="muted pull-left">Email address of new user</p><hr>
+    </div>
     {% load bootstrap %}
-    {{ form|bootstrap }}
-    <button class="btn btn-large btn-primary" type="submit">Add User</button>
+    <div class="span3">
+      {{ form.email|bootstrap }}
+    </div>
+    <div class="span3">
+      {{ form.email_check|bootstrap }}
+    </div>
+    <div class="row"></div>
+    <div class="span9">
+      <hr>
+      <button class="btn btn-large btn-primary" type="submit">Add User</button>
+    </div>
   </form>
 {% endblock %}
 
