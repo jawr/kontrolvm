@@ -148,7 +148,7 @@
             <th style="width: 50px;">Snapshot</th>
             <td>
               <a id="snapshot-button" style="margin-right:4px;" class="btn pull-left {% if instance.status != 5 %}disabled" rel="tooltip" title="Instance must be shutdown in order to take a snapshot"{% else %}"{% endif %} href="/snapshot/create/{{ instance.name }}/">
-                <i class="icon-book"></i> Create
+                <i class="icon-code-fork"></i> Create
               </a>
               {% if snapshots_form %}
                 <form class="form-inline pull-left" method="POST" action="./snapshot/">
