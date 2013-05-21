@@ -17,6 +17,7 @@ urlpatterns = patterns('',
   url(r'^snapshot/', include('apps.snapshot.urls')),                            
   url(r'^admin/', include(admin.site.urls)),
   url(r'^messages/', include('persistent_messages.urls')),
+  url(r'^reversedns/', include('apps.reversedns.urls')),
   url(r'^$', lambda x: HttpResponseRedirect('/account/')),
   url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
 )
