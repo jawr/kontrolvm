@@ -4,6 +4,7 @@ from apps.storagepool.models import StoragePool
 from apps.installationdisk.models import InstallationDisk
 from apps.network.models import Network
 from apps.account.models import UserProfile, UserAudit
+from apps.reversedns.models import ReverseDNSRequest
 from datetime import datetime, timedelta
 from django.utils import timezone
 
@@ -30,3 +31,4 @@ class KontrolVM(object):
       request.installationdisk_count = InstallationDisk.objects.all().count()
       request.network_count = Network.objects.all().count()
       request.user_count = UserProfile.objects.all().count()
+      request.rdns_req_count = ReverseDNSRequest.objects.all().count()

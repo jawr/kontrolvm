@@ -15,6 +15,7 @@
   <ul class="nav nav-tabs">
     <li class="active"><a href="#controls" data-toggle="tab">Controls</a></li>
     <li><a href="#overview" data-toggle="tab">Overview</a></li>
+    <li><a href="#network" data-toggle="tab">Networks</a></li>
     {% if snapshots %}
       <li><a href="#snapshots" data-toggle="tab">Snapshots</a></li>
     {% endif %}
@@ -235,43 +236,51 @@
           </tr>
         </tbody>
       </table>
-      <br>
+    </div>
+    <div class="tab-pane" id="network">
+      <h2>Networks <i class="icon-sitemap"></i> <small>A quick look at networks for your instance..</small></h2>
       <table class="table table-condensed table-bordered">
         <thead>
           <tr>
-            <th colspan="4" style="width: 50px;">Network</th>
+            <th>rDNS</th>
+            <th>IP</th>
+            <th>MAC</th>
+            <th>Network</th>
+            <th>Gateway</th>
+            <th>Netmask</th>
+            <th>Broadcast</th>
+            <th width="10" style="text-align:center;"><i class="icon-cog"></i></th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td></td>
-            <th>MAC</th>
-            <td colspan="2">{{ instance.mac }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <th>IP</th>
-            <td colspan="2">{{ instance.network.ip }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <th>Network</th>
-            <td colspan="2">{{ instance.network.network.network }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <th>Gateway</th>
-            <td colspan="2">{{ instance.network.network.gateway }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <th>Netmask</th>
-            <td colspan="2">{{ instance.network.network.netmask }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <th>Broadcast</th>
-            <td colspan="2">{{ instance.network.network.broadcast }}</td>
+            <td>
+                {% if instance.network.reversedns_set.all.0 %}
+                  {{ instance.network.reversedns_set.all.0.rdns }}
+                {% elif instance.network.reversednsrequest_set.all.0 %}
+                  Requesting: {{ instance.network.reversednsrequest_set.all.0.rdns }}
+                {% else %}
+                  Nothing set
+                {% endif %}
+            </td>
+            <td>{{ instance.network.ip }}</td>
+            <td>{{ instance.mac }}</td>
+            <td>{{ instance.network.network.network }}</td>
+            <td>{{ instance.network.network.gateway }}</td>
+            <td>{{ instance.network.network.netmask }}</td>
+            <td>{{ instance.network.network.broadcast }}</td>
+            <td>
+              <div class="dropdown">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                  <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a tabindex="-1" {% if instance.network.reversednsrequest_set.all|length > 0 %}class="disabled-link"{% endif %} href="/reversedns/request/{{ instance.network.id }}/{{ instance.name }}/"><i class="icon-legal"></i> Request rDNS</a></li>
+                    <li><a tabindex="-1" {% if instance.network.reversednsrequest_set.all|length == 0 %}class="disabled-link"{% endif %} href="/reversedns/request/delete/{{ instance.network.reversednsrequest_set.all.0.id }}/"><i class="icon-ban-circle"></i> Cancel request</a></li>
+                    <li><a {% if not instance.network.reversedns_set.all.0.rdns %}class="disabled-link"{% endif %} tabindex="-1" href="/reversedns/delete/{{ instance.network.id }}/"><i class="icon-trash"></i> Delete</a></li>
+                </ul>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>

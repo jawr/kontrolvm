@@ -1,0 +1,44 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Reverse DNS Requests{% endblock %}
+{% block content %}
+  {% load pagination_tags %}
+  <h1>Reverse DNS <i class="icon-exchange"></i></h2>
+  <p>Overview of approved Reverse DNS. <a href="/reversedns/">View requests</a>.</p>
+  <table class="table table-condensed table-striped table-bordered">
+    <thead>
+      <tr>
+        <th width="10">Instance</th>
+        <th>Alias</th>
+        <th>User</th>
+        <th>IP</th>
+        <th>rDNS</th>
+        <th>Approved by</th>
+        <th>Approved</th>
+        <th width="10" style="text-align:center;"><i class="icon-cog"></i></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% autopaginate rows 10 %}
+      {% for row in rows %}
+        <tr>
+          <td><a href="/instance/{{ row.instance.name }}/">{{ row.instance.name|truncatechars:9 }}</a></td>
+          <td>{{ row.instance.alias }}</td>
+          <td>{{ row.instance.user }}</td>
+          <td>{{ row.net.ip }}</td>
+          <td>{{ row.rdns }}</td>
+          <td>{{ row.approved_by }}</td>
+          <td><a href="#" rel="tooltip" title="{{ row.approved }}">{{ row.approved|date:"d/m/y" }}</a></td>
+          <td>
+            <div class="dropdown">
+              <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a tabindex="-1" href="/reversedns/approved/delete/{{ row.id }}/"><i class="icon-trash"></i> Delete</a></li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+{% endblock %}
