@@ -10,6 +10,7 @@ from apps.instance.tasks import create_instance
 from apps.snapshot.forms import SnapshotForm
 from apps.snapshot.tasks import restore_snapshot
 from apps.snapshot.models import Snapshot
+from apps.storagepool.models import StoragePool
 from django.contrib import messages
 from xml.etree import ElementTree
 import persistent_messages
@@ -321,15 +322,21 @@ def add(request):
       instances = Instance.objects.filter(volume__storagepool__hypervisor=hypervisor)
       allocated_memory = 0
       allocated_vcpus = 0
+      allocated_capacity = 0
+      for i in StoragePool.objects.filter(hypervisor=hypervisor): 
+        allocated_capacity += i.allocated
       for i in instances:
         allocated_memory += i.memory.size
         allocated_vcpus += i.vcpu
       if allocated_memory + form.cleaned_data['memory'].size > hypervisor.maximum_memory.size:
         messages.add_message(request, persistent_messages.ERROR,
-          'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient VCPUs available to allocate' % (hypervisor.id))
+          'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient Memory available to allocate' % (hypervisor.id))
       elif allocated_vcpus + form.cleaned_data['vcpu'] > hypervisor.maximum_vcpus:
         messages.add_message(request, persistent_messages.ERROR,
           'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient VCPUs available to allocate' % (hypervisor.id))
+      elif allocated_capacity + form.cleaned_data['capacity'].size > hypervisor.maximum_hdd.size:
+        messages.add_message(request, persistent_messages.ERROR,
+          'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient Disk space available to allocate' % (hypervisor.id))
       else:
         # end
         name = InstanceTask.get_random_name()

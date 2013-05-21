@@ -1,7 +1,7 @@
 {% extends 'base_fluid.html' %}
 {% block title %}Users{% endblock %}
 {% block content %}
-  <h1>Users <i class="icon-user"></i></h1>
+  <h1>Users <i class="icon-group"></i></h1>
   <p>Overview of Users. <a href="/account/add/">Add another</a></p>
   {% if rows %}
   {% load pagination_tags %}
@@ -9,7 +9,7 @@
   <table class="table table-bordered table-striped">
     <thead>
       <th>User</th>
-      <th><i class="icon-hdd"></i></th>
+      <th><i class="icon-laptop"></i></th>
       <th style="width:20px;">VNC</th>
       <th>Active</th>
       <th>Last Page</th>

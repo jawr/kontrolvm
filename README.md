@@ -1,10 +1,27 @@
 KontrolVM
 =========
 
-Kontrol panel for KVM
+Kontrol panel is an easy to deploy, easy to manage web application for managing multiple Hypervisors in a variety of locations. It allows users to:
 
-Requirements
-============
+* Attach remote Hypervisors (securely over a VPN)
+* Allocate and maintain resource limits (VCPU/Memory/HDD)
+* Attach subnets to delegate from, as well as enforcing anti-spoofing rules
+* Download installation media (asynchronously) ready for Instance's to mount
+* Create, delete and manage Instances
+* Create, manage and revert Snapshots
+* Attach/Dettach install media available on the Hypervisor
+* Provide secure VNC access (over a VPN and only open whilst a HTTP session is also active)
+* Monitor Instance's resources
+
+Installation Notes
+==================
+The following instructions are for Debian systems.
+
+* [KontrolVM](https://github.com/jawr/kontrolvm/wiki/Installation-Debian-Wheezy-7.0.0)
+* [Hypervisor setup](https://github.com/jawr/kontrolvm/wiki/Hypervisor-Installation-Debian-Wheezy-7.0.0)
+
+Requirements & Thanks
+=====================
 
 * Django - https://www.djangoproject.com/
 * libvirt - http://libvirt.org/
@@ -35,13 +52,7 @@ Included in static:
 * X-editable () - http://vitalets.github.com/x-editable/
 * jquery.cookie.js (1.3) - https://github.com/carhartl/jquery-cookie
 * Select2 - http://ivaynberg.github.io/select2/
-
-Installation Notes
-==================
-The following instructions are for Debian systems.
-
-* [KontrolVM](https://github.com/jawr/kontrolvm/wiki/Installation-Debian-Wheezy-7.0.0)
-* [Hypervisor setup](https://github.com/jawr/kontrolvm/wiki/Hypervisor-Installation-Debian-Wheezy-7.0.0)
+* Font-Awesome - http://fortawesome.github.io/
 
 License
 =======

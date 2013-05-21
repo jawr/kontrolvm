@@ -9,18 +9,18 @@
           <ul class="nav nav-list">
             <li class="nav-header">Account</li>
             {% load shared_filters %} 
-            <li {% if request.get_full_path == "/account/" %}class="active"{% endif %}><a href="/account/">Dashboard</a></li>
+            <li {% if request.get_full_path == "/account/" %}class="active"{% endif %}><a href="/account/"><i class="icon-dashboard"></i> Dashboard</a></li>
             {% if user.is_staff %}
               <li class="divider"></li>
               <li class="nav-header">Admin</li>
-              <li {% ifregex "/account/.*/" request.get_full_path %}class="active"{% endifregex %}><a href="/account/admin/">Users <span class="label pull-right">{{ request.user_count }}</span></a></li>
-              <li {% ifregex "/hypervisor/" request.get_full_path %}class="active"{% endifregex %}><a href="/hypervisor/">Hypervisors <span class="label pull-right">{{ request.hypervisor_count }}</span></a></li>
-              <li {% ifregex "/storagepool/" request.get_full_path %}class="active"{% endifregex %}><a href="/storagepool/">Storage Pools <span class="label pull-right">{{ request.storagepool_count }}</span></a></li>
-              <li {% ifregex "/installationdisk/" request.get_full_path %}class="active"{% endifregex %}><a href="/installationdisk/">Install Disks <span class="label pull-right">{{ request.installationdisk_count }}</span></a></li>
-              <li {% ifregex "/network/" request.get_full_path %}class="active"{% endifregex %}><a href="/network/">Network <span class="label pull-right">{{ request.network_count }}</span></a></li>
-              <li {% ifregex "/instance/" request.get_full_path %}class="active"{% endifregex %}><a href="/instance/">Instances <span class="label pull-right">{{ request.instance_count }}</span></a></li>
+              <li {% ifregex "/account/.*/" request.get_full_path %}class="active"{% endifregex %}><a href="/account/admin/"><i class="icon-group"></i> Users <span class="label pull-right">{{ request.user_count }}</span></a></li>
+              <li {% ifregex "/hypervisor/" request.get_full_path %}class="active"{% endifregex %}><a href="/hypervisor/"><i class="icon-hdd"></i> Hypervisors <span class="label pull-right">{{ request.hypervisor_count }}</span></a></li>
+              <li {% ifregex "/storagepool/" request.get_full_path %}class="active"{% endifregex %}><a href="/storagepool/"><i class="icon-hdd"></i> Storage Pools <span class="label pull-right">{{ request.storagepool_count }}</span></a></li>
+              <li {% ifregex "/installationdisk/" request.get_full_path %}class="active"{% endifregex %}><a href="/installationdisk/"><i class="icon-download-alt"></i> Install Disks <span class="label pull-right">{{ request.installationdisk_count }}</span></a></li>
+              <li {% ifregex "/network/" request.get_full_path %}class="active"{% endifregex %}><a href="/network/"><i class="icon-sitemap"></i> Network <span class="label pull-right">{{ request.network_count }}</span></a></li>
+              <li {% ifregex "/instance/" request.get_full_path %}class="active"{% endifregex %}><a href="/instance/"><i class="icon-laptop"></i> Instances <span class="label pull-right">{{ request.instance_count }}</span></a></li>
               <li class="divider"></li>
-              <li><a href="/admin/">Django Admin</a></li>
+              <li><a href="/admin/"><i class="icon-beaker"></i> Django Admin</a></li>
             {% endif %}
           </ul>
         </div>
