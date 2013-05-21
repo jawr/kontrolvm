@@ -34,6 +34,7 @@ Included in static:
 * bootbox.js (2.4.2) - http://github.com/makeusabrew/bootbox/
 * X-editable () - http://vitalets.github.com/x-editable/
 * jquery.cookie.js (1.3) - https://github.com/carhartl/jquery-cookie
+* Select2 - http://ivaynberg.github.io/select2/
 
 Installation Notes
 ==================

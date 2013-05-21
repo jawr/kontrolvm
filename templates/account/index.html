@@ -93,12 +93,12 @@
             <tr>
               <td width="20"></td>
               <td width="20">Online</td>
-              <td>{{ hypervisors_online }}</td>
+              <td><span class="label label-success">{{ hypervisors_online }}</span></td>
             </tr>
             <tr>
               <td></td>
               <td>Offline</td>
-              <td>{{ hypervisors_offline }}</td>
+              <td><span class="label">{{ hypervisors_offline }}</span></td>
             </tr>
           </table>
         </div>
@@ -110,12 +110,12 @@
             <tr>
               <td width="20"></td>
               <td width="20">Online</td>
-              <td>{{ storagepools_online }}</td>
+              <td><span class="label label-success">{{ storagepools_online }}</span></td>
             </tr>
             <tr>
               <td></td>
               <td>Offline</td>
-              <td>{{ storagepools_offline }}</td>
+              <td><span class="label">{{ storagepools_offline }}</span></td>
             </tr>
           </table>
         </div>
@@ -127,12 +127,12 @@
             <tr>
               <td width="20"></td>
               <td width="20">Online</td>
-              <td>{{ volumes_online }}</td>
+              <td><span class="label label-success">{{ volumes_online }}</span></td>
             </tr>
             <tr>
               <td></td>
               <td>Offline</td>
-              <td>{{ volumes_offline }}</td>
+              <td><span class="label">{{ volumes_offline }}</span></td>
             </tr>
           </table>
         </div>
@@ -144,12 +144,12 @@
             <tr>
               <td width="20"></td>
               <td width="20">Online</td>
-              <td>{{ instances_online }}</td>
+              <td><span class="label label-success">{{ instances_online }}</span></td>
             </tr>
             <tr>
               <td></td>
               <td>Offline</td>
-              <td>{{ instances_offline }}</td>
+              <td><span class="label">{{ instances_offline }}</span></td>
             </tr>
           </table>
         </div>
@@ -161,12 +161,12 @@
             <tr>
               <td width="20"></td>
               <td width="20">Disks</td>
-              <td>{{ installationdisks }}</td>
+              <td><span class="label label-success">{{ installationdisks }}</span></td>
             </tr>
             <tr>
               <td></td>
               <td>Tasks</td>
-              <td>{{ installationdisktasks }}</td>
+              <td><span class="label">{{ installationdisktasks }}</span></td>
             </tr>
           </table>
         </div>
@@ -178,12 +178,24 @@
             <tr>
               <td width="20"></td>
               <td width="20">Active</td>
-              <td>{{ vnc_sessions }}/({{ vnc_sessions_rt }})</td>
+              <td><a rel="tooltip" href="#" title="Realtime: {{ vnc_sessions_rt }}"><span class="label label-success">{{ vnc_sessions }}</span></a></td>
             </tr>
             <tr>
               <td></td>
-              <td>Total</td>
-              <td>{{ vnc_sessions_total}}</td>
+              <td>Alltime</td>
+              <td><span class="label">{{ vnc_sessions_total}}</span></td>
+            </tr>
+          </table>
+        </div>
+        <div class="span3 offset1">
+          <table class="table table-condensed table-striped">
+            <tr>
+              <th colspan="3">Networks</th>
+            </th>
+            <tr>
+              <td width="20"></td>
+              <td width="20">Online</td>
+              <td><span class="label label-success">{{ networks }}</span></td>
             </tr>
           </table>
         </div>

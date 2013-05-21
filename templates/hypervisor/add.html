@@ -1,10 +1,89 @@
 {% extends 'base_fluid.html' %}
 {% block title %}Add Hypervisor{% endblock %}
 {% block content %}
+  <h2>Add Hypervisor <i class="icon-plus"></i></h2>
   <form class="form" action="{{ request.get_full_path }}" method="POST">
     {% csrf_token %}
     {% load bootstrap %}
-    {{ form|bootstrap }}
-    <button class="btn btn-large btn-primary" type="submit">Add Hypervisor</button>
+  
+    <div class="span9">
+      <p class="muted pull-left">Basic description of Hypervisor</p><hr>
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span3">
+      {{ form.name|bootstrap }}
+    </div>
+
+    <div class="span3">
+      {{ form.location|bootstrap }}
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span9">
+      <p class="muted pull-left">Connectivity settings</p><hr>
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span3">
+      {{ form.address|bootstrap }}
+    </div>
+
+    <div class="span3">
+      {{ form.libvirt_port|bootstrap }}
+    </div>
+
+    <div class="span3">
+      {{ form.node_port|bootstrap }}
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span3">
+      {{ form.timeout|bootstrap }}
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span9">
+      <p class="muted pull-left">Writeable directory to store installation media</p><hr>
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span3">
+      {{ form.install_medium_path|bootstrap }}
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span9">
+      <p class="muted pull-left">Resource allocation limits</p><hr>
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span3">
+      {{ form.maximum_memory|bootstrap }}
+    </div>
+
+    <div class="span3">
+      {{ form.maximum_vcpus|bootstrap }}
+    </div>
+
+    <div class="span3">
+      {{ form.maximum_hdd|bootstrap }}
+    </div>
+
+    <div class="row"></div>
+
+    <div class="span9">
+      <hr>
+      <button class="btn btn-large btn-primary" type="submit">Add Hypervisor</button>
+    </div>
+
   </form>
 {% endblock %}

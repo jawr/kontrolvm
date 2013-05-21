@@ -127,13 +127,13 @@ class Proxy(Thread):
       self.pipe1.start()
       self.pipe2 = ProxyPipe(forward, newsock, self.dest_port, self)
       self.pipe2.start()
+    self.session.active = False
+    self.session.save()
+    print "Closing Proxy down..."
     if self.pipe1:
       self.pipe1.join()
     if self.pipe2:
       self.pipe2.join()
-    self.session.active = False
-    self.session.save()
-    print "Closing Proxy down..."
 
   def heartbeat(self):
     if self.pipe1: 
