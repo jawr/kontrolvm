@@ -18,6 +18,7 @@ from apps.account.models import UserLogin, InvalidLogin, UserBrowser, UserProfil
 from apps.hypervisor.models import Hypervisor
 from apps.storagepool.models import StoragePool
 from apps.volume.models import Volume
+from apps.network.models import Network
 from apps.installationdisk.models import InstallationDisk, InstallationDiskTask
 from apps.instance.models import Instance, InstanceTask
 from apps.vnc.models import Session
@@ -108,6 +109,8 @@ def index(request):
     vnc_sessions = Session.objects.filter(active=True).count()
     vnc_sessions_total = Session.objects.all().count()
     vnc_sessions_rt = VNCSessions().count()
+    
+    networks = Network.objects.all().count()
 
     response['hypervisors_online'] = hypervisors_online
     response['hypervisors_offline'] = hypervisors_offline
@@ -123,6 +126,7 @@ def index(request):
     response['vnc_sessions'] = vnc_sessions
     response['vnc_sessions_rt'] = vnc_sessions_rt
     response['vnc_sessions_total'] = vnc_sessions_total
+    response['networks'] = networks
 
   return render_to_response('account/index.html', response,
     context_instance=RequestContext(request))

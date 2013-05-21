@@ -134,6 +134,12 @@ class Proxy(Thread):
     self.session.active = False
     self.session.save()
     print "Closing Proxy down..."
+    try:
+      session = Session.objects.get(port=self.port)
+      session.active = False
+      session.save()
+    except Session.DoesNetExist as e:
+      print e
 
   def heartbeat(self):
     if self.pipe1: 
