@@ -1,0 +1,21 @@
+{% extends 'base_nav.html'%}
+{% block container %}
+<div class="container-fluid">
+  <br>
+  <br>
+  <br>
+  <div class="row-fluid">
+    <div class="span10 offset1">
+      <ul class="breadcrumb">
+        <li><a href="/">Dashboard </a> <span class="divider">/</span></li>
+        {% block breadcrumb %}{% endblock %}
+      </ul>
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="span10 offset1">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}
