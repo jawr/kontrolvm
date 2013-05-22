@@ -66,6 +66,7 @@ def setup_vnc(request, name, applet):
       return setup_java_vnc(request, dajax, session, local_port, password)
     else:
       html = """
+            <a href="vnc://%s:%d">vnc://%s:%d</a>
             <table class="table table-condensed table-striped">
               <tr>
                 <th>Host</th>
@@ -80,7 +81,7 @@ def setup_vnc(request, name, applet):
                 <td>%s</td>
               </tr>
             </table>
-      """ % (settings.VNC_HOST, local_port, password)
+      """ % (settings.VNC_HOST, local_port, settings.VNC_HOST, local_port, settings.VNC_HOST, local_port, password)
       dajax.assign('#vnc-applet', 'innerHTML', html)
       dajax.assign('#vnc-connect-button', 'innerHTML', '<i class="icon-off"></i> Disconnect')
       dajax.script('$("#vnc-container").show(2000);')

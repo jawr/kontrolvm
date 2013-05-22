@@ -70,8 +70,10 @@ class ProxyPipe(Thread):
         data = self.source.recv(1024)
         if not data: break
         self.sink.send(data)
-      except:
+      except Exception as e:
+        if str(e) == 'timed out': continue
         break
+    print "broke out"
     self.cleanup()
 
   def heartbeat(self):
@@ -79,7 +81,7 @@ class ProxyPipe(Thread):
 
   def cleanup(self):
     self.sink.close()
-    self.source.close()
+    #self.source.close()
     try:
       print "CLEANUP PROXYPIPE"
       ProxyPipe.pipes.remove(self)
@@ -101,8 +103,9 @@ class Proxy(Thread):
     self.session = session
 
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #self.sock.settimeout(10)
     self.sock.bind((self.listen_host, self.listen_port))
-    self.sock.listen(5) #connection queue
+    self.sock.listen(10) #connection queue
     self.pipe1 = None
     self.pipe2 = None
     self._stop = Event()
@@ -121,8 +124,11 @@ class Proxy(Thread):
     print "Forwarding to: %s:%d" % (self.dest_host, self.dest_port)
     while not self._stop.is_set():
       newsock, address = self.sock.accept()
+      if not newsock: continue
       forward = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       forward.connect((self.dest_host, self.dest_port))
+      forward.settimeout(10)
+      newsock.settimeout(10)
       self.pipe1 = ProxyPipe(newsock, forward, self.dest_port, self)
       self.pipe1.start()
       self.pipe2 = ProxyPipe(forward, newsock, self.dest_port, self)

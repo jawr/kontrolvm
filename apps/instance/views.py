@@ -105,7 +105,10 @@ def get_memory_usage(instance):
   if dom and hypervisor:
     try:
       all_mem = hypervisor.getInfo()[1] * 1048576
+      print dom.info()
       dom_mem = dom.info()[1] * 1024
+      print dom_mem
+      print all_mem
       percent = (dom_mem * 100) / all_mem
       return all_mem, percent
     except libvirt.libvirtError as e:
