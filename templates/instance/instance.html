@@ -285,9 +285,9 @@
                   <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu" role="menu">
-                    <li><a tabindex="-1" {% if instance.network.reversednsrequest_set.all|length > 0 %}class="disabled-link"{% endif %} href="/reversedns/request/{{ instance.network.id }}/{{ instance.name }}/"><i class="icon-legal"></i> rDNS - Request</a></li>
-                    <li><a tabindex="-1" {% if instance.network.reversednsrequest_set.all|length == 0 %}class="disabled-link"{% endif %} href="/reversedns/request/delete/{{ instance.network.reversednsrequest_set.all.0.id }}/"><i class="icon-ban-circle"></i> rDNS - Cancel</a></li>
-                    <li><a {% if not instance.network.reversedns_set.all.0.rdns %}class="disabled-link"{% endif %} tabindex="-1" href="/reversedns/delete/{{ instance.network.id }}/"><i class="icon-trash"></i> rDNS - Delete</a></li>
+                    <li><a tabindex="-1" {% if network.reversednsrequest_set.all|length > 0 %}class="disabled-link"{% endif %} href="/reversedns/request/{{ network.id }}/{{ instance.name }}/"><i class="icon-legal"></i> rDNS - Request</a></li>
+                    <li><a tabindex="-1" {% if network.reversednsrequest_set.all|length == 0 %}class="disabled-link"{% endif %} href="/reversedns/request/delete/{{ network.reversednsrequest_set.all.0.id }}/"><i class="icon-ban-circle"></i> rDNS - Cancel</a></li>
+                    <li><a {% if not .network.reversedns_set.all.0.rdns %}class="disabled-link"{% endif %} tabindex="-1" href="/reversedns/delete/{{ network.id }}/"><i class="icon-trash"></i> rDNS - Delete</a></li>
                     {% if request.user.is_staff %}
                       <li class="divider"></li>
                       <li><a tabindex="-1" href="/instance/network/delete/{{ network.pk }}/"><i class="icon-trash"></i> Remove Address</a></li>
@@ -309,7 +309,7 @@
         <thead>
           <th>Name</th>
           <th>Status</th>
-          <th style="width: 40px;"><i class="icon-cog"></i></th>
+          <th style="width: 40px; text-align:center;"><i class="icon-cog"></i></th>
         </thead>
         <tbody>
         {% for row in snapshots %}

@@ -19,7 +19,7 @@
         <th>Capacity</th>
         <th>IP</th>
         <th>Status</th>
-        <th style="width: 8px;" style="text-align:center;"><i class="icon-cog"></i></th>
+        <th width="8" style="text-align:center;"><i class="icon-cog"></i></th>
       </thead>
 
       <tbody>
@@ -27,7 +27,7 @@
         {% for instance in instances %}
           <tr>
             <td><a href="/instance/{{ instance.name }}/">{{ instance.name|truncatechars:6 }}</a></td>
-            <td><a rel="tooltip" title="{{ instance.alias }}" href="#">{{ instance.alias|truncatechars:12 }}</a></td>
+            <td><a href="/instance/{{ instance.name }}/" rel="tooltip" title="{{ instance.alias }}" href="#">{{ instance.alias|truncatechars:12 }}</a></td>
             <td>{{ instance.user }}</td>
             <td>{{ instance.creator }}</td>
             <td><a rel="tooltip" title="{{ instance.created }}" href="#">{{ instance.created|date:"d/m/y" }}</a></td>

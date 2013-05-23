@@ -80,7 +80,8 @@ class Volume(models.Model):
         pool.createXML(xml, 0)
         return True
       except libvirt.libvirtError as e:
-        persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to create Volume %s: %s' % (self.name, e))
+        if request:
+          persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to create Volume %s: %s' % (self.name, e))
         return False
 
     else:
