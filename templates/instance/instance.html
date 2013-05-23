@@ -15,9 +15,14 @@
   <ul class="nav nav-tabs">
     <li class="active"><a href="#controls" data-toggle="tab">Controls</a></li>
     <li><a href="#overview" data-toggle="tab">Overview</a></li>
-    <li><a href="#network" data-toggle="tab">Networks</a></li>
+    {% if networks %}
+      <li><a href="#network" data-toggle="tab">Networks</a></li>
+    {% endif %}
     {% if snapshots %}
       <li><a href="#snapshots" data-toggle="tab">Snapshots</a></li>
+    {% endif %}
+    {% if request.user.is_staff %}
+      <li><a href="#xml" data-toggle="tab">XML</a></li>
     {% endif %}
   </ul>
 
@@ -237,6 +242,7 @@
         </tbody>
       </table>
     </div>
+    {% if networks %}
     <div class="tab-pane" id="network">
       <h2>Networks <i class="icon-sitemap"></i> <small>A quick look at networks for your instance..</small></h2>
       <table class="table table-condensed table-bordered">
@@ -253,38 +259,45 @@
           </tr>
         </thead>
         <tbody>
+          {% for network in networks %}
           <tr>
             <td>
-                {% if instance.network.reversedns_set.all.0 %}
-                  {{ instance.network.reversedns_set.all.0.rdns }}
-                {% elif instance.network.reversednsrequest_set.all.0 %}
-                  Requesting: {{ instance.network.reversednsrequest_set.all.0.rdns }}
+                {% if network.reversedns_set.all.0 %}
+                  {{ network.reversedns_set.all.0.rdns }}
+                {% elif network.reversednsrequest_set.all.0 %}
+                  Requesting: {{ network.reversednsrequest_set.all.0.rdns }}
                 {% else %}
                   Nothing set
                 {% endif %}
             </td>
-            <td>{{ instance.network.ip }}</td>
+            <td>{{ network.ip }}</td>
             <td>{{ instance.mac }}</td>
-            <td>{{ instance.network.network.network }}</td>
-            <td>{{ instance.network.network.gateway }}</td>
-            <td>{{ instance.network.network.netmask }}</td>
-            <td>{{ instance.network.network.broadcast }}</td>
+            <td>{{ network.network.network }}</td>
+            <td>{{ network.network.gateway }}</td>
+            <td>{{ network.network.netmask }}</td>
+            <td>{{ network.network.broadcast }}</td>
             <td>
               <div class="dropdown">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                   <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu" role="menu">
-                    <li><a tabindex="-1" {% if instance.network.reversednsrequest_set.all|length > 0 %}class="disabled-link"{% endif %} href="/reversedns/request/{{ instance.network.id }}/{{ instance.name }}/"><i class="icon-legal"></i> Request rDNS</a></li>
-                    <li><a tabindex="-1" {% if instance.network.reversednsrequest_set.all|length == 0 %}class="disabled-link"{% endif %} href="/reversedns/request/delete/{{ instance.network.reversednsrequest_set.all.0.id }}/"><i class="icon-ban-circle"></i> Cancel request</a></li>
-                    <li><a {% if not instance.network.reversedns_set.all.0.rdns %}class="disabled-link"{% endif %} tabindex="-1" href="/reversedns/delete/{{ instance.network.id }}/"><i class="icon-trash"></i> Delete</a></li>
+                    <li><a tabindex="-1" {% if instance.network.reversednsrequest_set.all|length > 0 %}class="disabled-link"{% endif %} href="/reversedns/request/{{ instance.network.id }}/{{ instance.name }}/"><i class="icon-legal"></i> rDNS - Request</a></li>
+                    <li><a tabindex="-1" {% if instance.network.reversednsrequest_set.all|length == 0 %}class="disabled-link"{% endif %} href="/reversedns/request/delete/{{ instance.network.reversednsrequest_set.all.0.id }}/"><i class="icon-ban-circle"></i> rDNS - Cancel</a></li>
+                    <li><a {% if not instance.network.reversedns_set.all.0.rdns %}class="disabled-link"{% endif %} tabindex="-1" href="/reversedns/delete/{{ instance.network.id }}/"><i class="icon-trash"></i> rDNS - Delete</a></li>
+                    {% if request.user.is_staff %}
+                      <li class="divider"></li>
+                      <li><a tabindex="-1" href="/instance/network/add/"><i class="icon-plus"></i> Add Address</a></li>
+                    {% endif %}
                 </ul>
               </div>
             </td>
           </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
+    {% endif %}
 
     {% if snapshots %}
     <div class="tab-pane" id="snapshots">
@@ -320,5 +333,13 @@
       </table>
     </div>
     {% endif %}
+
+    {% if request.user.is_staff %}
+    <div class="tab-pane" id="xml">
+      <h2><small>View raw XML</small></h2>
+      <pre>{{ instance.get_xml }}</pre>
+    </div>
+    {% endif %}
+
   </div>
 {% endblock %}
