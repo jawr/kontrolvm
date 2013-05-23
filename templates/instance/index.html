@@ -19,7 +19,7 @@
         <th>Capacity</th>
         <th>IP</th>
         <th>Status</th>
-        <th style="width: 15px;">Options</th>
+        <th style="width: 8px;" style="text-align:center;"><i class="icon-cog"></i></th>
       </thead>
 
       <tbody>
@@ -37,7 +37,16 @@
             <td>{{ instance.network.ip }}</td>
             <td>{{ instance.get_status_html|safe }}</td>
             <td>
-              <a href="#" id="delete"><i id="{{ instance.name }}" class="icon-trash"></i></a>
+              <div class="dropdown">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                  <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a tabindex="-1" href="/instance/network/add/{{ instance.name }}/"><i class="icon-trash"></i> Add Address</a></li>
+                  <li class="divider"></li>
+                  <li><a tabindex="-1" href="#" class="delete" id="{{ instance.name }}"><i class="icon-trash"></i> Delete Instance</a></li>
+                </ul>
+              </div>
             </td>
           </tr>
         {% endfor %}
@@ -109,7 +118,7 @@
     <script>
       $(function() {
         // handle confirmation modal
-        $('a#delete').click(function(e) {
+        $('a.delete').click(function(e) {
           e.preventDefault();
           bootbox.confirm("Are you sure you want to delete this Instance?", function(confirmed) {
             if (confirmed) {

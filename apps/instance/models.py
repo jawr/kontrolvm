@@ -7,7 +7,6 @@ from apps.volume.models import Volume
 from apps.shared.models import Size
 from apps.installationdisk.models import InstallationDisk
 from apps.storagepool.models import StoragePool
-from apps.network.fields import MACAddressField
 from binascii import hexlify
 from xml.etree import ElementTree
 import libvirt
@@ -36,17 +35,6 @@ DETACH_DISK_TEMPLATE = \
     </disk>
   """
 
-ATTACH_FIRST_NETWORK_TEMPLATE = \
-  """
-    <interface type='bridge'>
-        <source bridge='{device}' />
-        <filterref filter='clean-traffic'>
-          <parameter name='IP' value='{ip}' />
-        </filterref>
-        <model type='virtio'/>
-        <alias name='{alias}'/>
-    </interface>
-  """
 
 ATTACH_NETWORK_TEMPLATE = \
   """
@@ -57,10 +45,8 @@ ATTACH_NETWORK_TEMPLATE = \
         </filterref>
         <model type='virtio'/>
         <alias name='{alias}'/>
-       <mac address='{mac}'/>
     </interface>
   """
-
 DETACH_NETWORK_TEMPLATE = \
   """
     <interface type='bridge'>
@@ -80,7 +66,6 @@ class Instance(models.Model):
   vcpu = models.IntegerField(max_length=2, default=1)
   memory = models.ForeignKey(Size, related_name="instance_memory")
   disk = models.ForeignKey(InstallationDisk, null=True, blank=True)
-  mac = MACAddressField(blank=True, null=True)
   # time fields
   updated = models.DateTimeField(auto_now=True)
   created = models.DateTimeField(auto_now_add=True)
@@ -210,31 +195,27 @@ class Instance(models.Model):
   def attach_network(self, address, request=None, first=False):
     dom = self.get_instance()
     if dom:
-      if first:
-        template = ATTACH_FIRST_NETWORK_TEMPLATE.format(
-          ip=address.ip,
-          device=address.network.device,
-          alias=address.ip
-        )
-
-      else:
-        template = ATTACH_NETWORK_TEMPLATE.format(ip=address.ip, mac=self.mac, device=address.network.device, alias=address.ip)
+      template = ATTACH_NETWORK_TEMPLATE.format(
+        ip=address.ip,
+        device=address.network.device,
+        alias=address.ip
+      )
       try:
         dom.attachDeviceFlags(template, 0)
-        if first:
-          tree = ElementTree.fromstring(dom.XMLDesc(0))
-          address = tree.findall('devices/interface/mac')
-          mac = address[0].get('address').upper()
-          self.mac = mac
-          #if Instance.objects.filter(mac=mac).count() > 0:
-          self.save()
+        tree = ElementTree.fromstring(dom.XMLDesc(0))
+        for i in tree.findall('devices/interface'):
+          for p in i.findall('filterref/parameter'):
+            if p.get('value') == address.ip:
+              mac = i.find('mac').get('address').upper()
+              address.mac = mac
+              address.save()
       except libvirt.libvirtError as e:
         print e
 
   def detach_network(self, address, request=None):
     dom = self.get_instance()
     if dom:
-      template = DETACH_NETWORK_TEMPLATE.format(alias=address.ip, device=address.network.device, mac=self.mac)
+      template = DETACH_NETWORK_TEMPLATE.format(alias=address.ip, device=address.network.device, mac=address.mac)
       try:
         dom.detachDeviceFlags(template, 0)
         address.delete()

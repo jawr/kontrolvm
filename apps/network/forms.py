@@ -8,3 +8,6 @@ class NetworkForm(forms.ModelForm):
 class InstanceNetworkForm(forms.ModelForm):
   class Meta:
     model = InstanceNetwork
+
+class NetworkListForm(forms.Form):
+  network = forms.ModelChoiceField(queryset=Network.objects.all())

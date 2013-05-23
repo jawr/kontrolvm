@@ -12,6 +12,7 @@ from apps.snapshot.tasks import restore_snapshot
 from apps.snapshot.models import Snapshot
 from apps.storagepool.models import StoragePool
 from apps.network.models import InstanceNetwork
+from apps.network.forms import NetworkListForm
 from django.contrib import messages
 from xml.etree import ElementTree
 import persistent_messages
@@ -270,7 +271,7 @@ def restart(request, name):
 
 @staff_member_required
 def index(request):
-  instances = Instance.objects.all()
+  instances = Instance.objects.all().order_by('pk')
   tasks = InstanceTask.objects.all()
   for instance in instances:
     instance.update()
@@ -392,3 +393,23 @@ def network_delete(request, pk):
     raise Http404
   instance.detach_network(address)
   return redirect('/instance/%s/' % (instance.name))
+
+def network_add(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+  form = NetworkListForm()
+  form['network'].queryset = instance.volume.storagepool.hypervisor.network_set.all()
+  if request.method == 'POST':
+    form = NetworkListForm(request.POST)
+    if form.is_valid():
+      address = form.cleaned_data['network'].create_unique_address()
+      address.instance = instance
+      address.save()
+      instance.attach_network(address)
+      return redirect('/instance/%s/' % (instance.name))
+  return render_to_response('instance/network_add.html',
+    {
+      'form': form,
+    },
+    context_instance=RequestContext(request))

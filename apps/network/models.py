@@ -1,4 +1,5 @@
 from django.db import models
+from apps.network.fields import MACAddressField
 from apps.hypervisor.models import Hypervisor
 from apps.instance.models import Instance
 
@@ -64,6 +65,7 @@ class InstanceNetwork(models.Model):
   ip = models.GenericIPAddressField(unique=True)
   network = models.ForeignKey(Network)
   instance = models.ForeignKey(Instance)
+  mac = MACAddressField(null=True, blank=True)
 
   def __str__(self):
     return unicode(self).encode('utf-8')
