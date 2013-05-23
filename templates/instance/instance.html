@@ -16,22 +16,22 @@
   {% endif %}
 
   <ul class="nav nav-tabs">
-    <li class="active"><a href="#controls" data-toggle="tab">Controls</a></li>
-    <li><a href="#overview" data-toggle="tab">Overview</a></li>
+    <li class="active"><a href="#controls" data-toggle="tab"><i class="icon-cog"></i> Controls</a></li>
+    <li><a href="#overview" data-toggle="tab"><i class="icon-globe"></i> Overview</a></li>
     {% if networks %}
-      <li><a href="#network" data-toggle="tab">Networks</a></li>
+      <li><a href="#network" data-toggle="tab"><i class="icon-sitemap"></i> Networks</a></li>
     {% endif %}
     {% if snapshots %}
-      <li><a href="#snapshots" data-toggle="tab">Snapshots</a></li>
+      <li><a href="#snapshots" data-toggle="tab"><i class="icon-code-fork"></i> Snapshots</a></li>
     {% endif %}
     {% if request.user.is_staff %}
-      <li><a href="#xml" data-toggle="tab">XML</a></li>
+      <li><a href="#xml" data-toggle="tab"><i class="icon-code"></i> XML</a></li>
     {% endif %}
   </ul>
 
   <div class="tab-content">
     <div class="tab-pane active" id="controls">
-      <h2>Controls <i class="icon-cog"></i> <small>Make changes to your Instance..</small></h2>
+      <h2><small>Make changes to your Instance..</small></h2>
 
       <table class="table">
         <thead>
@@ -200,7 +200,7 @@
 
     <!-- overview -->
     <div class="tab-pane" id="overview">
-      <h2>Overview <i class="icon-globe"></i> <small>A quick look at your Instance..</small></h2>
+      <h2><small>A quick look at your Instance..</small></h2>
       <table class="table table-condensed table-bordered">
         <thead>
           <tr>
@@ -247,7 +247,7 @@
     </div>
     {% if networks %}
     <div class="tab-pane" id="network">
-      <h2>Networks <i class="icon-sitemap"></i> <small>A quick look at networks for your instance..</small></h2>
+      <h2><small>A quick look at networks for your instance..</small></h2>
       <table class="table table-condensed table-bordered">
         <thead>
           <tr>
@@ -304,7 +304,7 @@
 
     {% if snapshots %}
     <div class="tab-pane" id="snapshots">
-      <h2>Snapshots <i class="icon-code-fork"></i> <small>A quick look at snapshots for your instance..</small></h2>
+      <h2><small>A quick look at snapshots for your instance..</small></h2>
       <table class="table table-condensed table-bordered">
         <thead>
           <th>Name</th>
