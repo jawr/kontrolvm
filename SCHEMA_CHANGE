@@ -1,0 +1,4 @@
+DROP TABLE network_instancenetwork CASCADE;
+DROP TABLE network_network CASCADE;
+ALTER TABLE instance_instance ALTER COLUMN mac DROP NOT NULL;
+ALTER TABLE instance_instance DROP COLUMN volume_id;

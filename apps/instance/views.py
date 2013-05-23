@@ -11,6 +11,7 @@ from apps.snapshot.forms import SnapshotForm
 from apps.snapshot.tasks import restore_snapshot
 from apps.snapshot.models import Snapshot
 from apps.storagepool.models import StoragePool
+from apps.network.models import InstanceNetwork
 from django.contrib import messages
 from xml.etree import ElementTree
 import persistent_messages
@@ -66,6 +67,8 @@ def instance_main(request, instance):
   if instance.status == 5:
     snapshots_form = SnapshotForm(instance)
 
+  networks = InstanceNetwork.objects.filter(instance=instance)
+
   response = {
     'instance': instance,
     'installationdisks_form': installationdisks_form,
@@ -73,6 +76,7 @@ def instance_main(request, instance):
     'snapshots': snapshots,
     'cpu_percent': get_cpu_usage(instance),
     'memory_percent': get_memory_usage(instance)[1],
+    'networks': networks,
   }
 
   try:
@@ -380,3 +384,11 @@ def delete_task(request, pk):
     'Delete Instance creating task of %s on %s' % (task.name, task.storagepool.hypervisor), user=task.creator)
   task.delete(request)
   return redirect('/instance/')
+
+def network_delete(request, pk):
+  address = get_object_or_404(InstanceNetwork, pk=pk)
+  instance = address.instance
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+  instance.detach_network(address)
+  return redirect('/instance/%s/' % (instance.name))

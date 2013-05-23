@@ -1,5 +1,6 @@
 from django.db import models
 from apps.hypervisor.models import Hypervisor
+from apps.instance.models import Instance
 
 class NoUniqueAddress(Exception): pass
 
@@ -7,6 +8,7 @@ class InstanceNetwork(object): pass
 
 class Network(models.Model):
   hypervisor = models.ForeignKey(Hypervisor)
+  device = models.CharField(max_length=20, default='br0')
   netmask = models.GenericIPAddressField()
   gateway = models.GenericIPAddressField()
   broadcast = models.GenericIPAddressField()
@@ -21,6 +23,9 @@ class Network(models.Model):
   def __str__(self):
     return unicode(self).encode('utf-8')
 
+  """
+    Warning, does not save address
+  """
   def create_unique_address(self):
     start = list(map(int, self.start.split(".")))
     end = list(map(int, self.end.split(".")))
@@ -50,7 +55,6 @@ class Network(models.Model):
     if not ip: raise NoUniqueAddress()
 
     address = InstanceNetwork(ip=ip, network=self)
-    address.save()
     return address
 
   def get_number_of_instances(self):
@@ -59,6 +63,7 @@ class Network(models.Model):
 class InstanceNetwork(models.Model):
   ip = models.GenericIPAddressField(unique=True)
   network = models.ForeignKey(Network)
+  instance = models.ForeignKey(Instance)
 
   def __str__(self):
     return unicode(self).encode('utf-8')

@@ -287,7 +287,7 @@
                     <li><a {% if not instance.network.reversedns_set.all.0.rdns %}class="disabled-link"{% endif %} tabindex="-1" href="/reversedns/delete/{{ instance.network.id }}/"><i class="icon-trash"></i> rDNS - Delete</a></li>
                     {% if request.user.is_staff %}
                       <li class="divider"></li>
-                      <li><a tabindex="-1" href="/instance/network/add/"><i class="icon-plus"></i> Add Address</a></li>
+                      <li><a tabindex="-1" href="/instance/network/delete/{{ network.pk }}/"><i class="icon-trash"></i> Remove Address</a></li>
                     {% endif %}
                 </ul>
               </div>

@@ -20,7 +20,7 @@ def create_instance(instancetask_name):
   try:
     network_address = instancetask.network.create_unique_address()
   except NoUniqueAddress:
-    return {'custum_state': 'FAILURE', 'msg': 'Error while creating instance: No unique address available on specified network (%s)' % (instancetask.network)}
+    return {'custum_state': 'FAILURE', 'msg': 'Error creating instance: No unique address available on specified network (%s)' % (instancetask.network)}
 
   request = HttpRequest()
   storagepool = instancetask.storagepool.get_storagepool()
@@ -76,14 +76,6 @@ def create_instance(instancetask_name):
             <controller type='ide' index='0'>
                 <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x1'/>
             </controller>
-            <interface type='bridge'>
-                <source bridge='br0' />
-                <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
-                <filterref filter='clean-traffic'>
-                  <parameter name='IP' value='%s' />
-                </filterref>
-                <model type='virtio'/>
-            </interface>
             <input type='tablet' bus='usb'/>
             <input type='mouse' bus='ps2'/>
             <graphics type='vnc' port='-1' autoport='yes'>
@@ -99,7 +91,7 @@ def create_instance(instancetask_name):
       </devices>
   </domain>""" \
     % (instancetask.name, instancetask.memory.size, instancetask.memory.size, 
-      instancetask.vcpu, volume.path(), network_address.ip, volume.storagepool.hypervisor.address)
+      instancetask.vcpu, volume.path(), volume.storagepool.hypervisor.address)
   print xml
   con = instancetask.storagepool.hypervisor.get_connection()
   if not con:
@@ -126,16 +118,6 @@ def create_instance(instancetask_name):
     # shutdown initially so that user can pick their own install medium
     instance.destroy()
 
-    # get mac info and setup network
-    tree = ElementTree.fromstring(instance.XMLDesc(0))
-    address = tree.findall('devices/interface/mac')
-    mac = address[0].get('address').upper()
-    print "MAC: %s" % (mac)
-    if Instance.objects.filter(mac=mac).count() > 0:
-      return {'custum_state': 'FAILURE', 'msg': 'Error while creating instance: MAC address is already being used (%s)' % (mac)}
-
-      
-
     # switch instance task for an instance
     new_instance = Instance.objects.create(
       name=instancetask.name,
@@ -146,12 +128,17 @@ def create_instance(instancetask_name):
       memory=instancetask.memory,
       disk=instancetask.disk,
       created=instancetask.created,
-      mac=mac,
-      network=network_address,
       initialised=False,
     )
     new_instance.save()
+
+    network_address.instance = new_instance
+    network_address.save() 
+
+    new_instance.attach_network(network_address, None, True)
+
     instancetask.delete(False)
+
   except libvirt.libvirtError as e:
     return {'custom_state': 'FAILURE', 'msg': 'Error while creating instance: %s' % (e)}
 

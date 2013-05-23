@@ -8,7 +8,6 @@ from apps.shared.models import Size
 from apps.installationdisk.models import InstallationDisk
 from apps.storagepool.models import StoragePool
 from apps.network.fields import MACAddressField
-from apps.network.models import Network, InstanceNetwork
 from binascii import hexlify
 from xml.etree import ElementTree
 import libvirt
@@ -37,6 +36,40 @@ DETACH_DISK_TEMPLATE = \
     </disk>
   """
 
+ATTACH_FIRST_NETWORK_TEMPLATE = \
+  """
+    <interface type='bridge'>
+        <source bridge='{device}' />
+        <filterref filter='clean-traffic'>
+          <parameter name='IP' value='{ip}' />
+        </filterref>
+        <model type='virtio'/>
+        <alias name='{alias}'/>
+    </interface>
+  """
+
+ATTACH_NETWORK_TEMPLATE = \
+  """
+    <interface type='bridge'>
+        <source bridge='{device}' />
+        <filterref filter='clean-traffic'>
+          <parameter name='IP' value='{ip}' />
+        </filterref>
+        <model type='virtio'/>
+        <alias name='{alias}'/>
+       <mac address='{mac}'/>
+    </interface>
+  """
+
+DETACH_NETWORK_TEMPLATE = \
+  """
+    <interface type='bridge'>
+        <source bridge='{device}' />
+        <alias name='{alias}'/>
+        <mac address='{mac}'/>
+    </interface>
+  """
+
 class Instance(models.Model):
   name = models.CharField(max_length=100)
   alias = models.CharField(max_length=100, default="My Instance", null=True, blank=True)
@@ -47,8 +80,7 @@ class Instance(models.Model):
   vcpu = models.IntegerField(max_length=2, default=1)
   memory = models.ForeignKey(Size, related_name="instance_memory")
   disk = models.ForeignKey(InstallationDisk, null=True, blank=True)
-  mac = MACAddressField()
-  network = models.ForeignKey(InstanceNetwork)
+  mac = MACAddressField(blank=True, null=True)
   # time fields
   updated = models.DateTimeField(auto_now=True)
   created = models.DateTimeField(auto_now_add=True)
@@ -82,7 +114,16 @@ class Instance(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "%s // %s // %d VCPUs / %s RAM / %s HDD" % (self.alias, self.network.ip, self.vcpu, self.memory.name, self.volume.capacity.name)
+    return "%s / %d VCPUs / %s RAM / %s HDD" % (self.alias, self.vcpu, self.memory.name, self.volume.capacity.name)
+
+  def get_xml(self):
+    dom = self.get_instance()
+    if dom: 
+      try:
+        return dom.XMLDesc(0)
+      except libvirt.libvirtError as e:
+        return e
+    return  "Error"
 
   def get_vnc_port(self):
     instance = self.get_instance()
@@ -128,7 +169,6 @@ class Instance(models.Model):
           if str(e) != 'Requested operation is not valid: domain is not running': raise e
         instance.undefine()
         self.volume.delete(request)
-        self.network.delete()
         if request:
           persistent_messages.add_message(request, persistent_messages.SUCCESS, 'Deleted Instance %s' % (self))
           if request.user != self.user:
@@ -166,7 +206,40 @@ class Instance(models.Model):
       messages.add_message(request, persistent_messages.ERROR, 'Unable to unmount disk on %s, unable to get dom' % (self.name))
     elif request:
       messages.add_message(request, persistent_messages.ERROR, 'Unable to unmount disk on %s' % (self.name))
-        
+
+  def attach_network(self, address, request=None, first=False):
+    dom = self.get_instance()
+    if dom:
+      if first:
+        template = ATTACH_FIRST_NETWORK_TEMPLATE.format(
+          ip=address.ip,
+          device=address.network.device,
+          alias=address.ip
+        )
+
+      else:
+        template = ATTACH_NETWORK_TEMPLATE.format(ip=address.ip, mac=self.mac, device=address.network.device, alias=address.ip)
+      try:
+        dom.attachDeviceFlags(template, 0)
+        if first:
+          tree = ElementTree.fromstring(dom.XMLDesc(0))
+          address = tree.findall('devices/interface/mac')
+          mac = address[0].get('address').upper()
+          self.mac = mac
+          #if Instance.objects.filter(mac=mac).count() > 0:
+          self.save()
+      except libvirt.libvirtError as e:
+        print e
+
+  def detach_network(self, address, request=None):
+    dom = self.get_instance()
+    if dom:
+      template = DETACH_NETWORK_TEMPLATE.format(alias=address.ip, device=address.network.device, mac=self.mac)
+      try:
+        dom.detachDeviceFlags(template, 0)
+        address.delete()
+      except libvirt.libvirtError as e:
+        print e 
 
   def attach_disk(self, disk, request=None):
     if disk == None:
@@ -229,7 +302,7 @@ class InstanceTask(models.Model):
   capacity = models.ForeignKey(Size, related_name="instancetask_capacity")
   disk = models.ForeignKey(InstallationDisk, null=True, blank=True)
   volume = models.OneToOneField(Volume, null=True, blank=True)
-  network = models.ForeignKey(Network)
+  network = models.ForeignKey('network.Network')
   # time fields
   updated = models.DateTimeField(auto_now=True)
   created = models.DateTimeField(auto_now_add=True)
