@@ -14,9 +14,8 @@ from django.contrib import messages
 import persistent_messages
 import simplejson
 
+@staff_member_required
 def view(request, pk):
-  if not request.user.is_staff: raise Http404
-
   instance = get_object_or_404(Hypervisor, pk=pk)
 
   storagepools = StoragePool.objects.filter(hypervisor=instance)
@@ -64,16 +63,23 @@ def view(request, pk):
     },
     context_instance=RequestContext(request))
 
+@staff_member_required
 def index(request):
-  if not request.user.is_staff: raise Http404
   hypervisors = Hypervisor.objects.all()
   return render_to_response('hypervisor/index.html', {
       'hypervisors': hypervisors,
     },
     context_instance=RequestContext(request))
 
+@staff_member_required
+def initalize(request, pk):
+  instance = get_object_or_404(Hypervisor, pk=pk)
+  instance.status = 'IN'
+  instance.save()
+  return redirect('/hypervisor/%d/' % (instance.pk))
+
+@staff_member_required
 def add(request):
-  if not request.user.is_staff: raise Http404
   form = HypervisorForm()
   
   if request.method == "POST":
@@ -99,8 +105,8 @@ def add(request):
     },
     context_instance=RequestContext(request))
 
+@staff_member_required
 def edit(request):
-  if not request.user.is_staff: raise Http404
   if request.is_ajax() and request.method == 'POST':
     json = request.POST
     try:
@@ -146,30 +152,30 @@ def edit(request):
     return HttpResponse('{}', mimetype="application/json")
   raise Http404
 
+@staff_member_required
 def start(request, pk):
-  if not request.user.is_staff: raise Http404
   hypervisor = get_object_or_404(Hypervisor, pk=pk)
   hypervisor.start()
   messages.add_message(request, persistent_messages.SUCCESS,
     'Started Hypervisor %s' % (hypervisor))
   return redirect('/hypervisor/')
   
+@staff_member_required
 def stop(request, pk):
-  if not request.user.is_staff: raise Http404
   hypervisor = get_object_or_404(Hypervisor, pk=pk)
   hypervisor.stop()
   messages.add_message(request, persistent_messages.SUCCESS,
     'Stopped Hypervisor %s' % (hypervisor))
   return redirect('/hypervisor/')
 
+@staff_member_required
 def delete(request, pk):
-  if not request.user.is_staff: raise Http404
   hypervisor = get_object_or_404(Hypervisor, pk=pk)
   hypervisor.delete()
   return redirect('/hypervisor/')
 
+@staff_member_required
 def update(request, pk):
-  if not request.user.is_staff: raise Http404
   hypervisor = get_object_or_404(Hypervisor, pk=pk)
   conn = hypervisor.get_connection(True)
   return redirect('/hypervisor/')

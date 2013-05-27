@@ -99,16 +99,17 @@ def initalize_hypervisor_instances(hypervisor):
 
       instance_network = None
       # might need to detect multiple networks here, apeend to list
-      for param in xml.getElementsByTagName('parameter'):
-        if param.getAttributeNode('name').nodeValue == 'IP':
-          instance_network = param.getAttributeNode('value').nodeValue
-      if instance_network:
-        instance_network, created = InstanceNetwork.objects.get_or_create(
-          ip=instance_network,
-          network=network
-        )
-      else:
-        instance_network = network.create_unique_address()
+#      for param in xml.getElementsByTagName('parameter'):
+#        if param.getAttributeNode('name').nodeValue == 'IP':
+#          instance_network = param.getAttributeNode('value').nodeValue
+#      if instance_network:
+#        instance_network, created = InstanceNetwork.objects.get_or_create(
+#          ip=instance_network,
+#          network=network,
+#          
+#        )
+#      else:
+#        instance_network = network.create_unique_address()
 
       print "Create instance object..."
 
@@ -120,9 +121,7 @@ def initalize_hypervisor_instances(hypervisor):
           creator=dummy_user,
           vcpu=vcpus,
           memory=memory_size,
-          mac=mac,
           volume=volume,
-          network=instance_network,
         )
         instance.save() 
   print "DONE..." 
