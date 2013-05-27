@@ -13,7 +13,10 @@ def add(request):
   form = NetworkForm()
   if request.method == 'POST':
     form = NetworkForm(request.POST)
+    print form.errors
+    
     if form.is_valid():
+      print "is vali"
       form.save()
       return redirect('/network/')
 

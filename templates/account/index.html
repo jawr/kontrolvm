@@ -38,7 +38,7 @@
           {% for instance in my_instances_online %}
             <tr>
               <td><a href="/instance/{{ instance.name }}/">{{ instance.alias }}</a></td>
-              <td>{{ instance.network.ip }}</td>
+              <td>{{ instance.instancenetwork_set.all.0.ip }}</td>
               <td>{{ instance.vcpu }}</td>
               <td>{{ instance.memory.name }}</td>
               <td>{{ instance.volume.capacity.name }}</td>
@@ -67,7 +67,7 @@
           {% for instance in my_instances_offline %}
             <tr>
               <td><a href="/instance/{{ instance.name }}/">{{ instance.alias }}</a></td>
-              <td>{{ instance.network.ip }}</td>
+              <td>{{ instance.instancenetwork_set.all.0.ip }}</td>
               <td>{{ instance.vcpu }}</td>
               <td>{{ instance.memory.name }}</td>
               <td>{{ instance.volume.capacity.name }}</td>
@@ -84,7 +84,7 @@
     </div>
       {% if request.user.is_staff %}
       <div class="tab-pane fade" id="admin"> 
-        <h2>Admin <i class="icon-flag"></i> <small>A Quick overview of nodes...</small></h2>
+        <h2>Admin <i class="icon-flag"></i> <small>A Quick overview of nodes..</small></h2>
         <div class="span3">
           <table class="table table-condensed table-striped">
             <tr>
@@ -202,7 +202,7 @@
       </div>
       {% endif %}
     <div class="tab-pane fade {% if request.GET.page %}in active{% endif %}" id="messages">
-      <h2>Messages</h2>
+      <h2>Messages <i class="icon-envelope"></i> <small>A look at your messages..</small></h2>
       {% load message_utils %}
       {% if unread_messages %}
         <h3>Unread messages</h3>
@@ -212,10 +212,10 @@
             {% if message.is_persistent %}<small><a class="muted" href="{% url 'message_mark_read' message.pk %}">mark as read</a> - {{ message.created }}</small>{% endif %}
           </blockquote>
         {% endfor %}
+        <h3>Read messages</h3>
       {% endif %}
       {% if read_messages %}
         {% load pagination_tags %}
-        <h3>Read messages</h3>
         {% autopaginate read_messages 4 %}
         {% for message in read_messages %}
           <blockquote>
