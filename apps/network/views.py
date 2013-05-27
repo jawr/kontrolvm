@@ -29,6 +29,15 @@ def add(request):
 @staff_member_required
 def index(request):
   rows = Network.objects.all()
+  for row in rows:
+    (rx, tx) = (0,0)
+    for i in InstanceNetwork.objects.filter(network=row):
+      (_rx,_tx) = i.get_stats()
+      rx += _rx
+      tx += _tx
+    row.rx = rx
+    row.tx = tx
+
   return render_to_response('network/index.html',
     {
     'rows': rows,

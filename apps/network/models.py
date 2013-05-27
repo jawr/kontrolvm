@@ -77,7 +77,7 @@ class InstanceNetwork(models.Model):
 
   def get_stats(self):
     dom = self.instance.get_instance()
-    (rx, tx) = (None, None)
+    (rx, tx) = (0,0)
     if dom:
       xml = ElementTree.fromstring(dom.XMLDesc(0))
       for iface in xml.findall('.//devices/interface'):

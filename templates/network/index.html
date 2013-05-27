@@ -1,19 +1,22 @@
 {% extends 'base_fluid.html' %}
 {% block title %}Networks{% endblock %}
 {% block content %}
+{% load size_utils %}
 <h1>Networks <i class="icon-sitemap"></i></h1>
 <p>Overview of Networks. <a href="/network/add/">Add another</a></p>
 <table class="table table-condensed table-striped table-bordered">
   <thead>
     <th>Hypervisor</th>
-    <th>Device</th>
+    <th>Dev</th>
     <th>Netmask</th>
     <th>Gateway</th>
     <th>Broadcast</th>
     <th>Network</th>
     <th>Start</th>
     <th>End</th>
-    <th>Instances</th>
+    <th>RX</th>
+    <th>TX</th>
+    <th><i class="icon-laptop"></i></th>
   </thead>
   <tbody>
   {% for row in rows %}
@@ -26,6 +29,8 @@
       <td><a href="#" class="network" data-pk="{{ row.id }}">{{ row.network }}</a></td>
       <td><a href="#" class="start" data-pk="{{ row.id }}">{{ row.start }}</a></td>
       <td><a href="#" class="end" data-pk="{{ row.id }}">{{ row.end }}</a></td>
+      <td>{{ row.rx|to_human_readable }}</td>
+      <td>{{ row.tx|to_human_readable }}</td>
       <td>{{ row.get_number_of_instances }}</td>
     </tr>
   {% endfor %}
