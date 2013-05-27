@@ -258,6 +258,8 @@
             <th>Gateway</th>
             <th>Netmask</th>
             <th>Broadcast</th>
+            <th>RX</th>
+            <th>TX</th>
             <th width="10" style="text-align:center;"><i class="icon-cog"></i></th>
           </tr>
         </thead>
@@ -279,6 +281,9 @@
             <td>{{ network.network.gateway }}</td>
             <td>{{ network.network.netmask }}</td>
             <td>{{ network.network.broadcast }}</td>
+            {% load size_utils %}
+            <td>{{ network.get_stats.0|to_human_readable }}</td>
+            <td>{{ network.get_stats.1|to_human_readable }}</td>
             <td>
               <div class="dropdown">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">

@@ -2,6 +2,8 @@ from django.db import models
 from apps.network.fields import MACAddressField
 from apps.hypervisor.models import Hypervisor
 from apps.instance.models import Instance
+from xml.etree import ElementTree
+import libvirt
 
 class NoUniqueAddress(Exception): pass
 
@@ -72,3 +74,15 @@ class InstanceNetwork(models.Model):
 
   def __unicode__(self):
     return "%s [%s]" % (self.network, self.ip)
+
+  def get_stats(self):
+    dom = self.instance.get_instance()
+    (rx, tx) = (None, None)
+    if dom:
+      xml = ElementTree.fromstring(dom.XMLDesc(0))
+      for iface in xml.findall('.//devices/interface'):
+        mac = iface.find('mac').get('address')
+        if mac.upper() == self.mac:
+          iface_name = iface.find('target').get('dev')
+          rx, _, _, _, tx, _, _, _ = dom.interfaceStats(iface_name)
+    return (rx, tx)
