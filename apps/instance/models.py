@@ -277,8 +277,6 @@ class InstanceTask(models.Model):
   storagepool = models.ForeignKey(StoragePool)
   creator = models.ForeignKey(User)
   vcpu = models.IntegerField(max_length=2, default=1)
-  #memory = models.IntegerField(default=268435456) # 256MB
-  #capacity = models.BigIntegerField(default=1073741824) # 1GB
   memory = models.ForeignKey(Size, related_name="instancetask_memory")
   capacity = models.ForeignKey(Size, related_name="instancetask_capacity")
   disk = models.ForeignKey(InstallationDisk, null=True, blank=True)
