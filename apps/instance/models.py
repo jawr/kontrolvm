@@ -99,7 +99,7 @@ class Instance(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "%s / %d VCPUs / %s RAM / %s HDD" % (self.alias, self.vcpu, self.memory.name, self.volume.capacity.name)
+    return "%s / %d VCPUs / %s RAM / %s HDD / %s" % (self.alias, self.vcpu, self.memory.name, self.volume.capacity.name, self.name)
 
   def get_xml(self):
     dom = self.get_instance()
