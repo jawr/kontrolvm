@@ -31,9 +31,10 @@ def approve(request, id):
 @login_required
 def request(request, id, name):
   instance = get_object_or_404(Instance, name=name)
+  print instance
   network = get_object_or_404(InstanceNetwork, id=id)
 
-  if instance.user != request.user or not request.user.is_staff:
+  if instance.user != request.user and not request.user.is_staff:
     raise Http404
 
   if ReverseDNSRequest.objects.filter(net=network).count() > 0:
@@ -75,3 +76,10 @@ def approved(request):
       'rows': rows,
     },
     context_instance=RequestContext(request))
+
+@staff_member_required
+def request_delete(request, id):
+  req = get_object_or_404(ReverseDNSRequest, id=id)
+  url = '/instance/%s/' % (req.instance.name)
+  req.delete()
+  return redirect(url)
