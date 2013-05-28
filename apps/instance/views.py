@@ -61,6 +61,26 @@ def instance_form(request, name, form):
   return instance_main(request, instance)
 
 def instance_main(request, instance):
+
+  # internal cache
+  cache = request.session.get(instance.name, False)
+  if cache:
+    if (time.time() - cache['time']) > 30.0:
+      cache = {
+        'time': time.time(),
+        'cpu_percent': get_cpu_usage(instance),
+        'memory_percent': get_memory_usage(instance)[1],
+      }
+      request.session[instance.name] = cache
+      
+  else: 
+    cache = {
+      'time': time.time(),
+      'cpu_percent': get_cpu_usage(instance),
+      'memory_percent': get_memory_usage(instance)[1],
+    }
+    request.session[instance.name] = cache
+
   snapshots = Snapshot.objects.filter(instance=instance)
 
   installationdisks_form = InstallationDisksForm(instance)
@@ -75,8 +95,8 @@ def instance_main(request, instance):
     'installationdisks_form': installationdisks_form,
     'snapshots_form': snapshots_form,
     'snapshots': snapshots,
-    'cpu_percent': get_cpu_usage(instance),
-    'memory_percent': get_memory_usage(instance)[1],
+    'cpu_percent': request.session[instance.name]['cpu_percent'],
+    'memory_percent': request.session[instance.name]['memory_percent'],
     'networks': networks,
   }
 
