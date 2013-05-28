@@ -223,7 +223,7 @@
             <th>Usage</th>
             <td>
               <div class="progress progress-striped">
-                <div class="bar" style="width: {{ cpu_percent }}%;"><p {% if cpu_percent < 2 %}style="color:black;padding-left:12px;"{% endif %}>{{ cpu_percent }}%</p></div>
+                <div class="bar" style="width: {{ cpu_percent }}%;"></div><span class="label pull-right">{{ cpu_percent }}%</span>
               </div>
             </td>
           </tr>
@@ -233,7 +233,7 @@
             <th>Usage</th>
             <td>
               <div class="progress progress-striped">
-                <div class="bar" style="width: {{ memory_percent }}%;"><p>{{ memory_percent }}%</p></div>
+                <div class="bar" style="width: {{ memory_percent }}%;"></div><span class="label pull-right">{{ memory_percent }}%</span>
               </div>
             </td>
           </tr>
@@ -291,8 +291,8 @@
             <td>{{ network.network.netmask }}</td>
             <td>{{ network.network.broadcast }}</td>
             {% load size_utils %}
-            <td>{{ network.get_stats.0|to_human_readable }}</td>
-            <td>{{ network.get_stats.1|to_human_readable }}</td>
+            <td><span class="label label-info">{{ network.get_stats.0|to_human_readable }}</span></td>
+            <td><span class="label">{{ network.get_stats.1|to_human_readable }}</span></td>
             <td>
               <div class="dropdown">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
