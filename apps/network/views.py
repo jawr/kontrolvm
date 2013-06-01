@@ -78,3 +78,9 @@ def edit(request):
       raise Http404
     return HttpResponse('{}', mimetype="application/json")
   raise Http404
+
+@staff_member_required
+def delete(request, pk):
+  network = get_object_or_404(Network, pk=pk)
+  network.delete()
+  return redirect('/network/')

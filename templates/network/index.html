@@ -39,7 +39,7 @@
             <span class="caret"></span>
           </a>
           <ul class="dropdown-menu pull-right" role="menu">
-            <li><a tabindex="-1" href="/network/delete/{{ row.id }}/"><i class="icon-trash"></i> Delete</a></li>
+            <li><a id="{{ row.id }}" class="delete-network" tabindex="-1" href="#"><i class="icon-trash"></i> Delete</a></li>
           </ul>
         </div>
       </td>
@@ -49,6 +49,14 @@
 </table>
 <script>
   $(function() {
+    $('a.delete-network').click(function(e) {
+      e.preventDefault();
+      bootbox.confirm("Are you sure you want to delete this Network?", function(confirmed) {
+        if (confirmed) {
+          window.location = '/network/delete/' + e.srcElement.id + '/';
+        }
+      });
+    });
     $('.netmask').editable({
       type: 'text',
       url: '/network/edit/',
