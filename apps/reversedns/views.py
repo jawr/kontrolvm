@@ -59,6 +59,7 @@ def request(request, id, name):
       'form': form,
     },
     context_instance=RequestContext(request))
+
 @staff_member_required
 def requests(request):
   rows = ReverseDNSRequest.objects.all()

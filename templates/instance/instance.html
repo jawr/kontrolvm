@@ -281,7 +281,7 @@
                 {% elif network.reversednsrequest_set.all.0 %}
                   Requesting: <b>{{ network.reversednsrequest_set.all.0.rdns }}</b>
                 {% else %}
-                  Nothing set
+                  {{ network.get_real_rdns }}
                 {% endif %}
             </td>
             <td>{{ network.ip }}</td>
@@ -298,7 +298,7 @@
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                   <span class="caret"></span>
                 </a>
-                <ul class="dropdown-menu" role="menu">
+                <ul class="dropdown-menu pull-right" role="menu">
                     <li><a tabindex="-1" {% if network.reversednsrequest_set.all|length > 0 %}class="disabled-link"{% endif %} href="/reversedns/request/{{ network.id }}/{{ instance.name }}/"><i class="icon-legal"></i> rDNS - Request</a></li>
                     <li><a tabindex="-1" {% if network.reversednsrequest_set.all|length == 0 %}class="disabled-link"{% endif %} href="/reversedns/request/delete/{{ network.reversednsrequest_set.all.0.id }}/"><i class="icon-ban-circle"></i> rDNS - Cancel</a></li>
                     <li><a {% if not .network.reversedns_set.all.0.rdns %}class="disabled-link"{% endif %} tabindex="-1" href="/reversedns/delete/{{ network.id }}/"><i class="icon-trash"></i> rDNS - Delete</a></li>

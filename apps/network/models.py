@@ -4,6 +4,7 @@ from apps.hypervisor.models import Hypervisor
 from apps.instance.models import Instance
 from xml.etree import ElementTree
 import libvirt
+import socket
 
 class NoUniqueAddress(Exception): pass
 
@@ -79,10 +80,17 @@ class InstanceNetwork(models.Model):
     dom = self.instance.get_instance()
     (rx, tx) = (0,0)
     if dom:
-      xml = ElementTree.fromstring(dom.XMLDesc(0))
-      for iface in xml.findall('.//devices/interface'):
-        mac = iface.find('mac').get('address')
-        if mac.upper() == self.mac:
-          iface_name = iface.find('target').get('dev')
-          rx, _, _, _, tx, _, _, _ = dom.interfaceStats(iface_name)
+      try:
+        xml = ElementTree.fromstring(dom.XMLDesc(0))
+        for iface in xml.findall('.//devices/interface'):
+          mac = iface.find('mac').get('address')
+          if mac.upper() == self.mac:
+            iface_name = iface.find('target').get('dev')
+            rx, _, _, _, tx, _, _, _ = dom.interfaceStats(iface_name)
+      except Exception as e:
+        print e
     return (rx, tx)
+
+  def get_real_rdns(self):
+    tmp = socket.gethostbyaddr(self.ip)
+    return tmp[0]
