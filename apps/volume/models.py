@@ -9,6 +9,17 @@ import persistent_messages
 import os
 import libvirt
 
+VOLUME_TEMPLATE = """
+  <volume>
+    <name>%s.qcow2</name>
+    <capacity>%s</capacity>
+    <allocation>0</allocation>
+    <target>
+      <format type="qcow2" />
+    </target>
+  </volume>
+"""
+
 class Volume(models.Model):
   name = models.CharField(max_length=100, unique=True)
   device_name = models.CharField(max_length=20, null=True, blank=True)
@@ -66,16 +77,7 @@ class Volume(models.Model):
   def create(self, request=None):
     pool = self.storagepool.get_storagepool()
     if pool:
-      xml = """
-        <volume>
-          <name>%s.qcow2</name>
-          <capacity>%s</capacity>
-          <allocation>0</allocation>
-          <target>
-            <format type="qcow2" />
-          </target>
-        </volume>""" \
-          % (self.name, self.capacity.size)
+      xml = VOLUME_TEMPLATE % (self.name, self.capacity.size)
       try:
         pool.createXML(xml, 0)
         return True
@@ -87,6 +89,25 @@ class Volume(models.Model):
     else:
       persistent_messages.add_message(request, persistent_messages.ERROR, 'Unable to create Volume %s (Unable to connect to Storage Pool)' % (self.name))
       return False
+
+  def clone(self):
+    pool = self.storagepool.get_storagepool()
+    if pool:
+      try:
+        new_name = self.create_random_name()
+        xml = VOLUME_TEMPLATE % (new_name, self.capacity.size)
+        base_vol = pool.storageVolLookupByName('%s.qcow2' % (self.name))
+        pool.createXMLFrom(xml, base_vol, 0)
+        volume = Volume(
+          name=new_name,
+          storagepool=self.storagepool,
+          capacity=self.capacity
+        )
+        volume.save()
+        return volume
+      except libvirt.libvirtError as e:
+        print e
+    return None
 
   """
     Used to create a random name.

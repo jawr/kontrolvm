@@ -96,6 +96,7 @@ class Instance(models.Model):
     (NONE, 'None'),
   )
   status = models.IntegerField(max_length=1, choices=STATUS_CHOICES, default=NONE)
+  base = models.BooleanField(default=False, editable=False)
 
   def __str__(self):
     return unicode(self).encode('utf-8')

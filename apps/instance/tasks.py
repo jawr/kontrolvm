@@ -10,37 +10,7 @@ from xml.etree import ElementTree
 import persistent_messages
 import libvirt
 
-@task()
-def create_instance(instancetask_name):
-  try:
-    instancetask = InstanceTask.objects.get(name=instancetask_name)
-  except InstanceTask.DoesNotExist:
-    return {'custum_state': 'FAILURE', 'msg': 'Unable to find InstanceTask with name: %s' % (instancetask_name)}
-
-  try:
-    network_address = instancetask.network.create_unique_address()
-  except NoUniqueAddress:
-    return {'custum_state': 'FAILURE', 'msg': 'Error creating instance: No unique address available on specified network (%s)' % (instancetask.network)}
-
-  request = HttpRequest()
-  storagepool = instancetask.storagepool.get_storagepool()
-  if not storagepool:
-    return {'custom_state': 'FAILURE', 'msg': 'Unable to get Storage Pool %s' % (instancetask.storagepool)}
-
-  volume_name = Volume.create_random_name()
-  (volume, created) = Volume.objects.get_or_create(
-    name=volume_name,
-    storagepool=instancetask.storagepool,
-    capacity=instancetask.capacity
-  )
-  if created: volume.save()
-  if not volume.create(request):
-    volume.delete()
-    return {'custom_state': 'FAILURE', 'msg': 'Unable to create Volume on %s' % (instancetask.storagepool)}
-  instancetask.volume = volume
-  instancetask.save()
-
-  xml = """
+INSTANCE_TEMPLATE = """
     <domain type='kvm'>
         <name>%s</name>
         <memory unit="b">%d</memory>
@@ -89,8 +59,100 @@ def create_instance(instancetask_name):
                 <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
           </memballoon>
       </devices>
-  </domain>""" \
-    % (instancetask.name, instancetask.memory.size, instancetask.memory.size, 
+  </domain>
+"""
+
+@task()
+def create_clone(instance_name):
+  try:
+    instance = Instance.objects.get(name=instance_name)
+  except Instance.DoesNotExist:
+    return {'custom_state': 'FAILURE': 'msg': 'Unable to find Instance with name: %s' % (instance_name)}
+
+  instance.update(True)
+  if instance.status != 5:
+    return {'custom_state': 'FAILURE': 'msg': 'Error, Base Instance must be shutdown to clone'}
+
+  # clone volume
+  volume = instance.volume.clone()
+  if not volume:
+    return {'custom_state': 'FAILURE': 'msg': 'Unable to clone Base Instance\'s Volume'}
+
+
+  new_instance_name = InstanceTask.get_random_name()
+
+  xml = INSTANCE_TEMPLATE % (new_instance_name, instance.memory.size, instance.memory.size, 
+      instance.vcpu, volume.path(), volume.storagepool.hypervisor.address)
+  
+  try:
+    con.defineXML(xml)
+    current_task.update_state(state='PROGRESS', meta={
+      'percent': 15,
+      'msg': 'Defined XML'
+    })
+    dom = con.lookupByName(new_instance_name)
+    dom.setAutostart(1)
+    current_task.update_state(state='PROGRESS', meta={
+      'percent': 50,
+      'msg': 'Set Autostart',
+    })
+    dom.create()
+    current_task.update_state(state='PROGRESS', meta={
+      'percent': 75,
+      'msg': 'Creating the Clone on the Hypervisor..',
+    })
+
+    # shutdown initially so that user can pick their own install medium
+    dom.destroy()
+  except libvirt.libvirtErrorr as e:
+    return {'custom_state': 'FAILURE', 'msg': 'Error while cloning instance: %s' % (e)}
+
+  new_instance = Instance.objects.create(
+    name=new_instance_name,
+    volume=volume,
+    # fix this.. make a baseinstancetask?
+    user=instance.user,
+    creator=instance.user,
+    #
+    vcpu=instance.vcpu,
+    memory=instance.memory,
+    disk=instance.disk,
+    initialised=False
+  )
+  new_instance.save()
+    
+
+@task()
+def create_instance(instancetask_name):
+  try:
+    instancetask = InstanceTask.objects.get(name=instancetask_name)
+  except InstanceTask.DoesNotExist:
+    return {'custum_state': 'FAILURE', 'msg': 'Unable to find InstanceTask with name: %s' % (instancetask_name)}
+
+  try:
+    network_address = instancetask.network.create_unique_address()
+  except NoUniqueAddress:
+    return {'custum_state': 'FAILURE', 'msg': 'Error creating instance: No unique address available on specified network (%s)' % (instancetask.network)}
+
+  request = HttpRequest()
+  storagepool = instancetask.storagepool.get_storagepool()
+  if not storagepool:
+    return {'custom_state': 'FAILURE', 'msg': 'Unable to get Storage Pool %s' % (instancetask.storagepool)}
+
+  volume_name = Volume.create_random_name()
+  (volume, created) = Volume.objects.get_or_create(
+    name=volume_name,
+    storagepool=instancetask.storagepool,
+    capacity=instancetask.capacity
+  )
+  if created: volume.save()
+  if not volume.create(request):
+    volume.delete()
+    return {'custom_state': 'FAILURE', 'msg': 'Unable to create Volume on %s' % (instancetask.storagepool)}
+  instancetask.volume = volume
+  instancetask.save()
+
+  xml = INSTANCE_TEMPLATE % (instancetask.name, instancetask.memory.size, instancetask.memory.size, 
       instancetask.vcpu, volume.path(), volume.storagepool.hypervisor.address)
   print xml
   con = instancetask.storagepool.hypervisor.get_connection()
