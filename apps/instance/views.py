@@ -15,6 +15,7 @@ from apps.network.models import InstanceNetwork
 from apps.network.forms import NetworkListForm
 from django.contrib import messages
 from xml.etree import ElementTree
+from utils import node
 import persistent_messages
 import simplejson
 import libvirt
@@ -45,7 +46,6 @@ def instance(request, name):
 
 @login_required
 def instance_form(request, name, form):
-  print "OIOI"
   instance = instance_init(request, name)
   if request.method == 'POST':
     if form == 'installation_disk':
@@ -89,6 +89,11 @@ def instance_main(request, instance):
     snapshots_form = SnapshotForm(instance)
 
   networks = InstanceNetwork.objects.filter(instance=instance)
+  hypervisor = instance.volume.storagepool.hypervisor
+  for network in networks:
+    (rx, tx) = network.get_rx_tx()
+    network.rx = rx
+    network.tx = tx
 
   response = {
     'instance': instance,
@@ -100,13 +105,13 @@ def instance_main(request, instance):
     'networks': networks,
   }
 
+  # possibly move this into the instance creation task
   try:
-    dom = instance.get_instance()
-    if dom:
-      tree = ElementTree.fromstring(dom.XMLDesc(0))
-
-      # ensure our volume has it's device name
-      if not instance.volume.device_name:
+    # ensure our volume has it's device name
+    if not instance.volume.device_name:
+      dom = instance.get_instance()
+      if dom:
+        tree = ElementTree.fromstring(dom.XMLDesc(0))
         for dev in tree.findall('devices/disk'):
           path = dev.find('source')
           if path is not None: path = path.get('file')
@@ -115,7 +120,6 @@ def instance_main(request, instance):
             instance.volume.device_name = "/dev/%s" % (dev.find('target').get('dev'))
             instance.volume.save()
             break
-
   except libvirt.libvirtError as e:
     pass
 

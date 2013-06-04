@@ -291,8 +291,8 @@
             <td>{{ network.network.netmask }}</td>
             <td>{{ network.network.broadcast }}</td>
             {% load size_utils %}
-            <td><span class="label label-info">{{ network.get_stats.0|to_human_readable }}</span></td>
-            <td><span class="label">{{ network.get_stats.1|to_human_readable }}</span></td>
+            <td><span class="label label-info">{{ network.rx.bytes|to_human_readable }}</span></td>
+            <td><span class="label">{{ network.tx.bytes|to_human_readable }}</span></td>
             <td>
               <div class="dropdown">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">

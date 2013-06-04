@@ -3,8 +3,10 @@ from apps.network.fields import MACAddressField
 from apps.hypervisor.models import Hypervisor
 from apps.instance.models import Instance
 from xml.etree import ElementTree
+from utils import node
 import libvirt
 import socket
+import simplejson
 
 class NoUniqueAddress(Exception): pass
 
@@ -94,3 +96,19 @@ class InstanceNetwork(models.Model):
   def get_real_rdns(self):
     tmp = socket.gethostbyaddr(self.ip)
     return tmp[0]
+
+  def get_rx_tx(self):
+    rx = {}
+    tx = {}
+    resp = node.send_command(self.network.hypervisor, "network_check_ip", {'ip': self.ip})
+    if resp:
+      resp = simplejson.loads(resp)
+      if 'error' not in resp:
+        rx = resp['rx']
+        tx = resp['tx']
+        return (rx, tx)
+    rx['bytes'] = 0
+    rx['packets'] = 0
+    tx['bytes'] = 0
+    tx['packets'] = 0
+    return (rx, tx)

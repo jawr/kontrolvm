@@ -30,11 +30,15 @@ def add(request):
 def index(request):
   rows = Network.objects.all()
   for row in rows:
-    (rx, tx) = (0,0)
+    rx = {'bytes': 0, 'packets': 0}
+    tx = {'bytes': 0, 'packets': 0}
     for i in InstanceNetwork.objects.filter(network=row):
-      (_rx,_tx) = i.get_stats()
-      rx += _rx
-      tx += _tx
+      (_rx,_tx) = i.get_rx_tx()
+      rx['bytes']   += _rx['bytes']
+      rx['packets'] += _rx['packets']
+      tx['bytes']   += _tx['bytes']
+      tx['packets'] += _tx['packets']
+      print rx['bytes']
     row.rx = rx
     row.tx = tx
 

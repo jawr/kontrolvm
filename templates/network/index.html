@@ -17,7 +17,7 @@
     <th>RX</th>
     <th>TX</th>
     <th><i class="icon-laptop"></i></th>
-    <th><i class="icon-cog"></i></th>
+    <th style="text-align:center;"><i class="icon-cog"></i></th>
   </thead>
   <tbody>
   {% for row in rows %}
@@ -30,8 +30,8 @@
       <td><a href="#" class="network" data-pk="{{ row.id }}">{{ row.network }}</a></td>
       <td><a href="#" class="start" data-pk="{{ row.id }}">{{ row.start }}</a></td>
       <td><a href="#" class="end" data-pk="{{ row.id }}">{{ row.end }}</a></td>
-      <td><span class="label label-info">{{ row.rx|to_human_readable }}</span></td>
-      <td><span class="label">{{ row.tx|to_human_readable }}</span></td>
+      <td><span class="label label-info">{{ row.rx.bytes|to_human_readable }}</span></td>
+      <td><span class="label">{{ row.tx.bytes|to_human_readable }}</span></td>
       <td>{{ row.get_number_of_instances }}</td>
       <td>
         <div class="dropdown">

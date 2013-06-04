@@ -14,6 +14,8 @@ import persistent_messages
 import os
 import string
 import time
+import simplejson
+from utils import node
 from random import choice
 from celery.result import AsyncResult
 
@@ -209,6 +211,9 @@ class Instance(models.Model):
               mac = i.find('mac').get('address').upper()
               address.mac = mac
               address.save()
+        resp = node.send_command(address.network.hypervisor, "network_track_ip", {'ip': address.ip})
+        if resp:
+          print resp
       except libvirt.libvirtError as e:
         print e
 
@@ -219,6 +224,9 @@ class Instance(models.Model):
       try:
         dom.detachDeviceFlags(template, 0)
         address.delete()
+        resp = node.send_command(address.network.hypervisor, "network_remove_ip", {'ip': address.ip})
+        if resp:
+          print resp
       except libvirt.libvirtError as e:
         print e 
 
@@ -226,7 +234,6 @@ class Instance(models.Model):
     if disk == None:
       self.detach_disk(request)
       return
-
     dom = self.get_instance()
     if dom:
       template = ATTACH_DISK_TEMPLATE.format(path=disk.path())
