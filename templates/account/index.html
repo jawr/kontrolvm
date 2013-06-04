@@ -1,6 +1,7 @@
 {% extends 'base_fluid.html' %}
 {% block title %}{{ user }}{% endblock %}
 {% block content %}
+  {% load size_utils %}
   {% if not request.user.get_profile.init %}
   {% else %}
   <h1><small>Hello</small> {{ user }}</h1>
@@ -17,7 +18,7 @@
 
   <div class="tab-content">
     <div class="tab-pane fade {% if not request.GET.page %}in active{% endif %}" id="overview"> 
-     <h2>Instances <i class="icon-hdd"></i> <small>A quick look at all your instances..</small></h2>
+     <h2>Instances <i class="icon-laptop"></i> <small>A quick look at all your instances..</small></h2>
       {% if my_instances_online or my_instances_offline %}
         <table class="table table-condensed table-striped table-bordered">
         {% if my_instances_online %}
@@ -32,16 +33,20 @@
               <th width="150">VCPUs</th>
               <th width="150">RAM</th>
               <th width="150">HDD</th>
+              <th width="150">RX</th>
+              <th width="150">TX</th>
               <th width="150">Status</th>
           </thead>
           <tbody>
           {% for instance in my_instances_online %}
             <tr>
               <td><a href="/instance/{{ instance.name }}/">{{ instance.alias }}</a></td>
-              <td>{{ instance.network.ip }}</td>
+              <td>{{ instance.instancenetwork_set.all.0.ip }}</td>
               <td>{{ instance.vcpu }}</td>
               <td>{{ instance.memory.name }}</td>
               <td>{{ instance.volume.capacity.name }}</td>
+              <td><span class="label label-info">{{ instance.rx.bytes|to_human_readable }}</span></td>
+              <td><span class="label">{{ instance.tx.bytes|to_human_readable }}</span></td>
               <td>{{ instance.get_status_html|safe }}</td>
             </tr>
           {% endfor %}
@@ -67,7 +72,7 @@
           {% for instance in my_instances_offline %}
             <tr>
               <td><a href="/instance/{{ instance.name }}/">{{ instance.alias }}</a></td>
-              <td>{{ instance.network.ip }}</td>
+              <td>{{ instance.instancenetwork_set.all.0.ip }}</td>
               <td>{{ instance.vcpu }}</td>
               <td>{{ instance.memory.name }}</td>
               <td>{{ instance.volume.capacity.name }}</td>
@@ -84,8 +89,8 @@
     </div>
       {% if request.user.is_staff %}
       <div class="tab-pane fade" id="admin"> 
-        <h3>Admin <i class="icon-flag"></i> <small>Quick overview of nodes...</small></h3>
-        <div class="span3 offset1">
+        <h2>Admin <i class="icon-flag"></i> <small>A Quick overview of nodes..</small></h2>
+        <div class="span3">
           <table class="table table-condensed table-striped">
             <tr>
               <th colspan="3">Hypervisors</th>
@@ -136,7 +141,7 @@
             </tr>
           </table>
         </div>
-        <div class="span3 offset1">
+        <div class="span3">
           <table class="table table-condensed table-striped">
             <tr>
               <th colspan="3">Instances</th>
@@ -187,7 +192,7 @@
             </tr>
           </table>
         </div>
-        <div class="span3 offset1">
+        <div class="span3">
           <table class="table table-condensed table-striped">
             <tr>
               <th colspan="3">Networks</th>
@@ -202,7 +207,7 @@
       </div>
       {% endif %}
     <div class="tab-pane fade {% if request.GET.page %}in active{% endif %}" id="messages">
-      <h2>Messages</h2>
+      <h2>Messages <i class="icon-envelope"></i> <small>A look at your messages..</small></h2>
       {% load message_utils %}
       {% if unread_messages %}
         <h3>Unread messages</h3>
@@ -212,10 +217,10 @@
             {% if message.is_persistent %}<small><a class="muted" href="{% url 'message_mark_read' message.pk %}">mark as read</a> - {{ message.created }}</small>{% endif %}
           </blockquote>
         {% endfor %}
+        <h3>Read messages</h3>
       {% endif %}
       {% if read_messages %}
         {% load pagination_tags %}
-        <h3>Read messages</h3>
         {% autopaginate read_messages 4 %}
         {% for message in read_messages %}
           <blockquote>

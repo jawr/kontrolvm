@@ -13,7 +13,10 @@ def add(request):
   form = NetworkForm()
   if request.method == 'POST':
     form = NetworkForm(request.POST)
+    print form.errors
+    
     if form.is_valid():
+      print "is vali"
       form.save()
       return redirect('/network/')
 
@@ -26,6 +29,19 @@ def add(request):
 @staff_member_required
 def index(request):
   rows = Network.objects.all()
+  for row in rows:
+    rx = {'bytes': 0, 'packets': 0}
+    tx = {'bytes': 0, 'packets': 0}
+    for i in InstanceNetwork.objects.filter(network=row):
+      (_rx,_tx) = i.get_rx_tx()
+      rx['bytes']   += _rx['bytes']
+      rx['packets'] += _rx['packets']
+      tx['bytes']   += _tx['bytes']
+      tx['packets'] += _tx['packets']
+      print rx['bytes']
+    row.rx = rx
+    row.tx = tx
+
   return render_to_response('network/index.html',
     {
     'rows': rows,
@@ -66,3 +82,34 @@ def edit(request):
       raise Http404
     return HttpResponse('{}', mimetype="application/json")
   raise Http404
+
+@staff_member_required
+def delete(request, pk):
+  network = get_object_or_404(Network, pk=pk)
+  network.delete()
+  return redirect('/network/')
+
+@staff_member_required
+def overview(request, pk):
+  network = get_object_or_404(Network, pk=pk)
+  rx = {'bytes': 0, 'packets': 0}
+  tx = {'bytes': 0, 'packets': 0}
+
+  instances = InstanceNetwork.objects.filter(network=network)
+  for i in instances:
+    (_rx,_tx) = i.get_rx_tx()
+    i.rx = _rx
+    i.tx = _tx
+    rx['bytes']   += _rx['bytes']
+    rx['packets'] += _rx['packets']
+    tx['bytes']   += _tx['bytes']
+    tx['packets'] += _tx['packets']
+  network.rx = rx
+  network.tx = tx
+
+  return render_to_response('network/view.html',
+    {
+    'network': network,
+    'instances': instances,
+    },
+    context_instance=RequestContext(request))

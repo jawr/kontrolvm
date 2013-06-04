@@ -1,0 +1,29 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Add Network to Instance{% endblock %}
+{% block content %}
+  <h2>Add Network to Instance <i class="icon-plus"></i></h2>
+  <form method="POST" class="form" action="{{ request.get_full_path }}">
+    {% csrf_token %}
+    {% load bootstrap %}
+    
+    <div class="span9">
+      {% if not ip_form %}
+        <p class="muted pull-left">Network to pool address from</p><hr>
+      {% else %}
+        <p class="muted pull-left">IP Address from pool to use</p><hr>
+      {% endif %}
+    </div>
+    <div class="span3">
+      {% if not ip_form %}
+        {{ form|bootstrap }}
+      {% else %}
+        {{ ip_form|bootstrap }}
+      {% endif %}
+    </div>
+    <div class="row"></div>
+    <div class="span9">
+      <hr>
+      <button name="{% if not ip_form %}network_add{% else %}ip_form_add{% endif %}" class="btn btn-large btn-primary" type="submit">Add Network</button>
+    </div>
+  </form>
+{% endblock %}

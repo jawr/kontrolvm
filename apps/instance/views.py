@@ -11,8 +11,11 @@ from apps.snapshot.forms import SnapshotForm
 from apps.snapshot.tasks import restore_snapshot
 from apps.snapshot.models import Snapshot
 from apps.storagepool.models import StoragePool
+from apps.network.models import InstanceNetwork
+from apps.network.forms import NetworkListForm, IPForm
 from django.contrib import messages
 from xml.etree import ElementTree
+from utils import node
 import persistent_messages
 import simplejson
 import libvirt
@@ -43,7 +46,6 @@ def instance(request, name):
 
 @login_required
 def instance_form(request, name, form):
-  print "OIOI"
   instance = instance_init(request, name)
   if request.method == 'POST':
     if form == 'installation_disk':
@@ -59,6 +61,26 @@ def instance_form(request, name, form):
   return instance_main(request, instance)
 
 def instance_main(request, instance):
+
+  # internal cache
+  cache = request.session.get(instance.name, False)
+  if cache:
+    if (time.time() - cache['time']) > 30.0:
+      cache = {
+        'time': time.time(),
+        'cpu_percent': get_cpu_usage(instance),
+        'memory_percent': get_memory_usage(instance)[1],
+      }
+      request.session[instance.name] = cache
+      
+  else: 
+    cache = {
+      'time': time.time(),
+      'cpu_percent': get_cpu_usage(instance),
+      'memory_percent': get_memory_usage(instance)[1],
+    }
+    request.session[instance.name] = cache
+
   snapshots = Snapshot.objects.filter(instance=instance)
 
   installationdisks_form = InstallationDisksForm(instance)
@@ -66,22 +88,30 @@ def instance_main(request, instance):
   if instance.status == 5:
     snapshots_form = SnapshotForm(instance)
 
+  networks = InstanceNetwork.objects.filter(instance=instance)
+  hypervisor = instance.volume.storagepool.hypervisor
+  for network in networks:
+    (rx, tx) = network.get_rx_tx()
+    network.rx = rx
+    network.tx = tx
+
   response = {
     'instance': instance,
     'installationdisks_form': installationdisks_form,
     'snapshots_form': snapshots_form,
     'snapshots': snapshots,
-    'cpu_percent': get_cpu_usage(instance),
-    'memory_percent': get_memory_usage(instance)[1],
+    'cpu_percent': request.session[instance.name]['cpu_percent'],
+    'memory_percent': request.session[instance.name]['memory_percent'],
+    'networks': networks,
   }
 
+  # possibly move this into the instance creation task
   try:
-    dom = instance.get_instance()
-    if dom:
-      tree = ElementTree.fromstring(dom.XMLDesc(0))
-
-      # ensure our volume has it's device name
-      if not instance.volume.device_name:
+    # ensure our volume has it's device name
+    if not instance.volume.device_name:
+      dom = instance.get_instance()
+      if dom:
+        tree = ElementTree.fromstring(dom.XMLDesc(0))
         for dev in tree.findall('devices/disk'):
           path = dev.find('source')
           if path is not None: path = path.get('file')
@@ -90,7 +120,6 @@ def instance_main(request, instance):
             instance.volume.device_name = "/dev/%s" % (dev.find('target').get('dev'))
             instance.volume.save()
             break
-
   except libvirt.libvirtError as e:
     pass
 
@@ -105,7 +134,10 @@ def get_memory_usage(instance):
   if dom and hypervisor:
     try:
       all_mem = hypervisor.getInfo()[1] * 1048576
+      print dom.info()
       dom_mem = dom.info()[1] * 1024
+      print dom_mem
+      print all_mem
       percent = (dom_mem * 100) / all_mem
       return all_mem, percent
     except libvirt.libvirtError as e:
@@ -263,7 +295,7 @@ def restart(request, name):
 
 @staff_member_required
 def index(request):
-  instances = Instance.objects.all()
+  instances = Instance.objects.all().order_by('pk')
   tasks = InstanceTask.objects.all()
   for instance in instances:
     instance.update()
@@ -377,3 +409,46 @@ def delete_task(request, pk):
     'Delete Instance creating task of %s on %s' % (task.name, task.storagepool.hypervisor), user=task.creator)
   task.delete(request)
   return redirect('/instance/')
+
+def network_delete(request, pk):
+  address = get_object_or_404(InstanceNetwork, pk=pk)
+  instance = address.instance
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+  instance.detach_network(address)
+  return redirect('/instance/%s/' % (instance.name))
+
+def network_add(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  if not request.user.is_staff and request.user != instance.user:
+    raise Http404
+  form = NetworkListForm()
+  ip_form = None
+  form['network'].queryset = instance.volume.storagepool.hypervisor.network_set.all()
+  if request.method == 'POST':
+    form = NetworkListForm(request.POST) # needed in both cases
+    if form.is_valid():
+      network = form.cleaned_data['network']
+      if 'ip_form_add' not in request.POST:
+        print "1"
+        ip_form = IPForm({'network': network.pk})
+        addresses = network.get_available_addresses()
+        ip_form.fields['ip'].choices = [(i,i) for i in addresses]
+      else:
+        ip_form = IPForm(request.POST)
+        addresses = form.cleaned_data['network'].get_available_addresses()
+        ip_form.fields['ip'].choices = [(i,i) for i in addresses]
+        if ip_form.is_valid():
+          address = network.create_address_from_ip(ip_form.cleaned_data['ip'])
+          print address
+          if address:
+            address.instance = instance
+            address.save()
+            instance.attach_network(address)
+            return redirect('/instance/%s/' % (instance.name))
+  return render_to_response('instance/network_add.html',
+    {
+      'form': form,
+      'ip_form': ip_form,
+    },
+    context_instance=RequestContext(request))

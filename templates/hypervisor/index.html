@@ -12,7 +12,7 @@
         <th>Address</th>
         <th>Libvirt Port</th>
         <th>Node Port</th>
-        <th style="width: 15px;">Options</th>
+        <th style="width: 8px; text-align:center;"><i class="icon-cog"></i></th>
       </thead>
 
       <tbody>
@@ -25,13 +25,21 @@
             <td width="190">{{ hypervisor.libvirt_port }} {{ hypervisor.get_libvirt_status_html|safe }}</td>
             <td width="190">{{ hypervisor.node_port }} {{ hypervisor.get_node_status_html|safe }}</td>
             <td>
-              <a href="#" id="delete"><i id="{{ hypervisor.id }}" class="icon-trash"></i></a>
-              <a href="/hypervisor/update/{{ hypervisor.id }}/"><i class="icon-refresh"></i></a>
-              {% if hypervisor.status == 'UP' %}
-                <a href="#" id="stop"><i id="{{ hypervisor.id }}" class="icon-stop"></i></a>
-              {% else %}
-                <a href="/hypervisor/start/{{ hypervisor.id }}/"><i id="{{ hypervisor.id }}" class="icon-play"></i></a>
-              {% endif %}
+              <div class="dropdown">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                  <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu pull-right" role="menu">
+                  <li><a tabindex="-1" href="#" id="delete"><i id="{{ hypervisor.id }}" class="icon-trash"></i> Delete</a></li>
+                  <li><a tabindex="-1" href="/hypervisor/update/{{ hypervisor.id }}/"><i class="icon-refresh"></i> Refresh</a></li>
+                  <li><a tabindex="-1" href="/hypervisor/initalize/{{ hypervisor.id }}/"><i class="icon-refresh"></i> Re-Initalize</a></li>
+                {% if hypervisor.status == 'UP' %}
+                  <li><a tabindex="-1" href="#" id="stop"><i id="{{ hypervisor.id }}" class="icon-stop"></i> Stop</a></li>
+                {% else %}
+                  <li><a tabindex="-1" href="/hypervisor/start/{{ hypervisor.id }}/"><i id="{{ hypervisor.id }}" class="icon-play"></i> Start</a></li>
+                {% endif %}
+                </ul>
+              </div>
             </td>
           </tr>
         {% endfor %}

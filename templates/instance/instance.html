@@ -1,5 +1,8 @@
-{% extends 'base_fluid.html' %}
+{% extends 'base_user.html' %}
 {% block title %}{{ instance }}{% endblock %}
+{% block breadcrumb %}
+  <li class="active">{{ instance.alias }}</li>
+{% endblock %}
 {% block content %}
   {% load bootstrap %}
   {% load size_utils %}
@@ -13,17 +16,22 @@
   {% endif %}
 
   <ul class="nav nav-tabs">
-    <li class="active"><a href="#controls" data-toggle="tab">Controls</a></li>
-    <li><a href="#overview" data-toggle="tab">Overview</a></li>
-    <li><a href="#network" data-toggle="tab">Networks</a></li>
+    <li class="active"><a href="#controls" data-toggle="tab"><i class="icon-cog"></i> Controls</a></li>
+    <li><a href="#overview" data-toggle="tab"><i class="icon-globe"></i> Overview</a></li>
+    {% if networks %}
+      <li><a href="#network" data-toggle="tab"><i class="icon-sitemap"></i> Networks</a></li>
+    {% endif %}
     {% if snapshots %}
-      <li><a href="#snapshots" data-toggle="tab">Snapshots</a></li>
+      <li><a href="#snapshots" data-toggle="tab"><i class="icon-code-fork"></i> Snapshots</a></li>
+    {% endif %}
+    {% if request.user.is_staff %}
+      <li><a href="#xml" data-toggle="tab"><i class="icon-code"></i> XML</a></li>
     {% endif %}
   </ul>
 
   <div class="tab-content">
     <div class="tab-pane active" id="controls">
-      <h2>Controls <i class="icon-cog"></i> <small>Make changes to your Instance..</small></h2>
+      <h2><small>Make changes to your Instance..</small></h2>
 
       <table class="table">
         <thead>
@@ -176,6 +184,15 @@
             });
           });
 
+          $('a.delete-network').click(function(e) {
+              e.preventDefault();
+              bootbox.confirm("Are you sure you want to remove this Address?", function(confirmed) {
+              if (confirmed) {
+                window.location = '/instance/network/delete/' + e.srcElement.id + '/';
+              }
+            });
+          });
+
           $('.snapshot_name').editable({
             type: 'text',
             url: '/snapshot/edit/',
@@ -192,7 +209,7 @@
 
     <!-- overview -->
     <div class="tab-pane" id="overview">
-      <h2>Overview <i class="icon-globe"></i> <small>A quick look at your Instance..</small></h2>
+      <h2><small>A quick look at your Instance..</small></h2>
       <table class="table table-condensed table-bordered">
         <thead>
           <tr>
@@ -215,7 +232,7 @@
             <td style="width: 50px;">{{ instance.memory.name }}</td>
             <th>Usage</th>
             <td>
-              <div class="progress progress-striped">
+              <div class="progress progress-striped active">
                 <div class="bar" style="width: {{ memory_percent }}%;"></div><span class="label pull-right">{{ memory_percent|floatformat }}%</span>
               </div>
             </td>
@@ -237,8 +254,9 @@
         </tbody>
       </table>
     </div>
+    {% if networks %}
     <div class="tab-pane" id="network">
-      <h2>Networks <i class="icon-sitemap"></i> <small>A quick look at networks for your instance..</small></h2>
+      <h2><small>A quick look at networks for your instance..</small></h2>
       <table class="table table-condensed table-bordered">
         <thead>
           <tr>
@@ -249,51 +267,63 @@
             <th>Gateway</th>
             <th>Netmask</th>
             <th>Broadcast</th>
+            <th>RX</th>
+            <th>TX</th>
             <th width="10" style="text-align:center;"><i class="icon-cog"></i></th>
           </tr>
         </thead>
         <tbody>
+          {% for network in networks %}
           <tr>
             <td>
-                {% if instance.network.reversedns_set.all.0 %}
-                  {{ instance.network.reversedns_set.all.0.rdns }}
-                {% elif instance.network.reversednsrequest_set.all.0 %}
-                  Requesting: {{ instance.network.reversednsrequest_set.all.0.rdns }}
+                {% if network.reversedns_set.all.0 %}
+                  {{ network.reversedns_set.all.0.rdns }}
+                {% elif network.reversednsrequest_set.all.0 %}
+                  Requesting: <b>{{ network.reversednsrequest_set.all.0.rdns }}</b>
                 {% else %}
-                  Nothing set
+                  {{ network.get_real_rdns }}
                 {% endif %}
             </td>
-            <td>{{ instance.network.ip }}</td>
-            <td>{{ instance.mac }}</td>
-            <td>{{ instance.network.network.network }}</td>
-            <td>{{ instance.network.network.gateway }}</td>
-            <td>{{ instance.network.network.netmask }}</td>
-            <td>{{ instance.network.network.broadcast }}</td>
+            <td>{{ network.ip }}</td>
+            <td>{{ network.mac }}</td>
+            <td>{{ network.network.network }}</td>
+            <td>{{ network.network.gateway }}</td>
+            <td>{{ network.network.netmask }}</td>
+            <td>{{ network.network.broadcast }}</td>
+            {% load size_utils %}
+            <td><span class="label label-info">{{ network.rx.bytes|to_human_readable }}</span></td>
+            <td><span class="label">{{ network.tx.bytes|to_human_readable }}</span></td>
             <td>
               <div class="dropdown">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                   <span class="caret"></span>
                 </a>
-                <ul class="dropdown-menu" role="menu">
-                    <li><a tabindex="-1" {% if instance.network.reversednsrequest_set.all|length > 0 %}class="disabled-link"{% endif %} href="/reversedns/request/{{ instance.network.id }}/{{ instance.name }}/"><i class="icon-legal"></i> Request rDNS</a></li>
-                    <li><a tabindex="-1" {% if instance.network.reversednsrequest_set.all|length == 0 %}class="disabled-link"{% endif %} href="/reversedns/request/delete/{{ instance.network.reversednsrequest_set.all.0.id }}/"><i class="icon-ban-circle"></i> Cancel request</a></li>
-                    <li><a {% if not instance.network.reversedns_set.all.0.rdns %}class="disabled-link"{% endif %} tabindex="-1" href="/reversedns/delete/{{ instance.network.id }}/"><i class="icon-trash"></i> Delete</a></li>
+                <ul class="dropdown-menu pull-right" role="menu">
+                    <li><a tabindex="-1" {% if network.reversednsrequest_set.all|length > 0 %}class="disabled-link"{% endif %} href="/reversedns/request/{{ network.id }}/{{ instance.name }}/"><i class="icon-legal"></i> rDNS - Request</a></li>
+                    <li><a tabindex="-1" {% if network.reversednsrequest_set.all|length == 0 %}class="disabled-link"{% endif %} href="/reversedns/request/delete/{{ network.reversednsrequest_set.all.0.id }}/"><i class="icon-ban-circle"></i> rDNS - Cancel</a></li>
+                    <li><a {% if not .network.reversedns_set.all.0.rdns %}class="disabled-link"{% endif %} tabindex="-1" href="/reversedns/delete/{{ network.id }}/"><i class="icon-trash"></i> rDNS - Delete</a></li>
+                    {% if request.user.is_staff %}
+                      <li class="divider"></li>
+                      <li><a class="delete-network" tabindex="-1" id="{{ network.id }}"><i class="icon-trash"></i> Remove Address</a></li>
+                    {% endif %}
                 </ul>
               </div>
             </td>
           </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
+    {% endif %}
 
     {% if snapshots %}
     <div class="tab-pane" id="snapshots">
-      <h2>Snapshots <i class="icon-code-fork"></i> <small>A quick look at snapshots for your instance..</small></h2>
+      <h2><small>A quick look at snapshots for your instance..</small></h2>
       <table class="table table-condensed table-bordered">
         <thead>
           <th>Name</th>
           <th>Status</th>
-          <th style="width: 40px;"><i class="icon-cog"></i></th>
+          <th style="width: 40px; text-align:center;"><i class="icon-cog"></i></th>
         </thead>
         <tbody>
         {% for row in snapshots %}
@@ -320,5 +350,13 @@
       </table>
     </div>
     {% endif %}
+
+    {% if request.user.is_staff %}
+    <div class="tab-pane" id="xml">
+      <h2><small>View raw XML</small></h2>
+      <pre>{{ instance.get_xml }}</pre>
+    </div>
+    {% endif %}
+
   </div>
 {% endblock %}

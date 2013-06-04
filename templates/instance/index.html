@@ -7,7 +7,6 @@
   {% load size_utils %}
   {% load pagination_tags %}
   {% if instances %}
-    <h2>Instances</h2>
     <table class="table table-condensed table-striped table-bordered">
       <thead>
         <th>Name</th>
@@ -20,7 +19,7 @@
         <th>Capacity</th>
         <th>IP</th>
         <th>Status</th>
-        <th style="width: 15px;">Options</th>
+        <th width="8" style="text-align:center;"><i class="icon-cog"></i></th>
       </thead>
 
       <tbody>
@@ -28,17 +27,26 @@
         {% for instance in instances %}
           <tr>
             <td><a href="/instance/{{ instance.name }}/">{{ instance.name|truncatechars:6 }}</a></td>
-            <td><a rel="tooltip" title="{{ instance.alias }}" href="#">{{ instance.alias|truncatechars:12 }}</a></td>
+            <td><a href="/instance/{{ instance.name }}/" rel="tooltip" title="{{ instance.alias }}" href="#">{{ instance.alias|truncatechars:12 }}</a></td>
             <td>{{ instance.user }}</td>
             <td>{{ instance.creator }}</td>
             <td><a rel="tooltip" title="{{ instance.created }}" href="#">{{ instance.created|date:"d/m/y" }}</a></td>
             <td>{{ instance.vcpu }}</td>
             <td>{{ instance.memory.name }}</td>
             <td>{{ instance.volume.capacity.name }}</td>
-            <td>{{ instance.network.ip }}</td>
+            <td>{{ instance.instancenetwork_set.all.0.ip }}</td>
             <td>{{ instance.get_status_html|safe }}</td>
             <td>
-              <a href="#" id="delete"><i id="{{ instance.name }}" class="icon-trash"></i></a>
+              <div class="dropdown">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                  <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu pull-right" role="menu">
+                  <li><a tabindex="-1" href="/instance/network/add/{{ instance.name }}/"><i class="icon-plus"></i> Add Address</a></li>
+                  <li class="divider"></li>
+                  <li><a tabindex="-1" href="#" class="delete" id="{{ instance.name }}"><i class="icon-trash"></i> Delete Instance</a></li>
+                </ul>
+              </div>
             </td>
           </tr>
         {% endfor %}
@@ -110,7 +118,7 @@
     <script>
       $(function() {
         // handle confirmation modal
-        $('a#delete').click(function(e) {
+        $('a.delete').click(function(e) {
           e.preventDefault();
           bootbox.confirm("Are you sure you want to delete this Instance?", function(confirmed) {
             if (confirmed) {
