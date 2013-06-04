@@ -92,7 +92,7 @@
                     'port': port,
                     'name': '{{ instance.name }}'
                   });
-                }, 10000);
+                }, 5000);
               }
             }
           function stop_heartbeat(button) {
@@ -222,8 +222,8 @@
             <td style="width: 50px;">{{ instance.vcpu }}</td>
             <th>Usage</th>
             <td>
-              <div class="progress progress-striped">
-                <div class="bar" style="width: {{ cpu_percent }}%;"></div><span class="label pull-right">{{ cpu_percent }}%</span>
+              <div class="progress progress-striped active">
+                <div class="bar" style="width: {{ cpu_percent }}%;"></div><span class="label pull-right">{{ cpu_percent|floatformat }}%</span>
               </div>
             </td>
           </tr>
@@ -232,8 +232,8 @@
             <td style="width: 50px;">{{ instance.memory.name }}</td>
             <th>Usage</th>
             <td>
-              <div class="progress progress-striped">
-                <div class="bar" style="width: {{ memory_percent }}%;"></div><span class="label pull-right">{{ memory_percent }}%</span>
+              <div class="progress progress-striped active">
+                <div class="bar" style="width: {{ memory_percent }}%;"></div><span class="label pull-right">{{ memory_percent|floatformat }}%</span>
               </div>
             </td>
           </tr>
