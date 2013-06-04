@@ -12,7 +12,7 @@ from apps.snapshot.tasks import restore_snapshot
 from apps.snapshot.models import Snapshot
 from apps.storagepool.models import StoragePool
 from apps.network.models import InstanceNetwork
-from apps.network.forms import NetworkListForm
+from apps.network.forms import NetworkListForm, IPForm
 from django.contrib import messages
 from xml.etree import ElementTree
 from utils import node
@@ -423,17 +423,32 @@ def network_add(request, name):
   if not request.user.is_staff and request.user != instance.user:
     raise Http404
   form = NetworkListForm()
+  ip_form = None
   form['network'].queryset = instance.volume.storagepool.hypervisor.network_set.all()
   if request.method == 'POST':
-    form = NetworkListForm(request.POST)
+    form = NetworkListForm(request.POST) # needed in both cases
     if form.is_valid():
-      address = form.cleaned_data['network'].create_unique_address()
-      address.instance = instance
-      address.save()
-      instance.attach_network(address)
-      return redirect('/instance/%s/' % (instance.name))
+      network = form.cleaned_data['network']
+      if 'ip_form_add' not in request.POST:
+        print "1"
+        ip_form = IPForm({'network': network.pk})
+        addresses = network.get_available_addresses()
+        ip_form.fields['ip'].choices = [(i,i) for i in addresses]
+      else:
+        ip_form = IPForm(request.POST)
+        addresses = form.cleaned_data['network'].get_available_addresses()
+        ip_form.fields['ip'].choices = [(i,i) for i in addresses]
+        if ip_form.is_valid():
+          address = network.create_address_from_ip(ip_form.cleaned_data['ip'])
+          print address
+          if address:
+            address.instance = instance
+            address.save()
+            instance.attach_network(address)
+            return redirect('/instance/%s/' % (instance.name))
   return render_to_response('instance/network_add.html',
     {
       'form': form,
+      'ip_form': ip_form,
     },
     context_instance=RequestContext(request))

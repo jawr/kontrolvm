@@ -7,15 +7,23 @@
     {% load bootstrap %}
     
     <div class="span9">
-      <p class="muted pull-left">Network to pool address from</p><hr>
+      {% if not ip_form %}
+        <p class="muted pull-left">Network to pool address from</p><hr>
+      {% else %}
+        <p class="muted pull-left">IP Address from pool to use</p><hr>
+      {% endif %}
     </div>
     <div class="span3">
-      {{ form|bootstrap }}
+      {% if not ip_form %}
+        {{ form|bootstrap }}
+      {% else %}
+        {{ ip_form|bootstrap }}
+      {% endif %}
     </div>
     <div class="row"></div>
     <div class="span9">
       <hr>
-      <button class="btn btn-large btn-primary" type="submit">Add Network</button>
+      <button name="{% if not ip_form %}network_add{% else %}ip_form_add{% endif %}" class="btn btn-large btn-primary" type="submit">Add Network</button>
     </div>
   </form>
 {% endblock %}

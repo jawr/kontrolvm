@@ -32,6 +32,17 @@ class Network(models.Model):
   """
     Warning, does not save address
   """
+  def create_address_from_ip(self, ip):
+    ranges = self.get_all_addresses()
+    for i in ranges:
+      if i == ip:
+        if InstanceNetwork.objects.filter(ip=ip).count() == 0:
+          return InstanceNetwork(ip=ip, network=self)
+
+    return None
+  """
+    Warning, does not save address
+  """
   def create_unique_address(self):
     ranges = self.get_all_addresses()
 
