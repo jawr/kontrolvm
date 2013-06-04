@@ -6,6 +6,7 @@
 <p>Overview of Networks. <a href="/network/add/">Add another</a></p>
 <table class="table table-condensed table-striped table-bordered">
   <thead>
+    <th>Overview</th>
     <th>Hypervisor</th>
     <th>Dev</th>
     <th>Netmask</th>
@@ -22,6 +23,7 @@
   <tbody>
   {% for row in rows %}
     <tr>
+      <td><a href="/network/{{ row.pk }}/">Overview</a></td>
       <td><a href="/hypervisor/{{ row.hypervisor.pk }}/" rel="tooltip" title="{{ row.hypervisor }}">{{ row.hypervisor.name }}</a></td>
       <td>{{ row.device }}</td>
 <td><a href="#" class="netmask" data-pk="{{ row.id }}">{{ row.netmask }}</a></td>

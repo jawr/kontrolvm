@@ -33,18 +33,7 @@ class Network(models.Model):
     Warning, does not save address
   """
   def create_unique_address(self):
-    start = list(map(int, self.start.split(".")))
-    end = list(map(int, self.end.split(".")))
-    temp = start
-    ranges = []
-    ranges.append('%s' % (self.start))
-    while temp != end:
-      start[3] += 1
-      for i in (3, 2, 1):
-        if temp[i] == 256:
-          temp[i] = 0
-          temp[i-1] += 1
-      ranges.append(".".join(map(str, temp)))
+    ranges = self.get_all_addresses()
 
     addresses = InstanceNetwork.objects.all()
     
@@ -62,6 +51,37 @@ class Network(models.Model):
 
     address = InstanceNetwork(ip=ip, network=self)
     return address
+
+  def get_all_addresses(self):
+    start = list(map(int, self.start.split(".")))
+    end = list(map(int, self.end.split(".")))
+    temp = start
+    ranges = []
+    ranges.append('%s' % (self.start))
+    while temp != end:
+      start[3] += 1
+      for i in (3, 2, 1):
+        if temp[i] == 256:
+          temp[i] = 0
+          temp[i-1] += 1
+      ranges.append(".".join(map(str, temp)))
+    return ranges
+
+  def get_available_addresses(self):
+    ranges = self.get_all_addresses()
+    addresses = InstanceNetwork.objects.all()
+    available = []
+    for i in ranges:
+      used = False
+      for j in addresses:
+        if i == j.ip:
+          used = True
+          break
+      if not used:
+        available.append(i)
+
+    return available
+    
 
   def get_number_of_instances(self):
     return InstanceNetwork.objects.filter(network=self).count()

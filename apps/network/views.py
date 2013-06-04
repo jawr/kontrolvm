@@ -88,3 +88,28 @@ def delete(request, pk):
   network = get_object_or_404(Network, pk=pk)
   network.delete()
   return redirect('/network/')
+
+@staff_member_required
+def overview(request, pk):
+  network = get_object_or_404(Network, pk=pk)
+  rx = {'bytes': 0, 'packets': 0}
+  tx = {'bytes': 0, 'packets': 0}
+
+  instances = InstanceNetwork.objects.filter(network=network)
+  for i in instances:
+    (_rx,_tx) = i.get_rx_tx()
+    i.rx = _rx
+    i.tx = _tx
+    rx['bytes']   += _rx['bytes']
+    rx['packets'] += _rx['packets']
+    tx['bytes']   += _tx['bytes']
+    tx['packets'] += _tx['packets']
+  network.rx = rx
+  network.tx = tx
+
+  return render_to_response('network/view.html',
+    {
+    'network': network,
+    'instances': instances,
+    },
+    context_instance=RequestContext(request))

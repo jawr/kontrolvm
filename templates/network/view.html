@@ -1,0 +1,137 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Network Overview{% endblock %}
+{% block content %}
+{% load size_utils %}
+{% load pagination_tags %}
+<h1>{{ network.start }} - {{ network.end }} <small>Network overview..</small></h1>
+<hr>
+<h3>Configuration <i class="icon-cog"></i> <small>Reconfigure your Network..</small></h3>
+<table class="table table-condensed table-striped table-bordered">
+  <tbody>
+    <tr>
+      <th>Hypervisor</th>
+      <td colspan="6"><a href="/hypervisor/{{ network.hypervisor.pk }}/" rel="tooltip" title="{{ network.hypervisor }}">{{ network.hypervisor.name }}</a></td>
+    </tr>
+    <tr>
+      <th>Instances</th>
+      <td colspan="6">{{ network.get_number_of_instances }}</td>
+    </tr>
+    <tr>
+      <th>Dev</th>
+      <th>Netmask</th>
+      <th>Gateway</th>
+      <th>Broadcast</th>
+      <th>Network</th>
+      <th>Start</th>
+      <th>End</th>
+    </tr>
+    <tr>
+      <td>{{ network.device }}</td>
+<td><a href="#" class="netmask" data-pk="{{ network.id }}">{{ network.netmask }}</a></td>
+      <td><a href="#" class="gateway" data-pk="{{ network.id }}">{{ network.gateway }}</a></td>
+      <td><a href="#" class="broadcast" data-pk="{{ network.id }}">{{ network.broadcast }}</a></td>
+      <td><a href="#" class="network" data-pk="{{ network.id }}">{{ network.network }}</a></td>
+      <td><a href="#" class="start" data-pk="{{ network.id }}">{{ network.start }}</a></td>
+      <td><a href="#" class="end" data-pk="{{ network.id }}">{{ network.end }}</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+<h3>Usage <i class="icon-signal"></i> <small>Quick look at your Network usage..</small></h3>
+<table class="table table-condensed table-striped table-bordered">
+  <thead>
+    <tr>
+      <th>IPs in Range</th>
+      <th>IPs Available</th>
+      <th>IPs Used</th>
+      <th>Total RX</th>
+      <th>Total TX</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ network.get_all_addresses|length }}</td>
+      <td>{{ network.get_available_addresses|length }}</td>
+      <td>{{ instances|length }}</td>
+      <td><span class="label label-info">{{ network.rx.bytes|to_human_readable }}</span></td>
+      <td><span class="label">{{ network.tx.bytes|to_human_readable }}</span></td>
+    </tr>
+  </tbody>
+</table>
+<hr>
+<h3>Instances <i class="icon-laptop"></i> <small>Quick look at your Network's Instances..</small></h3>
+<table class="table table-condensed table-striped table-bordered">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Alias</th>
+      <th>User</th>
+      <th>MAC</th>
+      <th>IP</th>
+      <th>RX</th>
+      <th>TX</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% autopaginate instances 8 %}
+    {% for instance in instances %}
+      <tr>
+        <td><a href="/instance/{{ instance.instance.name }}/">{{ instance.instance.name|truncatechars:6 }}</a></td>
+        <td><a href="/instance/{{ instance.instance.name }}/" rel="tooltip" title="{{ instance.instance.alias }}" href="#">{{ instance.instance.alias|truncatechars:12 }}</a></td>
+        <td>{{ instance.instance.user }}</td>
+        <td>{{ instance.mac }}</td>
+        <td>{{ instance.ip }}</td>
+        <td><span class="label label-info">{{ instance.rx.bytes|to_human_readable }}</span></td>
+        <td><span class="label">{{ instance.tx.bytes|to_human_readable }}</span></td>
+        <td>{{ instance.instance.get_status_html|safe }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% paginate %}
+<script>
+  $(function() {
+    $('.netmask').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit Netmask',
+      mode: 'popup',
+      name: 'netmask'
+    });
+    $('.gateway').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit Gateway',
+      mode: 'popup',
+      name: 'gateway'
+    });
+    $('.broadcast').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit Broadcast',
+      mode: 'popup',
+      name: 'broadcast'
+    });
+    $('.network').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit Network',
+      name: 'network'
+    });
+    $('.start').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit Start Address',
+      name: 'start'
+    });
+    $('.end').editable({
+      type: 'text',
+      url: '/network/edit/',
+      title: 'Edit End Address',
+      name: 'end'
+    });
+  });
+</script>
+{% endblock %}
