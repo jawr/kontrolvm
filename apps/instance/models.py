@@ -64,6 +64,9 @@ class Instance(models.Model):
   volume = models.OneToOneField(Volume)
   user = models.ForeignKey(User, related_name="instance_user")
   creator = models.ForeignKey(User)
+  # base/clone reference
+  is_base = models.BooleanField(default=False, editable=False)
+  base = models.ForeignKey('self', null=True, blank=True)
   # virtual attributes
   vcpu = models.IntegerField(max_length=2, default=1)
   memory = models.ForeignKey(Size, related_name="instance_memory")
@@ -96,7 +99,6 @@ class Instance(models.Model):
     (NONE, 'None'),
   )
   status = models.IntegerField(max_length=1, choices=STATUS_CHOICES, default=NONE)
-  base = models.BooleanField(default=False, editable=False)
 
   def __str__(self):
     return unicode(self).encode('utf-8')
@@ -299,8 +301,8 @@ class InstanceCloneTask(models.Model):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
-    return "Cloning: %s [%d CPU/%s RAM/%s HDD][%s]" % \
-      (self.base.alias, self.vcpu, (self.memory.name), (self.capacity.name), self.state)
+    return "Cloning: %s [%s]" % \
+      (self.base.alias, self.state)
 
 class InstanceTask(models.Model):
   name = models.CharField(max_length=100)

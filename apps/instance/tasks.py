@@ -1,6 +1,6 @@
 from xml.dom import minidom
 from celery import task, current_task
-from apps.instance.models import Instance, InstanceTask
+from apps.instance.models import Instance, InstanceTask, InstanceCloneTask
 from apps.network.models import NoUniqueAddress, InstanceNetwork
 from apps.storagepool.models import StoragePool
 from apps.volume.models import Volume
@@ -64,7 +64,7 @@ INSTANCE_TEMPLATE = """
 """
 
 @task()
-def create_clone(instance_clone_task_pk):
+def clone_instance(instance_clone_task_pk):
   try:
     instance_clone_task = InstanceCloneTask.objects.get(pk=instance_clone_task_pk)
   except Instance.DoesNotExist:
@@ -81,7 +81,7 @@ def create_clone(instance_clone_task_pk):
     return {'custom_state': 'FAILURE', 'msg': 'Unable to clone Base Instance\'s Volume'}
 
 
-  new_instance_name = InstanceCloneTask.name
+  new_instance_name = instance_clone_task.name
 
   xml = INSTANCE_TEMPLATE % (
       new_instance_name,
@@ -90,6 +90,11 @@ def create_clone(instance_clone_task_pk):
       instance_clone_task.vcpu,
       volume.path(), volume.storagepool.hypervisor.address)
   
+  hypervisor = volume.storagepool.hypervisor
+  con = hypervisor.get_connection()
+  if not con:
+    return {'custom_state': 'FAILURE', 'msg': 'Unable to get Hypervisor %s' % (hypervisor)}
+
   try:
     con.defineXML(xml)
     current_task.update_state(state='PROGRESS', meta={
@@ -110,13 +115,13 @@ def create_clone(instance_clone_task_pk):
 
     # shutdown initially so that user can pick their own install medium
     dom.destroy()
-  except libvirt.libvirtErrorr as e:
+  except libvirt.libvirtError as e:
     return {'custom_state': 'FAILURE', 'msg': 'Error while cloning instance: %s' % (e)}
 
   new_instance = Instance.objects.create(
     name=new_instance_name,
+    base=instance,
     volume=volume,
-    # fix this.. make a baseinstancetask?
     user=instance_clone_task.user,
     creator=instance_clone_task.creator,
     #

@@ -89,7 +89,12 @@ def index(request):
   my_instances_online = Instance.objects.filter(status=1, user=request.user)
   my_instances_offline = Instance.objects.filter(~Q(status=1), user=request.user)
   for i in my_instances_online:
-    network = i.instancenetwork_set.all()[0]
+    network = i.instancenetwork_set.all()
+    if not network:
+      i.rx = {'bytes': 0, 'packets': 0}
+      i.tx = {'bytes': 0, 'packets': 0}
+      continue
+    else: network = network[0]
     (rx, tx) = network.get_rx_tx()
     i.rx = rx
     i.tx = tx

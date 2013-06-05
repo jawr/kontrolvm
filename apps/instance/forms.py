@@ -6,7 +6,7 @@ from django.db.models import Q
 
 class InstanceCloneTaskForm(forms.ModelForm):
   base = forms.ModelChoiceField(
-    queryset=Instance.objects.filter(Q(status=5)&Q(base=True)))
+    queryset=Instance.objects.filter(Q(status=5)&Q(is_base=True)))
   class Meta:
     model = InstanceCloneTask
     exclude = ('name', 'creator', 'updated', 'created', 'task_id',

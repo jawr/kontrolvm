@@ -6,7 +6,7 @@ from django.http import HttpResponse, Http404
 from apps.instance.models import Instance, InstanceTask, InstanceCloneTask
 from apps.instance.forms import InstanceTaskForm, InstanceCloneTaskForm
 from apps.installationdisk.forms import InstallationDisksForm
-from apps.instance.tasks import create_instance
+from apps.instance.tasks import create_instance, clone_instance
 from apps.snapshot.forms import SnapshotForm
 from apps.snapshot.tasks import restore_snapshot
 from apps.snapshot.models import Snapshot
@@ -196,6 +196,11 @@ def start(request, name):
   if not request.user.is_staff and request.user != instance.user:
     raise Http404
 
+  if instance.is_base and instance.instance_set.all().count() > 0:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to start Base Instance %s, too many clones attached to it' % (instance))
+    return redirect('/instance/' + instance.name + '/')
+
   dom = instance.get_instance()
   if dom:
     dom.create()
@@ -343,6 +348,31 @@ def search(request):
     context_instance=RequestContext(request))
 
 @staff_member_required
+def check_resources(request, hypervisor, memory, vcpu, capacity):
+  instances = Instance.objects.filter(volume__storagepool__hypervisor=hypervisor)
+  allocated_memory = 0
+  allocated_vcpus = 0
+  allocated_capacity = 0
+  for i in StoragePool.objects.filter(hypervisor=hypervisor): 
+    allocated_capacity += i.allocated
+  for i in instances:
+    allocated_memory += i.memory.size
+    allocated_vcpus += i.vcpu
+  if allocated_memory + memory.size > hypervisor.maximum_memory.size:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient Memory available to allocate' % (hypervisor.id))
+    return False
+  elif allocated_vcpus + vcpu > hypervisor.maximum_vcpus:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient VCPUs available to allocate' % (hypervisor.id))
+    return False
+  elif allocated_capacity + capacity.size > hypervisor.maximum_hdd.size:
+    messages.add_message(request, persistent_messages.ERROR,
+      'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient Disk space available to allocate' % (hypervisor.id))
+    return False
+  return True
+  
+@staff_member_required
 def add(request):
   form = InstanceTaskForm()
 
@@ -351,25 +381,7 @@ def add(request):
     if form.is_valid():
       # first check if we are not overallocating
       hypervisor = form.cleaned_data['storagepool'].hypervisor
-      instances = Instance.objects.filter(volume__storagepool__hypervisor=hypervisor)
-      allocated_memory = 0
-      allocated_vcpus = 0
-      allocated_capacity = 0
-      for i in StoragePool.objects.filter(hypervisor=hypervisor): 
-        allocated_capacity += i.allocated
-      for i in instances:
-        allocated_memory += i.memory.size
-        allocated_vcpus += i.vcpu
-      if allocated_memory + form.cleaned_data['memory'].size > hypervisor.maximum_memory.size:
-        messages.add_message(request, persistent_messages.ERROR,
-          'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient Memory available to allocate' % (hypervisor.id))
-      elif allocated_vcpus + form.cleaned_data['vcpu'] > hypervisor.maximum_vcpus:
-        messages.add_message(request, persistent_messages.ERROR,
-          'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient VCPUs available to allocate' % (hypervisor.id))
-      elif allocated_capacity + form.cleaned_data['capacity'].size > hypervisor.maximum_hdd.size:
-        messages.add_message(request, persistent_messages.ERROR,
-          'Unable to create instance, <a href="/hypervisor/%d/">Hypervisor</a> has insufficient Disk space available to allocate' % (hypervisor.id))
-      else:
+      if check_resources(request, hypervisor, form.cleaned_data['memory'], form.cleaned_data['vcpu'], form.cleaned_data['capacity']):
         # end
         name = InstanceTask.get_random_name()
         (instancetask, created) = InstanceTask.objects.get_or_create(
@@ -410,6 +422,8 @@ def delete_task(request, pk):
   task.delete(request)
   return redirect('/instance/')
 
+# need to decide on permissions for these network based functions
+@staff_member_required
 def network_delete(request, pk):
   address = get_object_or_404(InstanceNetwork, pk=pk)
   instance = address.instance
@@ -418,6 +432,7 @@ def network_delete(request, pk):
   instance.detach_network(address)
   return redirect('/instance/%s/' % (instance.name))
 
+@staff_member_required
 def network_add(request, name):
   instance = get_object_or_404(Instance, name=name)
   if not request.user.is_staff and request.user != instance.user:
@@ -454,10 +469,52 @@ def network_add(request, name):
     context_instance=RequestContext(request))
 
 @staff_member_required
-def clone(request):
+def clone(request, name=None):
   form = InstanceCloneTaskForm()
+  if request.method == 'POST':
+    form = InstanceCloneTaskForm(request.POST)
+
+  if name:
+    instance = get_object_or_404(Instance, name=name)
+    form.fields['base'].initial = instance
+    form.fields['vcpu'].initial = instance.vcpu
+    form.fields['memory'].initial = instance.memory
+
+  if request.method == 'POST' and form.is_valid():
+    hypervisor = form.cleaned_data['base'].volume.storagepool.hypervisor
+    if check_resources(request, hypervisor, form.cleaned_data['memory'], form.cleaned_data['vcpu'], form.cleaned_data['base'].volume.capacity):
+      name = InstanceTask.get_random_name()
+      task = InstanceCloneTask.objects.create(
+        name=name,
+        base=form.cleaned_data['base'],
+        user=form.cleaned_data['user'],
+        creator=request.user,
+        vcpu=form.cleaned_data['vcpu'],
+        memory=form.cleaned_data['memory']
+      )
+      _task = clone_instance.delay(task.pk)
+      task.task_id = _task.id
+      task.save()
+      messages.add_message(request, persistent_messages.INFO,
+        'Attempting to Clone Instance: %s' % (task))
+  
+      return redirect('/instance/')
+
   return render_to_response('instance/clone.html',
     {
     'form': form,
     },
     context_instance=RequestContext(request))
+
+@staff_member_required
+def base(request, name):
+  instance = get_object_or_404(Instance, name=name)
+  if instance.status != 5:
+    messages.add_message(request, persistent_messages.ERROR,
+      "Error Instance (%s) must be shutdown to convert into a Base Instance." % (instance))
+  else:
+    instance.is_base = True
+    instance.save()
+    messages.add_message(request, persistent_messages.SUCCESS,
+      "Instance (%s) marked as a Base Instance." % (instance))
+  return redirect('/instance/' + instance.name + '/')

@@ -1,6 +1,8 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('apps.instance.views',
+  url(r'^base/(?P<name>[0-9a-f]+)/', 'base'),
+  url(r'^clone/(?P<name>[0-9a-f]+)/', 'clone'),
   url(r'^clone/', 'clone'),
   url(r'^add/', 'add'),
   url(r'^search/', 'search'),
