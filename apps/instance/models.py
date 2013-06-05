@@ -65,7 +65,7 @@ class Instance(models.Model):
   user = models.ForeignKey(User, related_name="instance_user")
   creator = models.ForeignKey(User)
   # base/clone reference
-  is_base = models.BooleanField(default=False, editable=False)
+  is_base = models.BooleanField(default=False)
   base = models.ForeignKey('self', null=True, blank=True)
   # virtual attributes
   vcpu = models.IntegerField(max_length=2, default=1)

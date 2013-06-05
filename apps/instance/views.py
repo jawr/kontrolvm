@@ -300,7 +300,7 @@ def restart(request, name):
 
 @staff_member_required
 def index(request):
-  instances = Instance.objects.all().order_by('pk')
+  instances = Instance.objects.filter(is_base=False).order_by('pk')
   tasks = InstanceTask.objects.all()
   for instance in instances:
     instance.update()
@@ -514,7 +514,29 @@ def base(request, name):
       "Error Instance (%s) must be shutdown to convert into a Base Instance." % (instance))
   else:
     instance.is_base = True
+    for addr in instance.instancenetwork_set.all():
+      print addr
+      instance.detach_network(addr)
     instance.save()
     messages.add_message(request, persistent_messages.SUCCESS,
       "Instance (%s) marked as a Base Instance." % (instance))
-  return redirect('/instance/' + instance.name + '/')
+    return redirect('/instance/base/')
+  return redirect('/instance/')
+
+@staff_member_required
+def base_index(request):
+  instances = Instance.objects.filter(is_base=True).order_by('pk')
+  tasks = InstanceCloneTask.objects.all()
+  for instance in instances:
+    instance.update()
+  for task in tasks:
+    task.update()
+  return render_to_response('instance/bases.html', {
+      'instances': instances,
+      'tasks': tasks,
+    },
+    context_instance=RequestContext(request))
+
+@staff_member_required
+def base_search(request):
+  pass

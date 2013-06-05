@@ -26,7 +26,8 @@ class KontrolVM(object):
 
     if request.user.is_staff:
       request.hypervisor_count = Hypervisor.objects.all().count()
-      request.instance_count = Instance.objects.all().count()
+      request.instance_count = Instance.objects.filter(is_base=False).count()
+      request.base_count = Instance.objects.filter(is_base=True).count()
       request.storagepool_count = StoragePool.objects.all().count()
       request.installationdisk_count = InstallationDisk.objects.all().count()
       request.network_count = Network.objects.all().count()

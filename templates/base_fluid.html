@@ -18,7 +18,8 @@
               <li {% ifregex "/storagepool/" request.get_full_path %}class="active"{% endifregex %}><a href="/storagepool/"><i class="icon-hdd"></i> Storage Pools <span class="label pull-right">{{ request.storagepool_count }}</span></a></li>
               <li {% ifregex "/installationdisk/" request.get_full_path %}class="active"{% endifregex %}><a href="/installationdisk/"><i class="icon-download-alt"></i> Install Disks <span class="label pull-right">{{ request.installationdisk_count }}</span></a></li>
               <li {% ifregex "/network/" request.get_full_path %}class="active"{% endifregex %}><a href="/network/"><i class="icon-sitemap"></i> Network <span class="label pull-right">{{ request.network_count }}</span></a></li>
-              <li {% ifregex "/instance/" request.get_full_path %}class="active"{% endifregex %}><a href="/instance/"><i class="icon-laptop"></i> Instances <span class="label pull-right">{{ request.instance_count }}</span></a></li>
+              <li {% ifregex "/instance/base/" request.get_full_path %}class="active"{% endifregex %}><a href="/instance/base/"><i class="icon-anchor"></i> Bases <span class="label pull-right">{{ request.base_count }}</span></a></li>
+              <li {% if "/instance/" == request.get_full_path %}class="active"{% endif %}><a href="/instance/"><i class="icon-laptop"></i> Instances <span class="label pull-right">{{ request.instance_count }}</span></a></li>
               <li {% ifregex "/reversedns/" request.get_full_path %}class="active"{% endifregex %}><a href="/reversedns/"><i class="icon-legal"></i> ReverseDNS <span class="label pull-right">{{ request.rdns_req_count }}</span></a></li>
               <li class="divider"></li>
               <li><a href="/admin/"><i class="icon-beaker"></i> Django Admin</a></li>

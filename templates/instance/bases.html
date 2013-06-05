@@ -1,0 +1,147 @@
+{% extends 'base_fluid.html' %}
+{% block title %}Instances{% endblock %}
+{% block content %}
+  <h1>Bases <i class="icon-anchor"></i></h1>
+  <p>Overview of Bases</p>
+  {% if search %}<p><span class="label label-info">{{ search }}</span></p>{% endif %}
+  {% load size_utils %}
+  {% load pagination_tags %}
+  {% if instances %}
+    <table class="table table-condensed table-striped table-bordered">
+      <thead>
+        <th>Name</th>
+        <th>Alias</th>
+        <th>User</th>
+        <th>Creator</th>
+        <th>Created</th>
+        <th>VCPU</th>
+        <th>Memory</th>
+        <th>Capacity</th>
+        <th>IP</th>
+        <th>Clones</th>
+        <th>Status</th>
+        <th width="8" style="text-align:center;"><i class="icon-cog"></i></th>
+      </thead>
+
+      <tbody>
+        {% autopaginate instances 10 %}
+        {% for instance in instances %}
+          <tr>
+            <td><a href="/instance/{{ instance.name }}/">{{ instance.name|truncatechars:6 }}</a></td>
+            <td><a href="/instance/{{ instance.name }}/" rel="tooltip" title="{{ instance.alias }}" href="#">{{ instance.alias|truncatechars:12 }}</a></td>
+            <td><a href="#" rel="tooltip" title="{{ instance.user }}">{{ instance.user|truncatechars:12 }}</a></td>
+            <td><a href="#" rel="tooltip" title="{{ instance.creator }}">{{ instance.creator|truncatechars:12 }}</a></td>
+            <td><a rel="tooltip" title="{{ instance.created }}" href="#">{{ instance.created|date:"d/m/y" }}</a></td>
+            <td>{{ instance.vcpu }}</td>
+            <td>{{ instance.memory.name }}</td>
+            <td>{{ instance.volume.capacity.name }}</td>
+            <td>{{ instance.instancenetwork_set.all.0.ip }}</td>
+            <td>{{ instance.instance_set.all|length }}</td>
+            <td>{{ instance.get_status_html|safe }}</td>
+            <td>
+              <div class="dropdown">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                  <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu pull-right" role="menu">
+                  <li><a tabindex="-1" href="/instance/network/add/{{ instance.name }}/"><i class="icon-plus"></i> Add Address</a></li>
+                  <li class="divider"></li>
+                  {% if instance.status == 5 and instance.is_base %}
+                  <li><a tabindex="-1" href="/instance/clone/{{ instance.name }}/"><i class="icon-plus"></i> Clone</a></li>
+                  <li class="divider"></li>
+                  {% endif %}
+                  <li><a tabindex="-1" href="#" class="delete" id="{{ instance.name }}"><i class="icon-trash"></i> Delete Instance</a></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% paginate %}
+    <hr>
+  {% endif %}
+
+  <h4>Search Bases <i class="icon-zoom-in"></i> <small>Refine ye old list of servers..</small></h4>
+  <form method="POST" action="/instance/base/search/" class="form-search">
+    {% csrf_token %}
+    <select id="search-option" name="search-option" class="input-medium">
+      <option value="0">Alias</option>
+      <option value="1">Name</option>
+      <option value="2">User</option>
+      <option value="3">Creator</option>
+      <option value="4">IP</option>
+    </select>
+    <div class="input-append">
+      <input id="search-text" name="search-text" type="text" class="input-large search-query">
+      <button type="submit" class="btn">Search</button>
+    </div>
+  </form>
+      
+  {% if tasks %}
+    <h2>Tasks</h2>
+    <table class="table table-condensed table-striped table-bordered">
+      <thead>
+        <th>Name</th>
+        <th>Base</th>
+        <th>User</th>
+        <th>Creator</th>
+        <th>VCPU</th>
+        <th>Memory</th>
+        <th>Capacity</th>
+        <th>Progress</th>
+        <th>Message</th>
+        <th>Status</th>
+        <th>Started</th>
+        <th style="width: 15px;">Options</th>
+      </thead>
+
+      <tbody>
+        {% for task in tasks %}
+          <tr>
+            <td>{{ task.name|truncatechars:6 }}</td>
+            <td><a href="/instance/{{ task.base.name }}/" rel="tooltip" title="{{ task.base.alias }}">{{ task.base.alias|truncatechars:12 }}</a></td>
+            <td>{{ task.user }}</td>
+            <td>{{ task.creator }}</td>
+            <td>{{ task.vcpu }}</td>
+            <td>{{ task.memory.name }}</td>
+            <td>{{ task.capacity.name }}</td>
+            <td>
+              <div class="progress progress-striped active">
+                 <div class="bar" style="width: {{ task.percent }}%;"></div><span class="label pull-right">{{ task.percent|floatformat }}%</span>
+              </div>
+            </td>
+            <td><a href="#" rel="tooltip" title="{{ task.message }}">{{ task.message|truncatechars:"15" }}</a></td>
+            <td>{{ task.state }}</td>
+            <td><a href="#" rel="tooltip" title="{{ task.created }}">{{ task.created|date:"d/m/y" }}</a></td>
+            <td>
+              <a href="/instamce/restart/{{ task.id }}/" id="task-restart"><i id="{{ task.id }}" class="icon-repeat"></i></a>
+              <a href="#" id="delete-task"><i id="{{ task.id }}" class="icon-trash"></i></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+    <script>
+      $(function() {
+        // handle confirmation modal
+        $('a.delete').click(function(e) {
+          e.preventDefault();
+          bootbox.confirm("Are you sure you want to delete this Instance?", function(confirmed) {
+            if (confirmed) {
+              window.location = '/instance/delete/' + e.srcElement.id + '/';
+            }
+          });
+        });
+        $('a#delete-task').click(function(e) {
+          e.preventDefault();
+          bootbox.confirm("Are you sure you want to delete this Instance Task?", function(confirmed) {
+            if (confirmed) {
+              window.location = '/instance/delete-task/' + e.srcElement.id + '/';
+            }
+          });
+        });
+      });
+    </script>
+{% endblock %}
