@@ -9,3 +9,6 @@ class Size(models.Model):
 
   def __unicode__(self):
     return "%s (%d)" % (self.name, self.size)
+
+  class Meta:
+    ordering = ['size']
