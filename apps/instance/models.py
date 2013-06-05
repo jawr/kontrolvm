@@ -279,6 +279,29 @@ class Instance(models.Model):
   def get_vnc_password(self, request=None):
     return self.create_random_vnc_password(request)
 
+class InstanceCloneTask(models.Model):
+  name = models.CharField(max_length=100)
+  base = models.ForeignKey(Instance)
+  user = models.ForeignKey(User, related_name="instanceclonetask_user")
+  creator = models.ForeignKey(User)
+  vcpu = models.IntegerField(max_length=2, default=1)
+  memory = models.ForeignKey(Size, related_name="instanceclonetask_memory")
+  # time fields
+  updated = models.DateTimeField(auto_now=True)
+  created = models.DateTimeField(auto_now_add=True)
+  # task attributes
+  task_id = models.CharField(max_length=100, default='dummy')
+  percent = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+  message = models.CharField(max_length=255, default='N/A')
+  state = models.CharField(max_length=50, default='STARTING')
+
+  def __str__(self):
+    return unicode(self).encode('utf-8')
+
+  def __unicode__(self):
+    return "Cloning: %s [%d CPU/%s RAM/%s HDD][%s]" % \
+      (self.base.alias, self.vcpu, (self.memory.name), (self.capacity.name), self.state)
+
 class InstanceTask(models.Model):
   name = models.CharField(max_length=100)
   user = models.ForeignKey(User, related_name="instancetask_user")

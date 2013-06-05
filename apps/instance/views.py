@@ -3,8 +3,8 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404
-from apps.instance.models import Instance, InstanceTask
-from apps.instance.forms import InstanceTaskForm
+from apps.instance.models import Instance, InstanceTask, InstanceCloneTask
+from apps.instance.forms import InstanceTaskForm, InstanceCloneTaskForm
 from apps.installationdisk.forms import InstallationDisksForm
 from apps.instance.tasks import create_instance
 from apps.snapshot.forms import SnapshotForm
@@ -450,5 +450,14 @@ def network_add(request, name):
     {
       'form': form,
       'ip_form': ip_form,
+    },
+    context_instance=RequestContext(request))
+
+@staff_member_required
+def clone(request):
+  form = InstanceCloneTaskForm()
+  return render_to_response('instance/clone.html',
+    {
+    'form': form,
     },
     context_instance=RequestContext(request))

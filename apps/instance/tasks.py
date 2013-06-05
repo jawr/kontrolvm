@@ -6,6 +6,7 @@ from apps.storagepool.models import StoragePool
 from apps.volume.models import Volume
 from django.contrib import messages
 from django.http import HttpRequest
+from django.contrib.auth.models import User
 from xml.etree import ElementTree
 import persistent_messages
 import libvirt
@@ -63,26 +64,31 @@ INSTANCE_TEMPLATE = """
 """
 
 @task()
-def create_clone(instance_name):
+def create_clone(instance_clone_task_pk):
   try:
-    instance = Instance.objects.get(name=instance_name)
+    instance_clone_task = InstanceCloneTask.objects.get(pk=instance_clone_task_pk)
   except Instance.DoesNotExist:
     return {'custom_state': 'FAILURE', 'msg': 'Unable to find Instance with name: %s' % (instance_name)}
 
+  instance = instance_clone_task.base
   instance.update(True)
   if instance.status != 5:
-    return {'custom_state': 'FAILURE': 'msg': 'Error, Base Instance must be shutdown to clone'}
+    return {'custom_state': 'FAILURE', 'msg': 'Error, Base Instance must be shutdown to clone'}
 
   # clone volume
   volume = instance.volume.clone()
   if not volume:
-    return {'custom_state': 'FAILURE': 'msg': 'Unable to clone Base Instance\'s Volume'}
+    return {'custom_state': 'FAILURE', 'msg': 'Unable to clone Base Instance\'s Volume'}
 
 
-  new_instance_name = InstanceTask.get_random_name()
+  new_instance_name = InstanceCloneTask.name
 
-  xml = INSTANCE_TEMPLATE % (new_instance_name, instance.memory.size, instance.memory.size, 
-      instance.vcpu, volume.path(), volume.storagepool.hypervisor.address)
+  xml = INSTANCE_TEMPLATE % (
+      new_instance_name,
+      instance_clone_task.memory.size,
+      instance_clone_task.memory.size, 
+      instance_clone_task.vcpu,
+      volume.path(), volume.storagepool.hypervisor.address)
   
   try:
     con.defineXML(xml)
@@ -111,15 +117,16 @@ def create_clone(instance_name):
     name=new_instance_name,
     volume=volume,
     # fix this.. make a baseinstancetask?
-    user=instance.user,
-    creator=instance.user,
+    user=instance_clone_task.user,
+    creator=instance_clone_task.creator,
     #
-    vcpu=instance.vcpu,
-    memory=instance.memory,
-    disk=instance.disk,
+    vcpu=instance_clone_task.vcpu,
+    memory=instance_clone_task.memory,
     initialised=False
   )
   new_instance.save()
+
+  instance_clone_task.delete()
     
 
 @task()
