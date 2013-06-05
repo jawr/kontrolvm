@@ -18,7 +18,7 @@
         <th>Memory</th>
         <th>Capacity</th>
         <th>IP</th>
-        <th>Base</th>
+        <th style="text-align:center;">Base</th>
         <th>Status</th>
         <th width="8" style="text-align:center;"><i class="icon-cog"></i></th>
       </thead>
@@ -36,7 +36,14 @@
             <td>{{ instance.memory.name }}</td>
             <td>{{ instance.volume.capacity.name }}</td>
             <td>{{ instance.instancenetwork_set.all.0.ip }}</td>
-            <td><a href="/instance/{{ instance.base.name }}/" rel="tooltip" title="{{ instance.base.alias }}">{{ instance.base.alias|truncatechars:12 }}</a></td>
+            <td>
+                {% if instance.base %}
+                  <a href="/instance/{{ instance.base.name }}/" rel="tooltip" title="Base: {{ instance.base.alias }}"><i class="icon-leaf"></i></a>
+                {% endif %}
+                {% if instance.is_base %}
+                  <a href="#" rel="tooltip" title="Clones: {{ instance.instance_set.all|length }}"><i class="icon-anchor"></i></a>
+                {% endif %}
+            </td>
             <td>{{ instance.get_status_html|safe }}</td>
             <td>
               <div class="dropdown">
@@ -49,8 +56,9 @@
                   {% if instance.status == 5 %}
                   {% if instance.is_base %}
                   <li><a tabindex="-1" href="/instance/clone/{{ instance.name }}/"><i class="icon-plus"></i> Clone</a></li>
-                  {% endif %}
+                  {% else %}
                   <li><a tabindex="-1" href="#" class="base" id="{{ instance.name }}"><i class="icon-share"></i> Base Instance</a></li>
+                  {% endif %}
                   <li class="divider"></li>
                   {% endif %}
                   <li><a tabindex="-1" href="#" class="delete" id="{{ instance.name }}"><i class="icon-trash"></i> Delete Instance</a></li>
