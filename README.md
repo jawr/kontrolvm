@@ -9,9 +9,13 @@ Kontrol panel is an easy to deploy, easy to manage web application for managing 
 * Download installation media (asynchronously) ready for Instance's to mount
 * Create, delete and manage Instances
 * Create, manage and revert Snapshots
-* Attach/Dettach install media available on the Hypervisor
+* Attach/Detach install media available on the Hypervisor
 * Provide secure VNC access (over a VPN and only open whilst a HTTP session is also active)
 * Monitor Instance's resources
+* Create Base Instances
+* Clone Base Instances
+* Attach/Detach networks to/from Instances
+* Monitor network statistics per Instance or Network
 
 Installation Notes
 ==================
