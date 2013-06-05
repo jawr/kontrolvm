@@ -67,7 +67,7 @@ def create_clone(instance_name):
   try:
     instance = Instance.objects.get(name=instance_name)
   except Instance.DoesNotExist:
-    return {'custom_state': 'FAILURE': 'msg': 'Unable to find Instance with name: %s' % (instance_name)}
+    return {'custom_state': 'FAILURE', 'msg': 'Unable to find Instance with name: %s' % (instance_name)}
 
   instance.update(True)
   if instance.status != 5:
